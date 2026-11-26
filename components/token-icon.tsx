@@ -94,6 +94,16 @@ const MARKS: Record<string, { bg: string; mark: React.ReactNode }> = {
       </g>
     ),
   },
+  // The BNB Chain brand mark (public/brand/bnb-chain.svg), for "built on" credits; the BNB coin stays "BNB".
+  BNBCHAIN: {
+    bg: "transparent",
+    mark: <image href="/brand/bnb-chain.svg" x="0" y="0" width="32" height="32" />,
+  },
+  // bStocks' mark (public/brand/bstocks.svg, square), full size.
+  BSTOCKS: {
+    bg: "transparent",
+    mark: <image href="/brand/bstocks.svg" x="0" y="0" width="32" height="32" />,
+  },
   // Atlas Oracle's mark (public/brand/atlas.svg, 50×45), centred.
   ATLAS: {
     bg: "transparent",
