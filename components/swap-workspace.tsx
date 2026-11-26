@@ -206,7 +206,7 @@ export function SwapWorkspace() {
   // ---- live balances + quote (real DEX route) ----
   const balances = useDexBalances(live);
   /** BNB keeps a little back for gas, so "Use max" never strands the wallet. */
-  const GAS_BUFFER = parseEther("0.02");
+  const GAS_BUFFER = parseEther("0.001");
   const liveRaw = (symbol: string) => {
     const raw = balances.raw(symbol);
     if (symbol !== "BNB") return raw;
