@@ -1,62 +1,59 @@
 "use client";
 
-import { ArrowUpRightIcon, PlayIcon, PlusIcon, WalletIcon, XIcon } from "@phosphor-icons/react/ssr";
+import { ArrowRightIcon, ArrowUpRightIcon, PlusIcon, WalletIcon, XIcon } from "@phosphor-icons/react/ssr";
 import { useDemo } from "@/components/demo-provider";
 import { useRouter } from "next/navigation";
-import { useRef } from "react";
+import { useRef, useState, type CSSProperties } from "react";
 import { useConnectWallet } from "@/components/beta-access";
-import { cleanButton, cleanDialog, cn, dialogClose, dialogHeader } from "@/components/clean-ui";
-import { NetworkSwitch } from "@/components/network-switch";
-import { appChain } from "@/lib/chain";
-
-const walletRow = "flex min-h-[72px] w-full items-center gap-3.5 rounded-lg border border-border px-4 text-left transition-colors hover:border-black disabled:opacity-40 disabled:hover:border-border";
-const rowIcon = "grid size-10 shrink-0 place-items-center rounded-full bg-surface-muted";
+import { cleanButton, cleanDialog, cn, dialogClose, dialogFooter, dialogHeader, dialogLabel } from "@/components/clean-ui";
 
 /**
- * "Connect": a centred connect modal with the Testnet / Mainnet switch and the ways in, the same panel as the
- * testnet app. `navAnchor` is kept for callers; the modal no longer drops from the nav button.
+ * "Connect": opens the get-started panel just under the nav's connect button (top right), or under whichever button
+ * opened it when the nav one isn't shown; on phones it sits in the middle of the screen (.drop-panel in globals.css).
+ * `navAnchor` marks the nav's button as that anchor.
+ * `icon`: a + after the label that spins on hover (everywhere), or a wallet before it (the nav only).
  */
-/** `icon`: a + after the label that spins on hover (everywhere), or a wallet before it (the nav only). */
 export function WalletEntry({ className = cleanButton.solid, disabled = false, navAnchor = false, icon = "plus" }: { className?: string; disabled?: boolean; navAnchor?: boolean; icon?: "wallet" | "plus" }) {
   const demo = useDemo();
   const dialog = useRef<HTMLDialogElement>(null);
+  const [place, setPlace] = useState<CSSProperties>();
   const close = () => dialog.current?.close();
+  function open(trigger: HTMLElement) {
+    const nav = document.querySelector<HTMLElement>("[data-wallet-anchor]");
+    const anchor = nav && nav.getClientRects().length > 0 ? nav : trigger;
+    const r = anchor.getBoundingClientRect();
+    // Right edge under the anchor's right edge, but never past either side: on narrow screens the panel is nearly
+    // full width, so it slides right until its left edge sits 16px in (matches w-[min(380px,calc(100vw-32px))]).
+    const width = Math.min(380, window.innerWidth - 32);
+    setPlace({ top: r.bottom + 8, right: Math.min(Math.max(16, window.innerWidth - r.right), window.innerWidth - width - 16) });
+    dialog.current?.showModal();
+  }
   const { openConnect } = useConnectWallet();
   const router = useRouter();
 
   return <>
-    <button type="button" className={className} disabled={disabled} aria-haspopup="dialog" data-wallet-anchor={navAnchor || undefined} onClick={() => dialog.current?.showModal()}>
+    <button type="button" className={className} disabled={disabled} aria-haspopup="dialog" data-wallet-anchor={navAnchor || undefined} onClick={(e) => open(e.currentTarget)}>
       {icon === "wallet" && <WalletIcon className="size-4" aria-hidden="true" />}
       <span>Connect<span className="wallet-word"> wallet</span></span>
       {icon === "plus" && <PlusIcon className="plus-spin" aria-hidden="true" />}
     </button>
-    <dialog ref={dialog} aria-label="Connect a wallet" className={cn(cleanDialog, "w-[min(460px,calc(100vw-24px))] max-h-[calc(100dvh-48px)]")} onClick={(event) => { if (event.target === event.currentTarget) close(); }}>
+    <dialog ref={dialog} style={place} aria-labelledby="get-started-title" className={cn(cleanDialog, "drop-panel inset-auto m-0 w-[min(380px,calc(100vw-32px))] max-h-[calc(100dvh-96px)]")} onClick={(event) => { if (event.target === event.currentTarget) close(); }}>
       <header className={dialogHeader}>
-        <h2 className="text-lg leading-tight font-normal">Connect</h2>
+        <span className={dialogLabel}>[ get started ]</span>
         <button type="button" className={dialogClose} aria-label="Close" onClick={close}><XIcon /></button>
       </header>
-      <div className="flex flex-col gap-6 p-5 phone:p-6">
-        <NetworkSwitch wide />
-        <div className="flex flex-col gap-2.5">
-          <button type="button" className={walletRow} onClick={() => { close(); demo.exit(); openConnect(); }}>
-            <span className={rowIcon}><WalletIcon className="size-5" aria-hidden="true" /></span>
-            <span className="min-w-0 flex-1">
-              <span className="block text-base">Wallet or email</span>
-              <span className="block truncate text-[13px] text-muted">Email, Google or a wallet</span>
-            </span>
-            <ArrowUpRightIcon className="size-4 text-muted" aria-hidden="true" />
-          </button>
-          <button type="button" className={walletRow} onClick={() => { close(); demo.start(); router.push("/packs"); }}>
-            <span className={rowIcon}><PlayIcon className="size-5" aria-hidden="true" /></span>
-            <span className="min-w-0 flex-1">
-              <span className="block text-base">Try the demo</span>
-              <span className="block text-[13px] text-muted">No wallet needed</span>
-            </span>
-            <ArrowUpRightIcon className="size-4 text-muted" aria-hidden="true" />
-          </button>
-        </div>
+      <div className="p-6">
+        <h2 id="get-started-title" className="text-3xl leading-[1.1] font-light tracking-[-0.02em]">Your next move.</h2>
+        <p className="mt-4 text-sm leading-relaxed text-muted">Connect to trade and collect, or take a look around.</p>
       </div>
-      <p className="border-t border-border px-5 py-4 text-[13px] text-muted phone:px-6">{appChain.name}</p>
+      <div className={cn(dialogFooter, "flex flex-col gap-3")}>
+        <button type="button" className={cn(cleanButton.solid, "w-full justify-between")} onClick={() => { close(); demo.exit(); openConnect(); }}>
+          Connect wallet <ArrowUpRightIcon weight="bold" className="arrow-nudge" aria-hidden="true" />
+        </button>
+        <button type="button" className={cn(cleanButton.outline, "w-full justify-between")} onClick={() => { close(); demo.start(); router.push("/packs"); }}>
+          Try demo <ArrowRightIcon weight="bold" className="arrow-slide" aria-hidden="true" />
+        </button>
+      </div>
     </dialog>
   </>;
 }
