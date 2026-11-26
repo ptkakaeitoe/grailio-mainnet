@@ -56,7 +56,7 @@ export const ui = {
   /** Compact room row so every room fits above the profile footer without scrolling. */
   roomRow: "flex w-full min-w-0 items-center gap-2.5 rounded-md border border-border px-3 py-2 text-left transition-colors hover:border-black aria-[current=true]:border-black",
   empty: "flex flex-1 flex-col items-center justify-center gap-6 px-4 py-10 text-center",
-  emptyTitle: "text-[clamp(28px,3vw,40px)] leading-[1.15] font-normal tracking-[-0.02em] [&>span]:text-muted-soft",
+  emptyTitle: "text-[clamp(28px,3vw,40px)] leading-[1.15] font-light tracking-[-0.02em] [&>span]:text-muted-soft",
   iconButton: "grid size-10 shrink-0 place-items-center rounded-md border border-border-strong text-black transition-colors hover:border-black disabled:cursor-not-allowed disabled:opacity-35",
   avatar: "grid size-9 shrink-0 place-items-center rounded-full bg-surface-muted text-xs text-muted uppercase",
   /** Shared by the composer and the rooms footer so their rules line up: a 48px row, then one note line. */
@@ -239,7 +239,7 @@ export function CommunityWorkspace() {
       <section className={cn("flex min-h-0 min-w-0 flex-1 flex-col desk:pl-8", mobileChat ? "" : "max-desk:hidden")} aria-label={entry ? title : "Room"}>
         <header className="flex shrink-0 items-center gap-3 border-b border-border pt-6 pb-4 desk:pt-10 desk:pb-5">
           <button type="button" className={cn(ui.iconButton, "desk:hidden")} aria-label="Back to rooms" onClick={() => setMobileChat(false)}><Icon name="back" /></button>
-          <h2 className="min-w-0 truncate py-0.5 text-[28px] leading-[1.2] font-normal tracking-tight">{title}</h2>
+          <h2 className="min-w-0 truncate py-0.5 text-[28px] leading-[1.2] font-light tracking-tight">{title}</h2>
           <span className={cn(ui.label, "shrink-0 whitespace-nowrap max-phone:hidden")}>[ {gated || room?.encrypted ? "encrypted" : "public"} ]</span>
           <div className="ml-auto flex gap-2">
             <button className={ui.iconButton} type="button" aria-label="Search messages" aria-expanded={searchOpen} disabled={!canRead} onClick={() => { setSearchOpen(!searchOpen); setSearch(""); }}><Icon name="search" size={18} /></button>
@@ -329,7 +329,7 @@ export function CommunityWorkspace() {
         <header className="sticky top-0 z-10 bg-white flex items-center justify-between border-b border-border px-6 py-3"><span className={ui.label}>[ {room?.encrypted ? "holders" : "members"} ]</span><button type="button" className={cn(dialogClose, "hover:bg-black/5")} aria-label="Close members" onClick={() => membersDialog.current?.close()}><Icon name="close" size={18} /></button></header>
         <div className="px-6 pt-4 pb-10">
           <div className="flex items-baseline justify-between gap-3">
-            <h2 id="members-title" className="min-w-0 truncate text-[28px] leading-[1.1] font-normal tracking-tight">{entry?.title ?? "Members"}</h2>
+            <h2 id="members-title" className="min-w-0 truncate text-[28px] leading-[1.1] font-light tracking-tight">{entry?.title ?? "Members"}</h2>
             {!membersLoading && <span className={ui.label}>[{pad(roomMembers.length)}]</span>}
           </div>
           {membersLoading && roomMembers.length === 0 ? (

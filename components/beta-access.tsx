@@ -141,7 +141,7 @@ function BetaCodeDialog({ dialog, open, onUnlocked }: { dialog: React.RefObject<
       {/* `contents`: the form's parts sit straight in the dialog's column, so its button pins to the bottom. */}
       <form onSubmit={submit} className="contents">
         <div className="p-6">
-          <h2 id="beta-code-title" className="text-3xl leading-[1.15] font-normal tracking-[-0.02em]">Enter your beta code.</h2>
+          <h2 id="beta-code-title" className="text-3xl leading-[1.15] font-light tracking-[-0.02em]">Enter your beta code.</h2>
           <p className="mt-3 text-sm leading-relaxed text-muted">
             Connecting a wallet is invite-only for now. Demo mode is open to everyone.
           </p>

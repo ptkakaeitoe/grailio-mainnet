@@ -42,7 +42,7 @@ export function ProfileWorkspace() {
         <h1 className="sr-only">Profile</h1>
         <div className="flex flex-col items-center gap-5 rounded-md border border-dashed border-border-strong px-6 py-16 text-center">
           <p className={sectionLabel}>[ wallet ]</p>
-          <h2 className="text-[clamp(28px,3vw,40px)] leading-[1.15] font-normal tracking-[-0.02em]">Your profile.<br /><span className="text-muted-soft">Connect to see it.</span></h2>
+          <h2 className="text-[clamp(28px,3vw,40px)] leading-[1.15] font-light tracking-[-0.02em]">Your profile.<br /><span className="text-muted-soft">Connect to see it.</span></h2>
           <WalletEntry className={cleanButton.solid} />
         </div>
       </div>

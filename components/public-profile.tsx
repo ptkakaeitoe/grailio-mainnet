@@ -139,7 +139,7 @@ function Missing({ title, body, action }: { title: string; body?: string; action
     <div className="pt-6 pb-16 desk:pt-10">
       <div className="mt-4 flex flex-col items-center gap-4 rounded-md border border-dashed border-border-strong px-6 py-16 text-center">
         <p className={sectionLabel}>[ profile ]</p>
-        <h1 className="text-[clamp(24px,3vw,34px)] leading-[1.15] font-normal tracking-[-0.02em]">{title}</h1>
+        <h1 className="text-[clamp(24px,3vw,34px)] leading-[1.15] font-light tracking-[-0.02em]">{title}</h1>
         {body && <p className="text-sm text-muted">{body}</p>}
         {action}
       </div>

@@ -50,7 +50,7 @@ export const revealFrame = {
   /** With the stage: once a card is revealed, a tighter stage so card, details and actions fit without scrolling. */
   stageRevealed: "min-h-0 py-6",
   body: "p-5 phone:p-6",
-  title: "text-[28px] leading-[1.2] font-normal tracking-tight",
+  title: "text-[28px] leading-[1.2] font-light tracking-tight",
   note: "mt-1 text-sm text-muted tabular-nums",
   details: "mt-4 border-t border-border",
   row: "flex items-baseline justify-between gap-3 border-b border-border py-2.5 text-sm tabular-nums",

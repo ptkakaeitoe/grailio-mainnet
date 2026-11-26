@@ -1,11 +1,18 @@
 import type { Metadata, Viewport } from "next";
-import { Geist_Mono, Inter, Syne } from "next/font/google";
+import { DM_Sans, Geist_Mono, Outfit, Syne } from "next/font/google";
 import "./globals.css";
 
 import { Providers } from "./providers";
 
-const inter = Inter({
-  variable: "--font-inter",
+/** Body text: DM Sans. */
+const dmSans = DM_Sans({
+  variable: "--font-dm-sans",
+  subsets: ["latin"],
+});
+
+/** Titles (h1–h3): Outfit (see the base layer in globals.css). */
+const outfit = Outfit({
+  variable: "--font-outfit",
   subsets: ["latin"],
 });
 
@@ -43,7 +50,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="en"
-      className={`${inter.variable} ${geistMono.variable} ${brandFont.variable} h-full antialiased`}
+      className={`${dmSans.variable} ${outfit.variable} ${geistMono.variable} ${brandFont.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
         <Providers>{children}</Providers>

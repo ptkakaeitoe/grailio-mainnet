@@ -24,7 +24,7 @@ export function CollectionWelcome({ label, title, body, action }: { label: strin
         ))}
       </div>
       <p className="eyebrow text-base text-muted">[ {label} ]</p>
-      <h3 className="text-[clamp(28px,3vw,40px)] leading-[1.15] font-normal tracking-[-0.02em]">{title}<br /><span className="text-muted-soft">{body}</span></h3>
+      <h3 className="text-[clamp(28px,3vw,40px)] leading-[1.15] font-light tracking-[-0.02em]">{title}<br /><span className="text-muted-soft">{body}</span></h3>
       <div>{action}</div>
     </div>
   );

@@ -147,7 +147,7 @@ function ChatHeader({ title, label, onBack }: { title: string; label: string; on
   return (
     <header className="flex shrink-0 items-center gap-3 border-b border-border pt-6 pb-4 desk:pt-10 desk:pb-5">
       <button type="button" className={cn(ui.iconButton, "desk:hidden")} aria-label="Back to rooms" onClick={onBack}><CaretLeftIcon size={20} /></button>
-      <h2 className="min-w-0 truncate py-0.5 text-[28px] leading-[1.2] font-normal tracking-tight">{title}</h2>
+      <h2 className="min-w-0 truncate py-0.5 text-[28px] leading-[1.2] font-light tracking-tight">{title}</h2>
       <span className={cn(ui.label, "shrink-0 whitespace-nowrap max-phone:hidden")}>[ {label} ]</span>
     </header>
   );

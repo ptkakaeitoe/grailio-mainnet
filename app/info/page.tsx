@@ -99,7 +99,7 @@ const usd = (n: number) => `$${n.toLocaleString("en-US", { minimumFractionDigits
 
 const chapter = "mb-12 border-b border-border pb-12 last:mb-0 last:border-b-0";
 const chapterLabel = "text-sm text-muted";
-const chapterTitle = "mt-3.5 mb-6 text-[clamp(28px,2.7vw,40px)] leading-[1.2] font-normal tracking-[-0.02em]";
+const chapterTitle = "mt-3.5 mb-6 text-[clamp(28px,2.7vw,40px)] leading-[1.2] font-light tracking-[-0.02em]";
 const chapterBody = "my-4 max-w-[710px] text-base leading-relaxed text-muted";
 const inlineLink = "inline-flex items-center gap-1 text-black underline underline-offset-[3px]";
 const rarityCell = "border-b border-border px-3 py-3.5 font-normal whitespace-nowrap first:pl-0";

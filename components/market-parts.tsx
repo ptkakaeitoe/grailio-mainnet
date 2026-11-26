@@ -11,7 +11,7 @@ import { Holo, StockCardFront, tilt } from "@/components/stock-card-front";
 import type { StockCard } from "@/lib/cards";
 
 /** Section title and bracketed label, as on /trade and /dao. */
-export const sectionTitle = "text-[28px] leading-[1.2] font-normal tracking-tight";
+export const sectionTitle = "text-[28px] leading-[1.2] font-light tracking-tight";
 export const sectionLabel = "text-base text-muted";
 
 /** Two hairline-split columns (listings | sell), like /trade's swap and chart. */

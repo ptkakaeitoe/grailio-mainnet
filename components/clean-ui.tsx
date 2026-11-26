@@ -65,7 +65,7 @@ export const revealUi = {
   content: "relative p-6 text-center phone:p-8",
   close: "absolute top-2 right-3 grid size-10 place-items-center text-[28px]",
   stage: "relative isolate mt-3 mb-6 grid h-[300px] place-items-center",
-  heading: "text-[30px] leading-[1.15] font-normal tracking-[-0.02em]",
+  heading: "text-[30px] leading-[1.15] font-light tracking-[-0.02em]",
   body: "mt-3 mb-6 text-sm text-muted",
   actions: "flex flex-col items-center justify-center gap-5",
   count:
@@ -89,7 +89,7 @@ export function SectionHeading({
     <div className="mb-10 grid grid-cols-1 items-start gap-4 border-t border-border pt-6 desk:mb-16 desk:grid-cols-2 desk:gap-8">
       <p className="text-sm text-black">[ {label} ]</p>
       <div>
-        <h2 className="text-[clamp(36px,3.8vw,48px)] leading-[1.15] font-normal tracking-[-0.02em]">
+        <h2 className="text-[clamp(36px,3.8vw,48px)] leading-[1.15] font-light tracking-[-0.02em]">
           {title}
           {subtitle && (
             <>
@@ -138,7 +138,7 @@ export function PageHeading({
     <header className="trade-heading grid grid-cols-1 items-start gap-4 pt-6 pb-10 desk:grid-cols-2 desk:gap-8 desk:pt-10 desk:pb-16">
       <p className="text-sm text-black">[ {label} ]</p>
       <div>
-        <h1 className="text-[clamp(40px,5vw,64px)] leading-[1.08] font-normal tracking-[-0.02em]">
+        <h1 className="text-[clamp(40px,5vw,64px)] leading-[1.08] font-light tracking-[-0.02em]">
           {title}
           {subtitle && (
             <>
