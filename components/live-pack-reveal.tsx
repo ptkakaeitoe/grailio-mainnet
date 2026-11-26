@@ -12,6 +12,8 @@ import { cleanButton, cleanDialog, cn, dialogClose, dialogFooter } from "@/compo
 import { BackingValue, PackRevealArt, RevealedCard, revealFrame } from "@/components/pack-reveal-art";
 import { tickerForAsset, collectPacksAbi, collectPacksAddress } from "@/lib/collect-packs";
 import { PACK_TIERS, RARITY_NAMES } from "@/lib/contracts";
+import { basketForTier } from "@/lib/stock-assets";
+import { TokenIcon } from "@/components/token-icon";
 import type { MyPack } from "@/lib/use-my-packs";
 import { playReveal, playTear, unlockAudio } from "@/lib/sfx";
 import { txErrorMessage } from "@/lib/tx-error";
@@ -144,13 +146,14 @@ export function LivePackReveal({
           </h2>
           {phase !== "sealed" && (
             <p className={cn(revealFrame.note, phase === "failed" ? "text-down" : "")}>
-              {revealed ? `${RARITY_NAMES[revealed.card.rarity]} · ${revealed.card.ticker}${revealed.card.expired ? " · opened late" : ""}` : phase === "failed" ? message : phase === "confirm" ? "One transaction" : "Rolling token and rarity on-chain"}
+              {revealed ? `${RARITY_NAMES[revealed.card.rarity]} · ${revealed.card.ticker}${revealed.card.expired ? " · opened late" : ""}` : phase === "failed" ? message : phase === "confirm" ? "One transaction" : tierId != null ? `Draws from: ${basketForTier(tierId).join(" · ")}` : "Opening on-chain"}
             </p>
           )}
         </div>
         {revealed && (
           <dl className={revealFrame.details}>
             <div className={revealFrame.row}><dt className="text-muted">Pack</dt><dd>{packName}{tier ? ` · $${tier.price}` : ""}</dd></div>
+            <div className={revealFrame.row}><dt className="text-muted">Stock</dt><dd className="inline-flex items-center gap-1.5"><TokenIcon symbol={revealed.card.ticker} className="size-4" />{revealed.card.ticker}</dd></div>
             <div className={revealFrame.row}><dt className="text-muted">Rarity</dt><dd>{RARITY_NAMES[revealed.card.rarity]}</dd></div>
             <div className={revealFrame.row}>
               <dt className="text-muted">Backing</dt>

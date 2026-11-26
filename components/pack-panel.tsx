@@ -31,6 +31,8 @@ import { EDITIONS, editionForTier } from "@/lib/editions";
 import { txErrorMessage } from "@/lib/tx-error";
 import { cleanButton, cn, RARITY_DOT } from "@/components/clean-ui";
 import { PackArt } from "@/components/pack-art";
+import { TokenIcon } from "@/components/token-icon";
+import { basketForTier } from "@/lib/stock-assets";
 
 /** The $1 pack is paid in USDC only. */
 const PAYMENTS = ["USDC"].map(token => ({ token, label: token }));
@@ -352,6 +354,12 @@ export function PackPanel() {
             </button>
           </div>
           <p className="featured-pack-subtitle mt-1 text-base text-muted">{edition.subtitle}</p>
+          {/* The five stocks this edition draws from (every risk level). */}
+          <ul className="pack-basket mt-4 flex list-none flex-wrap gap-1.5 p-0" aria-label="Draws from">
+            {basketForTier(edition.tier).map((ticker) => (
+              <li key={ticker} className="inline-flex h-8 items-center gap-1.5 rounded-md border border-border px-2.5 text-sm"><TokenIcon symbol={ticker} className="size-4" />{ticker}</li>
+            ))}
+          </ul>
         </div>
         {/* Risk: the same pack at Low, Medium or High risk. */}
         {(edition.live || edition.comingSoon) && (edition.tiers?.length ?? 0) > 1 && (
@@ -367,7 +375,7 @@ export function PackPanel() {
                   className="flex min-w-0 flex-col gap-0.5 rounded-md border border-border px-3 py-2.5 text-left transition-colors hover:border-black aria-pressed:border-black"
                 >
                   <strong className="text-base font-normal">{t.level}</strong>
-                  <span className="truncate text-[13px] text-muted">{tierOn[id] === false && !demo.active ? "Coming soon" : TIER_BUDGETS[id] !== undefined && !demo.active && tierUsage ? (packsLeft(id, tierUsage[id] ?? 0) > 0 ? <><span className="tabular-nums">{packsLeft(id, tierUsage[id] ?? 0)}</span> left</> : "Sold out") : !demo.active ? <span aria-label="Unlimited">∞</span> : <span className="tabular-nums">{t.range.replace(" in tokens", "")}</span>}</span>
+                  <span className="truncate text-[13px] text-muted">{tierOn[id] === false && !demo.active ? "Coming soon" : TIER_BUDGETS[id] !== undefined && !demo.active && tierUsage ? (packsLeft(id, tierUsage[id] ?? 0) > 0 ? <><span className="tabular-nums">{packsLeft(id, tierUsage[id] ?? 0)}</span> left</> : "Sold out") : !demo.active ? <span aria-label="Unlimited">∞</span> : <span className="tabular-nums">{t.range.replace(" in stocks", "")}</span>}</span>
                 </button>
               );
             })}

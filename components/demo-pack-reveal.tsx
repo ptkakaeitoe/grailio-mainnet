@@ -5,8 +5,8 @@ import { ArrowUpRightIcon, XIcon } from "@phosphor-icons/react/ssr";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { useDemo } from "@/components/demo-provider";
-// Demo mode uses the stock set.
-import { DEMO_STOCK_CARDS as STOCK_CARDS } from "@/lib/cards";
+import { basketForTier } from "@/lib/stock-assets";
+import { TokenIcon } from "@/components/token-icon";
 import { PACK_TIERS, RARITY_NAMES } from "@/lib/contracts";
 import { useStockPrices } from "@/lib/use-stock-prices";
 import type { DemoCard } from "@/lib/demo-economy";
@@ -21,7 +21,9 @@ export function DemoPackReveal({ onClose, purchasedCount }: { onClose: () => voi
   const [phase, setPhase] = useState<"purchased" | "opening" | "revealed">("purchased");
   const [revealed, setRevealed] = useState<DemoCard | null>(null);
   const { byTicker, failed } = useStockPrices(15_000); // refresh faster while the dialog is open
-  const prices = Object.fromEntries(STOCK_CARDS.map(c => [c.ticker, byTicker[c.ticker]?.price ?? 0]));
+  // Each pack draws from its edition's basket; only those prices are needed.
+  const basket = basketForTier(demo.packs[0] ?? 0);
+  const prices = Object.fromEntries(basket.map(t => [t, byTicker[t]?.price ?? 0]));
   const quotesReady = !failed && Object.values(prices).every(p => Number.isFinite(p) && p > 0);
   const [message, setMessage] = useState("");
   useEffect(() => { dialog.current?.showModal(); }, []);
@@ -61,11 +63,12 @@ export function DemoPackReveal({ onClose, purchasedCount }: { onClose: () => voi
     <div className={phase === "purchased" && !message ? "sr-only" : revealFrame.body}>
       <div role="status" aria-live="polite">
         <h2 id="pack-celebration-title" className={phase === "purchased" ? "sr-only" : revealFrame.title}>{phase === "purchased" ? `${left} ${left === 1 ? "pack" : "packs"} ready` : phase === "opening" ? "Opening…" : card?.name}</h2>
-        {phase !== "purchased" && <p className={revealFrame.note}>{phase === "opening" ? "Breaking the seal" : revealed ? `${RARITY_NAMES[revealed.rarity]} · ${revealed.ticker} · simulated` : ""}</p>}
+        {phase !== "purchased" && <p className={revealFrame.note}>{phase === "opening" ? `Draws from: ${basketForTier(tierId ?? 0).join(" · ")}` : revealed ? `${RARITY_NAMES[revealed.rarity]} · ${revealed.ticker} · simulated` : ""}</p>}
       </div>
       {revealed && phase === "revealed" && (
         <dl className={revealFrame.details}>
           <div className={revealFrame.row}><dt className="text-muted">Pack</dt><dd>{packName}{tier ? ` · $${tier.price}` : ""}</dd></div>
+          <div className={revealFrame.row}><dt className="text-muted">Stock</dt><dd className="inline-flex items-center gap-1.5"><TokenIcon symbol={revealed.ticker} className="size-4" />{revealed.ticker}</dd></div>
           <div className={revealFrame.row}><dt className="text-muted">Rarity</dt><dd>{RARITY_NAMES[revealed.rarity]}</dd></div>
           <div className={revealFrame.row}><dt className="text-muted">Backing</dt><dd><BackingValue ticker={revealed.ticker} usd={tier?.backing[revealed.rarity] ?? 0} /></dd></div>
         </dl>

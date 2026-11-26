@@ -7,7 +7,7 @@ import { StockCardFront } from "@/components/stock-card-front";
 import { cleanDrawerRight, cn, dialogClose, RARITY_DOT } from "@/components/clean-ui";
 import { useEffect, useRef, useState } from "react";
 
-import { useCards } from "@/lib/use-cards";
+import { basketForTier } from "@/lib/stock-assets";
 import { PACK_TIERS, RARITY_NAMES } from "@/lib/contracts";
 import { editionForTier } from "@/lib/editions";
 import { usd } from "@/lib/use-stock-prices";
@@ -42,8 +42,8 @@ export function PackContentsDialog({
   // Only this pack's risks: Fable shows Low / Medium / High, not every pack's tiers.
   const edition = editionForTier(tierId);
   const options = edition.tiers ?? [edition.tier];
-  // The cards a pack can hold: stocks in demo mode, BNB Chain tokens otherwise.
-  const { cards } = useCards();
+  // Each edition draws from its own five stocks.
+  const basket = basketForTier(tierId);
 
   useEffect(() => {
     const el = dialog.current;
@@ -109,10 +109,10 @@ export function PackContentsDialog({
         </section>
 
         <section aria-labelledby="pack-coins-title" className={group}>
-          <h3 id="pack-coins-title" className={sectionTitle}>Holds one of</h3>
+          <h3 id="pack-coins-title" className={sectionTitle}>Draws from</h3>
           <div className="mt-4 flex flex-wrap gap-1.5">
-            {cards.map((card) => (
-              <span key={card.ticker} className="inline-flex h-9 items-center gap-1.5 rounded-md border border-border px-3 text-sm"><TokenIcon symbol={card.ticker} className="size-4" />{card.ticker}</span>
+            {basket.map((ticker) => (
+              <span key={ticker} className="inline-flex h-9 items-center gap-1.5 rounded-md border border-border px-3 text-sm"><TokenIcon symbol={ticker} className="size-4" />{ticker}</span>
             ))}
           </div>
         </section>

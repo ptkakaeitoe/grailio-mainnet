@@ -4,6 +4,7 @@ import { createContext, useContext, useSyncExternalStore } from "react";
 import { PACK_TIERS } from "@/lib/contracts";
 // Demo mode uses the stock set.
 import { DEMO_STOCK_CARDS as STOCK_CARDS } from "@/lib/cards";
+import { basketForTier } from "@/lib/stock-assets";
 import { newDemoCode } from "@/lib/gift-code";
 import { readDemo, resetDemoStorage, serverDemo, subscribeDemo, writeDemo } from "@/lib/demo-store";
 import { initialDemo, buyDemoPacks, openDemoPack, actOnDemoCard, pendingDemoReward, demoStakingNow, seedDemoListings, buyDemoListing, listDemoCard, cancelDemoListing, buyDemoGift, claimDemoGift, cancelDemoGift, type DemoCard, type DemoGift, type DemoCurrency, type DemoListing, type DemoState } from "@/lib/demo-economy";
@@ -67,7 +68,7 @@ export function DemoProvider({ children }: { children: React.ReactNode }) {
   function openPack(prices: Record<string, number>) {
     const tier = PACK_TIERS.find(t => t.id === ledger.current.packs[0]);
     if (!active || !tier) return null;
-    const next = openDemoPack(ledger.current, tier, STOCK_CARDS.map(c => c.ticker), prices, Math.random(), Math.random(), Date.now());
+    const next = openDemoPack(ledger.current, tier, basketForTier(tier.id), prices, Math.random(), Math.random(), Date.now());
     if (!next) return null;
     publish(next.state); return next.card;
   }

@@ -34,23 +34,31 @@ This Next.js version has breaking changes from older releases: read `AGENTS.md` 
 | `/info` | Field guide and contract table |
 | `/v2` | Minimal black-and-white test UI over the same code |
 
-Cards hold tokenized stocks (bStocks), listed in `lib/stock-assets.ts` and priced on chain by Atlas Oracle. Older cards may hold BTCB, ETH, WBNB, LINK or CAKE. Payments are in USDC (and BNB on the marketplace). DAO votes use non-transferable points; there is no Grailio token.
+Cards hold tokenized stocks (bStocks), listed in `lib/stock-assets.ts` and priced on chain by Atlas Oracle. Payments are in USDC (and BNB on the marketplace). DAO votes use non-transferable points; there is no Grailio token.
 
 ## How it works
 
 ### Packs
 
-Every pack costs **$1 in USDC** and earns **1 DAO point**. Each card holds one random tokenized stock from `lib/stock-assets.ts` (older cards: BTCB, ETH, WBNB, LINK or CAKE). Gas is paid in BNB. The three $1 tiers that `contracts/script/MainnetConfig.sol` adds:
+Packs come in three editions, each with Low, Medium and High risk. Every pack earns **1 DAO point** (whatever its price), and each card holds one tokenized stock from **its edition's basket** (`baskets` in `contracts/script/stocks.mainnet.json`):
 
-| Pack (risk) | Common | Rare | Epic | Legendary | Average in tokens |
+| Edition | Price | Basket | Tiers (Low / Medium / High) |
+| --- | --- | --- | --- |
+| Fable | $1 | NVDA, AAPL, TSLA, GOOGL, AMZN | 0 / 1 / 2 |
+| Saga | $3 | SPY, QQQ, BABA, NFLX, EWJ | 3 / 4 / 5 |
+| Mythos | $5 | SPCX, ANT, SKHY, EWY, EWT | 6 / 7 / 8 |
+
+Odds and card values per $1 of price (Saga is ×3, Mythos ×5), as `contracts/script/MainnetConfig.sol` adds them:
+
+| Risk | Common | Rare | Epic | Legendary | Average in tokens |
 | --- | --- | --- | --- | --- | --- |
-| Low (tier 0) | 50% · $0.95 | 25% · $0.95 | 20% · $0.95 | 5% · $0.95 | $0.95 (5% edge) |
-| Medium (tier 1) | 50% · $0.46 | 25% · $0.80 | 20% · $1.40 | 5% · $4.00 | $0.91 (9% edge) |
-| High (tier 2) | 60% · $0.20 | 25% · $0.60 | 12% · $2.80 | 3% · $10.13 | $0.91 (9% edge) |
+| Low | 50% · $0.95 | 25% · $0.95 | 20% · $0.95 | 5% · $0.95 | $0.95 (5% edge) |
+| Medium | 50% · $0.46 | 25% · $0.80 | 20% · $1.40 | 5% · $4.00 | $0.91 (9% edge) |
+| High | 60% · $0.20 | 25% · $0.60 | 12% · $2.80 | 3% · $10.13 | $0.91 (9% edge) |
 
-In the Low pack every card holds the same $0.95; rarity only sets the card's staking multiplier. `PACK_TIERS` in `lib/contracts.ts` also lists $3 and $5 packs (tiers 3 to 9); those are not added by `MainnetConfig.sol` and would have to be added on chain in id order.
+In a Low pack every card holds the same 95% of the price; rarity only sets the card's staking multiplier. The deploy puts the three Low tiers on sale; Medium and High need a seeded pool and are switched on later (`setTierActive`). Gas is paid in BNB.
 
-**Where the $1 goes:** into the pack contract's USDC pool. When a pack opens, the contract swaps the card's value from USDC into its token on PancakeSwap v3 (USDC → WBNB through the 0.01% pool, then WBNB → token through that token's deepest WBNB pool) and locks it in the card. Each swap must return at least the Chainlink fair amount minus that asset's slippage limit (1.5% BTCB and WBNB, 2% ETH, 4% LINK and CAKE); if it can't, the card is minted holding its value in USDC and anyone can `fill` it later. The difference between the price and the card value is profit, which `distribute()` shares out to staking and the DAO. The owner can only withdraw USDC above what unopened packs and unfilled cards could still pay out, and never tokens locked in cards. Odds live in `PACK_TIERS` (`lib/contracts.ts`) and `contracts/script/MainnetConfig.sol`.
+**Where the money goes:** into the pack contract's USDC pool. When a pack opens, the contract picks a stock uniformly from the tier's basket (active assets only), swaps the card's value from USDC into that bStock on PancakeSwap v3 (USDC → USDT → bStock, routes in `stocks.mainnet.json`) and locks it in the card. Each swap must return at least the Atlas fair amount minus that stock's slippage limit (3%); if it can't, the card is minted holding its value in USDC and anyone can `fill` it later. The difference between the price and the card value is profit, which `distribute()` shares out to staking and the DAO. The owner can only withdraw USDC above what unopened packs and unfilled cards could still pay out, and never tokens locked in cards. Odds live in `PACK_TIERS` (`lib/contracts.ts`) and `contracts/script/MainnetConfig.sol`.
 
 ### Prices (`lib/quotes.ts`)
 
@@ -86,9 +94,9 @@ Names are in `.env.example`; you fill in the values. Never commit `.env.local`.
 
 ## Mainnet addresses it uses
 
-**Grailio contracts: none yet.** `deployments/56.json` holds zero addresses until you deploy. The earlier app's deployed contracts live on a different chain and do not exist on BSC, so none are copied.
+**Grailio contracts:** the addresses in `deployments/56.json` are from a first deploy that is being abandoned (no funds, no cards). A fresh deploy with stock baskets (`contracts/script/DeployCollectPacks.s.sol`) overwrites them.
 
-Third-party contracts, all read on chain 56 on 2026-11-26 (`lib/tokens.ts`, `lib/quotes.ts`, `contracts/script/MainnetConfig.sol`):
+Third-party contracts, all read on chain 56 on 2026-11-26 (`lib/tokens.ts`, `lib/quotes.ts`; the pack contract uses only USDC, the PancakeSwap routers, Atlas and the bStocks):
 
 | What | Address |
 | --- | --- |
@@ -98,7 +106,8 @@ Third-party contracts, all read on chain 56 on 2026-11-26 (`lib/tokens.ts`, `lib
 | ETH (Binance-Peg) | `0x2170Ed0880ac9A755fd29B2688956BD959F933F8` |
 | LINK | `0xF8A0BF9cF54Bb92F17374d9e9A321E6a111a51bD` |
 | CAKE | `0x0E09FaBB73Bd3Ade0a17ECC321fD13a19e81cE82` |
-| Chainlink BTC/USD, ETH/USD, BNB/USD, LINK/USD, CAKE/USD | `0x2649…5Ebf`, `0x9ef1…5b2e`, `0x0567…2aeE`, `0xca23…fac8`, `0xB606…65a1` (full addresses in `MainnetConfig.sol`) |
+| Atlas Oracle MultiFeed (bStock prices) | `0xEAcE519ebB14fB8404fA6DdD23C3b34abaDE44aa` (one `AtlasFeedAdapter` per stock) |
+| bStocks (15) | token addresses in `contracts/script/stocks.mainnet.json` |
 | PancakeSwap v3 SmartRouter / v2 Router | `0x13f4EA83D0bd40E75C8222255bc855a974568Dd4` / `0x10ED43C718714eb63d5aA57B78B54704E256024E` |
 | KyberSwap MetaAggregationRouterV2 (swaps may only go here) | `0x6131B5fae19EA4f9D964eAc0408E4408b66337b5` |
 | Price pools (PancakeSwap v3) | WBNB/USDC 0.01% `0xf268…12C4`, BTCB/WBNB 0.05% `0x6bbc…d636`, ETH/WBNB 0.05% `0xD0e2…8CBA`, LINK/WBNB 0.25% `0x0E18…94b9`, CAKE/WBNB 0.25% `0x133B…96BF` |
@@ -107,7 +116,7 @@ The swap-fee treasury wallet is `SWAP_FEE_TREASURY` in `lib/swap-fee.ts` (`0x9c0
 
 ## What is left for you
 
-1. **Review the 18-decimal USDC change** to `CollectPacks` (it now reads USDC's decimals; unit tests cover 6 and 18) and run the fork test with `BSC_RPC_URL` set. It's a real-money contract: have it reviewed before deploying.
+1. **Review `CollectPacks`** (18-decimal USDC, per-tier stock baskets) and run the fork test with `BSC_RPC_URL` set; it simulates the whole deploy and opens Fable, Saga and Mythos Low packs. It's a real-money contract: have it reviewed before deploying.
 2. **Deploy the contracts yourself** (spends real BNB): the exact commands are in [`contracts/README.md`](contracts/README.md#deploy-you-run-this-it-spends-real-bnb-and-usdc). The script writes every address into `deployments/56.json`; rebuild the app afterwards and seed the pack pool with USDC.
 3. **Fill in `.env.local`** (or your host's env): Privy app ID with BNB Smart Chain enabled, beta codes and cookie secret, an Etherscan API v2 key, and optionally a relayer wallet with a little BNB plus Upstash.
 4. **Optional: outside NFTs as profile pictures.** BNB Chain has no keyless NFT index, so the picker offers Grailio cards only. Plug an NFT indexer into `lib/nft-metadata.ts` to bring this back.
