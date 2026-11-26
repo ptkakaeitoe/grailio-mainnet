@@ -142,7 +142,7 @@ export default function Home() {
             [
               ["PRIVY", "Wallets", "Privy"],
               ["KYBER", "Swaps", "KyberSwap"],
-              ["LINK", "Prices", "Chainlink"],
+              ["ATLAS", "Prices", "Atlas"],
             ] as const
           ).map(([icon, what, who]) => (
             <li key={who} className="inline-flex items-center gap-1.5 whitespace-nowrap">

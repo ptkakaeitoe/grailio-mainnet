@@ -163,7 +163,7 @@ export function LivePackReveal({
           </dl>
         )}
         {revealed && !revealed.card.filled && (
-          <p className={revealFrame.note}>The DEX price was off from Chainlink, so this card holds its value in USDC for now. It can be filled with {revealed.card.ticker} later, or redeemed for the USDC.</p>
+          <p className={revealFrame.note}>The DEX price was off from the Atlas price, so this card holds its value in USDC for now. It can be filled with {revealed.card.ticker} later, or redeemed for the USDC.</p>
         )}
       </div>
       <div className={cn(dialogFooter, revealFrame.actions)}>

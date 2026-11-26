@@ -29,7 +29,7 @@ const CHAPTERS: { id: string; title: string; lead: string; actions: Action[] }[]
     title: "Tokens",
     lead: "USDC is the app's money and counts as $1. Token prices come from BNB Chain DEX pools; tokenized stocks from Atlas Oracle.",
     actions: [
-      { name: "Swap", what: "Swap USDC or BNB for BTCB, ETH, WBNB, LINK or CAKE, and back. KyberSwap routes each trade across BNB Chain DEXes for the best price. Approve a token once; your wallet signs every swap.", call: "KyberSwap router", address: SWAP_ROUTER, cost: "DEX fees + gas", href: "/trade" },
+      { name: "Swap", what: "Swap USDT, USDC or BNB for tokenized stocks (NVDA, AAPL, SPY and more), and back. KyberSwap routes each trade across BNB Chain DEXes for the best price. Approve a token once; your wallet signs every swap.", call: "KyberSwap router", address: SWAP_ROUTER, cost: "DEX fees + gas", href: "/trade" },
     ],
   },
   {
@@ -38,7 +38,7 @@ const CHAPTERS: { id: string; title: string; lead: string; actions: Action[] }[]
     lead: "Every card holds a tokenized stock. The pack design sets the risk; rarity sets how much.",
     actions: [
       { name: "Buy a pack", what: "Every pack costs $1 in USDC and earns 1 collector point. Your payment goes into the prize pool, which only sells a pack it can pay out in full.", call: "CollectPacks.buy()", address: collectPacksAddress, cost: "1 USDC", href: "/packs" },
-      { name: "Open a pack", what: "The next block's hash rolls a token and rarity. The pool swaps the card's value into that token on a DEX, guarded by Chainlink prices, and locks it in your card. Open within 256 blocks or it opens as the lowest rarity.", call: "CollectPacks.open()", address: collectPacksAddress, cost: "Gas only", href: "/packs" },
+      { name: "Open a pack", what: "The next block's hash rolls a stock from the pack's basket and a rarity. The pool swaps the card's value into that stock on PancakeSwap, checked against its Atlas price, and locks it in your card. Open within 256 blocks or it opens as the lowest rarity.", call: "CollectPacks.open()", address: collectPacksAddress, cost: "Gas only", href: "/packs" },
       { name: "Redeem a card", what: "Burns the card and sends you the tokens inside (or its USDC if it was never filled). Can't be undone.", call: "CollectPacks.redeem()", address: collectPacksAddress, cost: "Gas only", href: "/collection" },
     ],
   },

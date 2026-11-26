@@ -77,7 +77,6 @@ export function CollectionPanel() {
                   <div className={cardBack.item}><dt className={cardBack.dt}>Token ID</dt><dd className={cardBack.dd}>{rarity.id}</dd></div>
                   <div className={cardBack.item}><dt className={cardBack.dt}>Standard</dt><dd className={cardBack.dd}>ERC-1155</dd></div>
                   <div className={cardBack.item}><dt className={cardBack.dt}>Pull odds</dt><dd className={cardBack.dd}>{rarity.odds}</dd></div>
-                  <div className={cardBack.item}><dt className={cardBack.dt}>Reward</dt><dd className={cardBack.dd}>{rarity.reward} WBNB</dd></div>
                   <div className={cardBack.item}><dt className={cardBack.dt}>Owned</dt><dd className={cardBack.dd}>×{held}</dd></div>
                 </dl>
                 <span className={cardBack.foot}>SERIES 01 / 04</span>
