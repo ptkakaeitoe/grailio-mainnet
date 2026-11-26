@@ -25,6 +25,12 @@ export type LimitStore = {
   push(key: string, value: string, max: number, ttl: number): Promise<void>;
   /** Up to `max` items from the front of a list, newest first. */
   list(key: string, max: number): Promise<string[]>;
+  /** GET key. */
+  get(key: string): Promise<string | null>;
+  /** SET key value (no expiry). */
+  set(key: string, value: string): Promise<void>;
+  /** For each list: push the values in order (the last ends up in front), cap to `max`. No expiry. One round trip. */
+  pushMany(lists: { key: string; values: string[]; max: number }[]): Promise<void>;
 };
 
 export type Limits = { perMinute: number; perDay: number; dailyTotal: number };
@@ -108,6 +114,22 @@ export function restStore(url: string, token: string): LimitStore {
       const out = (await call("", ["GET", key])) as { result?: string | null };
       return out.result ?? null;
     },
+    async get(key) {
+      const out = (await call("", ["GET", key])) as { result?: string | null };
+      return out.result ?? null;
+    },
+    async set(key, value) {
+      await call("", ["SET", key, value]);
+    },
+    async pushMany(lists) {
+      const commands = lists
+        .filter((l) => l.values.length > 0)
+        .flatMap(({ key, values, max }) => [["LPUSH", key, ...values.slice(-max)], ["LTRIM", key, "0", String(max - 1)]]);
+      if (commands.length === 0) return;
+      const out = (await call("/pipeline", commands)) as { error?: string }[];
+      const failed = out.find((r) => r.error);
+      if (failed) throw new Error(`Store error: ${failed.error}`);
+    },
     async unlock(key, value) {
       await call("", ["EVAL", "if redis.call('GET', KEYS[1]) == ARGV[1] then return redis.call('DEL', KEYS[1]) else return 0 end", "1", key, value]);
     },
@@ -119,6 +141,7 @@ export function memoryStore(): LimitStore {
   const counts = new Map<string, { n: number; until: number }>();
   const locks = new Map<string, { value: string; until: number }>();
   const lists = new Map<string, { items: string[]; until: number }>();
+  const values = new Map<string, string>();
   return {
     async push(key, value, max, ttl) {
       const cur = lists.get(key);
@@ -128,6 +151,19 @@ export function memoryStore(): LimitStore {
     async list(key, max) {
       const cur = lists.get(key);
       return cur && cur.until > Date.now() ? cur.items.slice(0, max) : [];
+    },
+    async get(key) {
+      return values.get(key) ?? null;
+    },
+    async set(key, value) {
+      values.set(key, value);
+    },
+    async pushMany(all) {
+      for (const { key, values: pushed, max } of all) {
+        const cur = lists.get(key);
+        const items = cur && cur.until > Date.now() ? cur.items : [];
+        lists.set(key, { items: [...pushed].reverse().concat(items).slice(0, max), until: Infinity });
+      }
     },
     async incr(keys) {
       const now = Date.now();

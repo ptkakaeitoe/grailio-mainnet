@@ -211,7 +211,7 @@ export function useRoomMessages(room: ChatRoom | undefined, keys: ChatKeys | nul
     const seen = new Set<string>();
     const load = async () => {
       try {
-        // History comes from /api/chat/messages (explorer logs API): public RPCs only allow short log queries.
+        // History comes from /api/chat/messages (server-side log index): public RPCs only allow short log queries.
         const res = await fetch(`/api/chat/messages?room=${roomId}&from=${from}`, { cache: "no-store" });
         if (!res.ok) throw new Error("messages unavailable");
         const body = (await res.json()) as {

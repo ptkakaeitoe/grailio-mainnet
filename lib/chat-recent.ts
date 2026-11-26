@@ -2,8 +2,8 @@ import type { LimitStore } from "@/lib/relay-limits";
 
 /**
  * Messages the relay just submitted, kept briefly in Redis so every reader
- * sees them within one poll instead of waiting for the block explorer to
- * index the on-chain event. Bodies are exactly what goes on-chain (holder
+ * sees them within one poll instead of waiting for the log index to
+ * pick up the on-chain event. Bodies are exactly what goes on-chain (holder
  * rooms: ciphertext), so nothing here is more private than the chain.
  * Readers drop an entry once its on-chain copy arrives (same body hash);
  * entries that never confirm age out after RECENT_TTL.
