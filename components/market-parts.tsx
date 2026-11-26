@@ -1,7 +1,7 @@
 "use client";
 
 import { TokenIcon } from "@/components/token-icon";
-import { ArrowUpRightIcon, CaretDownIcon, CheckIcon, CardsIcon, CircleNotchIcon, MagnifyingGlassIcon, WarningCircleIcon, XIcon } from "@phosphor-icons/react/ssr";
+import { ArrowUpRightIcon, CaretDownIcon, CheckIcon, CardsIcon, CircleNotchIcon, WarningCircleIcon, XIcon } from "@phosphor-icons/react/ssr";
 import Link from "next/link";
 import { useCallback, useRef, useState, useSyncExternalStore, type ReactNode } from "react";
 
@@ -40,7 +40,7 @@ export function SellButton() {
  * Lays out a market view for its mode. `sell` is the sell column, or the whole
  * page in "sell" mode (the SellWorkspace); `extra` is anything every mode keeps (errors, dialogs).
  */
-export function MarketLayout({ mode, floor, listings, sell, extra }: { mode: MarketMode; floor: ReactNode; listings: ReactNode; sell: ReactNode; extra?: ReactNode }) {
+export function MarketLayout({ mode, floor, listings, sell, extra }: { mode: MarketMode; floor?: ReactNode; listings: ReactNode; sell: ReactNode; extra?: ReactNode }) {
   if (mode === "sell") {
     return (
       <div className="market-workspace pt-6 pb-16 desk:pt-10">
@@ -53,8 +53,8 @@ export function MarketLayout({ mode, floor, listings, sell, extra }: { mode: Mar
     <div className="market-workspace pt-6 pb-16 desk:pt-10">
       {floor}
       {mode === "browse" ? (
-        <div className="mt-10 border-t border-border desk:mt-16">
-          <section className="min-w-0 py-8 desk:pt-10" aria-label="Listings">{listings}</section>
+        <div className={floor ? "mt-10 border-t border-border desk:mt-16" : undefined}>
+          <section className={cn("min-w-0", floor ? "py-8 desk:pt-10" : "pb-8")} aria-label="Listings">{listings}</section>
         </div>
       ) : (
         <div className={marketGrid}>
@@ -150,61 +150,8 @@ export function useAssetFilter<L>({ cards, keep, listings, tickerOf, usdOf, inVi
 
 const floorText = (n: number) => `$${n.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: n >= 1 ? 2 : 4 })}`;
 
-/** Page title with the main action, then the asset search and chips. */
-export function AssetFilter({ title = "Market", label, action, filter }: {
-  title?: string;
-  label?: string;
-  action?: ReactNode;
-  filter: Pick<ReturnType<typeof useAssetFilter>, "asset" | "setAsset" | "query" | "setQuery" | "chips">;
-}) {
-  const { asset, setAsset, query, setQuery, chips } = filter;
-  return (
-    <section aria-labelledby="market-title">
-      <div className={cn("flex justify-between gap-3", action ? "items-center" : "items-baseline")}>
-        <div className="flex min-w-0 items-baseline gap-3">
-          <h1 id="market-title" className="text-[22px] leading-[1.3] font-normal tracking-tight">{title}</h1>
-          {label && action && <span className={cn(sectionLabel, "truncate")}>[ {label} ]</span>}
-        </div>
-        {action ?? (label && <span className={sectionLabel}>[ {label} ]</span>)}
-      </div>
-      <div className="mt-4 flex flex-col gap-3 desk:mt-6 desk:flex-row desk:items-start">
-        <label className="relative block shrink-0 desk:w-56">
-          <span className="sr-only">Search assets</span>
-          <MagnifyingGlassIcon aria-hidden="true" className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted" />
-          <input
-            type="search"
-            className="h-9 w-full rounded-md border border-border bg-white pr-3 pl-9 text-sm transition-colors hover:border-border-strong focus:border-black focus:outline-none"
-            placeholder="Search"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            onKeyDown={(e) => { if (e.key === "Enter" && chips.length === 1) setAsset(chips[0].ticker); }}
-          />
-        </label>
-        {/* Phones: one row you swipe sideways; wraps from 481px. */}
-        <div className="flex min-w-0 gap-1.5 max-phone:-mx-[18px] max-phone:overflow-x-auto max-phone:px-[18px] max-phone:pb-1 phone:flex-wrap" role="group" aria-label="Filter by asset">
-          <button type="button" className={cn(cleanChip, "h-9 shrink-0")} aria-pressed={!asset} onClick={() => setAsset("")}>All</button>
-          {chips.map((c) => (
-            <button
-              key={c.ticker}
-              type="button"
-              title={c.name}
-              className={cn(cleanChip, "group inline-flex h-9 shrink-0 items-center gap-1.5 whitespace-nowrap")}
-              aria-pressed={asset === c.ticker}
-              onClick={() => setAsset(asset === c.ticker ? "" : c.ticker)}
-            >
-              <TokenIcon symbol={c.ticker} className="size-4" />
-              {c.ticker}
-              {c.floor !== null && <span className="text-muted tabular-nums group-aria-pressed:text-white/70">· {floorText(c.floor)}</span>}
-            </button>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-/** Title with the listing count, then rarity filter chips and the sort select. */
-export function ListingsHeader({ count, filters, value, onFilter, sort, onSort, sortOptions }: {
+/** Title with the listing count and the main action, then rarity chips, the stock filter and the sort. */
+export function ListingsHeader({ count, filters, value, onFilter, sort, onSort, sortOptions, stock, action }: {
   count: number;
   filters: { label: string; value: string | number }[];
   value: string | number;
@@ -212,28 +159,54 @@ export function ListingsHeader({ count, filters, value, onFilter, sort, onSort, 
   sort: string;
   onSort: (value: string) => void;
   sortOptions: { value: string; label: string }[];
+  /** Stock filter: the asset filter's chips, shown as one dropdown. */
+  stock?: Pick<ReturnType<typeof useAssetFilter>, "asset" | "setAsset" | "chips">;
+  action?: ReactNode;
 }) {
   return (
     <div className="mb-6">
-      <div className="flex items-baseline justify-between gap-3">
-        <h2 className={sectionTitle}>Listings</h2>
-        <span className={sectionLabel}>[{String(count).padStart(2, "0")} listed]</span>
+      <div className="flex items-center justify-between gap-3">
+        <div className="flex min-w-0 items-baseline gap-3">
+          <h1 className={sectionTitle}>Listings</h1>
+          <span className={sectionLabel}>[{String(count).padStart(2, "0")}]</span>
+        </div>
+        {action}
       </div>
       <div className="mt-5 flex flex-wrap items-center justify-between gap-3">
         {/* Phones: one row you can swipe instead of wrapping. */}
-        <div className="flex gap-1.5 max-phone:-mx-[18px] max-phone:w-[calc(100%+36px)] max-phone:overflow-x-auto max-phone:px-[18px] phone:flex-wrap" role="group" aria-label="Filter by rarity">
-          {filters.map((f) => (
-            <button key={String(f.value)} type="button" className={cn(cleanChip, "shrink-0")} aria-pressed={value === f.value} onClick={() => onFilter(f.value)}>{f.label}</button>
-          ))}
+        {filters.length > 0 && (
+          <div className="flex gap-1.5 max-phone:-mx-[18px] max-phone:w-[calc(100%+36px)] max-phone:overflow-x-auto max-phone:px-[18px] phone:flex-wrap" role="group" aria-label="Filter by rarity">
+            {filters.map((f) => (
+              <button key={String(f.value)} type="button" className={cn(cleanChip, "shrink-0")} aria-pressed={value === f.value} onClick={() => onFilter(f.value)}>{f.label}</button>
+            ))}
+          </div>
+        )}
+        <div className="flex items-center gap-2">
+          {stock && (
+            <PickMenu
+              label="Stock"
+              ariaLabel="Filter by stock"
+              value={stock.asset}
+              options={[{ value: "", label: "All" }, ...stock.chips.map((c) => ({ value: c.ticker, label: c.ticker, note: c.floor !== null ? floorText(c.floor) : undefined, icon: <TokenIcon symbol={c.ticker} className="size-4" /> }))]}
+              onChange={stock.setAsset}
+            />
+          )}
+          <SortMenu value={sort} options={sortOptions} onChange={onSort} />
         </div>
-        <SortMenu value={sort} options={sortOptions} onChange={onSort} />
       </div>
     </div>
   );
 }
 
-/** Sort dropdown in the chips' style; like the packs page's token picker it closes on blur, Escape or a pick. */
-export function SortMenu({ value, options, onChange }: { value: string; options: { value: string; label: string }[]; onChange: (value: string) => void }) {
+type PickOption = { value: string; label: string; note?: string; icon?: ReactNode };
+
+/** Sort dropdown in the chips' style. */
+export function SortMenu({ value, options, onChange }: { value: string; options: PickOption[]; onChange: (value: string) => void }) {
+  return <PickMenu label="Sort" ariaLabel="Sort listings" value={value} options={options} onChange={onChange} />;
+}
+
+/** A small dropdown in the chips' style; like the packs page's token picker it closes on blur, Escape or a pick. */
+export function PickMenu({ label, ariaLabel, value, options, onChange }: { label: string; ariaLabel: string; value: string; options: PickOption[]; onChange: (value: string) => void }) {
   const current = options.find((o) => o.value === value) ?? options[0];
   const close = (picker: HTMLDetailsElement | null) => {
     if (!picker) return;
@@ -246,21 +219,24 @@ export function SortMenu({ value, options, onChange }: { value: string; options:
       onBlur={(event) => { if (!event.currentTarget.contains(event.relatedTarget)) event.currentTarget.open = false; }}
       onKeyDown={(event) => { if (event.key === "Escape") close(event.currentTarget); }}
     >
-      <summary aria-label={`Sort: ${current.label}`} className="flex h-9 cursor-pointer list-none items-center gap-2 rounded-md border border-border px-3 text-sm transition-colors hover:border-border-strong group-open:border-black [&::-webkit-details-marker]:hidden">
-        <span className="text-muted">Sort</span>
+      <summary aria-label={`${label}: ${current.label}`} className="flex h-9 cursor-pointer list-none items-center gap-2 rounded-md border border-border px-3 text-sm transition-colors hover:border-border-strong group-open:border-black [&::-webkit-details-marker]:hidden">
+        <span className="text-muted">{label}</span>
+        {current.icon}
         {current.label}
         <CaretDownIcon className="text-muted transition-transform group-open:rotate-180" aria-hidden="true" />
       </summary>
-      <div className="frost absolute top-[calc(100%+8px)] left-0 z-20 w-[220px] desk:right-0 desk:left-auto animate-[popover-in_.15s_ease-out] rounded-md border border-border bg-white/72 backdrop-blur-[14px] p-1.5 shadow-[0_12px_30px_#0000001a]" role="group" aria-label="Sort listings">
+      <div className="frost absolute top-[calc(100%+8px)] left-0 desk:right-0 desk:left-auto z-20 max-h-[min(360px,60dvh)] w-[220px] overflow-y-auto animate-[popover-in_.15s_ease-out] rounded-md border border-border bg-white/72 backdrop-blur-[14px] p-1.5 shadow-[0_12px_30px_#0000001a]" role="group" aria-label={ariaLabel}>
         {options.map((o) => (
           <button
             key={o.value}
             type="button"
             aria-pressed={o.value === value}
-            className="flex min-h-9 w-full items-center justify-between rounded px-2.5 py-2 text-left text-sm transition-colors hover:bg-surface-muted aria-pressed:bg-surface-muted"
+            className="flex min-h-9 w-full items-center gap-2 rounded px-2.5 py-2 text-left text-sm transition-colors hover:bg-surface-muted aria-pressed:bg-surface-muted"
             onClick={(event) => { onChange(o.value); close(event.currentTarget.closest("details")); }}
           >
-            {o.label}
+            {o.icon}
+            <span className="flex-1">{o.label}</span>
+            {o.note && <span className="text-muted tabular-nums">{o.note}</span>}
             {o.value === value && <CheckIcon aria-hidden="true" />}
           </button>
         ))}

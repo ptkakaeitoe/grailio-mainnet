@@ -14,7 +14,6 @@ import { cleanButton, cleanField, cn } from "@/components/clean-ui";
 import { BuyConfirmDialog } from "@/components/buy-confirm-dialog";
 import { useDemo } from "@/components/demo-provider";
 import {
-  AssetFilter,
   MarketState,
   SELL_HREF,
   stateAction,
@@ -143,7 +142,6 @@ export function DemoMarket({ mode = "both" }: { mode?: MarketMode }) {
   return (
     <MarketLayout
       mode={mode}
-      floor={<AssetFilter label={rarity === "all" ? "demo market" : `${rarity.toLowerCase()} floor`} filter={assets} action={mode === "browse" ? <SellButton /> : undefined} />}
       listings={<>
           <ListingsHeader
             count={shown.length}
@@ -153,6 +151,8 @@ export function DemoMarket({ mode = "both" }: { mode?: MarketMode }) {
             sort={sort}
             onSort={(v) => setSort(v as "price" | "recent")}
             sortOptions={[{ value: "price", label: "Price: low to high" }, { value: "recent", label: "Newest listings" }]}
+            stock={assets}
+            action={mode === "browse" ? <SellButton /> : undefined}
           />
           <p className="mb-6 text-sm text-muted" role="status">{notice || "Simulated listings and balances · saved in this browser"}</p>
 

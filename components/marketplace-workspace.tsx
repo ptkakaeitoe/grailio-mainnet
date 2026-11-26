@@ -5,7 +5,7 @@ import Link from "next/link";
 
 import { cleanButton, cleanField, cn } from "@/components/clean-ui";
 import {
-  AssetFilter,
+  ListingsHeader,
   MarketState,
   stateAction,
   MarketLayout,
@@ -29,14 +29,18 @@ export function MarketplaceWorkspace({ mode = "both" }: { mode?: MarketMode }) {
   return (
     <MarketLayout
       mode={mode}
-      floor={
-        <AssetFilter
-          label="opening soon"
-          filter={assets}
-          action={mode === "browse" ? <SellButton /> : undefined}
-        />
-      }
       listings={<>
+          <ListingsHeader
+            count={0}
+            filters={[]}
+            value="all"
+            onFilter={() => {}}
+            sort="price"
+            onSort={() => {}}
+            sortOptions={[{ value: "price", label: "Price: low to high" }]}
+            stock={assets}
+            action={mode === "browse" ? <SellButton /> : undefined}
+          />
           <MarketState
             title="No listings yet."
             action={<>

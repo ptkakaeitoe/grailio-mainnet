@@ -15,7 +15,6 @@ import { useConnectWallet } from "@/components/beta-access";
 import { BuyConfirmDialog } from "@/components/buy-confirm-dialog";
 import { cleanButton, cleanField, cn } from "@/components/clean-ui";
 import {
-  AssetFilter,
   MarketState,
   SELL_HREF,
   stateAction,
@@ -211,7 +210,6 @@ export function CollectMarketLive({ mode = "both" }: { mode?: MarketMode }) {
   return (
     <MarketLayout
       mode={mode}
-      floor={<AssetFilter label={rarity === "all" ? undefined : `${rarity.toLowerCase()} floor`} filter={assets} action={mode === "browse" ? <SellButton /> : undefined} />}
       listings={<>
           <ListingsHeader
             count={shown.length}
@@ -221,6 +219,8 @@ export function CollectMarketLive({ mode = "both" }: { mode?: MarketMode }) {
             sort={sort}
             onSort={(v) => setSort(v as "price" | "recent")}
             sortOptions={[{ value: "price", label: "Price: low to high" }, { value: "recent", label: "Newest cards" }]}
+            stock={assets}
+            action={mode === "browse" ? <SellButton /> : undefined}
           />
 
           {loading ? (
