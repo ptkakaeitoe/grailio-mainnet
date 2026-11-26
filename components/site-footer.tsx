@@ -1,8 +1,8 @@
-import { ArrowUpRightIcon } from "@phosphor-icons/react/ssr";
 import Link from "next/link";
 
 import { cleanLink } from "@/components/clean-ui";
 import { DemoFooterControls } from "@/components/demo-footer-controls";
+import { NetworkSwitch } from "@/components/network-switch";
 
 /** Footer for pages on the clean theme (landing, packs, profile). */
 export function SiteFooter() {
@@ -20,7 +20,8 @@ export function SiteFooter() {
           <Link href="/marketplace" className={cleanLink}>market</Link>
           <Link href="/info" className={cleanLink}>info</Link>
         </nav>
-        <a href="https://bscscan.com" target="_blank" rel="noreferrer" className={cleanLink}>bnb chain · public beta <ArrowUpRightIcon weight="bold" className="arrow-nudge" aria-hidden="true" /></a>
+        {/* Testnet / Mainnet beta: the testnet app lives at NEXT_PUBLIC_TESTNET_URL. */}
+        <NetworkSwitch />
       </div>
       <DemoFooterControls />
     </footer>
