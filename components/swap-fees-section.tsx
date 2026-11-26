@@ -40,12 +40,12 @@ export function SwapFeesSection() {
     <section className="mt-12 border-t border-border pt-8" aria-labelledby="swap-fees-title">
       <h2 id="swap-fees-title" className="text-xl font-normal">Swap fees</h2>
       <p className="mt-3 max-w-[560px] text-base leading-relaxed text-muted">
-        Every swap on Trade pays {pct(SWAP_FEE_BPS)}, taken by KyberSwap inside the swap. When USDC is on either side, the fee is in USDC and half goes straight to stakers.
+        Every swap on Trade pays {pct(SWAP_FEE_BPS)}, taken by KyberSwap inside the swap. When USDT is on either side, the fee is in USDT and half goes straight to stakers.
       </p>
       <dl className="mt-5 max-w-[560px] border-t border-border">
         <div className={row}><dt className="text-muted">Fee</dt><dd><span className="tabular-nums">{pct(SWAP_FEE_BPS)}</span> of each swap</dd></div>
         <div className={row}>
-          <dt className="text-muted">USDC swaps</dt>
+          <dt className="text-muted">USDT swaps</dt>
           <dd className="text-right">
             {toStaking > 0 ? <><span className="tabular-nums">{pct(toStaking)}</span> to staking · <span className="tabular-nums">{pct(SWAP_FEE_BPS - toStaking)}</span> to treasury</> : <><span className="tabular-nums">{pct(SWAP_FEE_BPS)}</span> to treasury</>}
           </dd>
@@ -61,7 +61,7 @@ export function SwapFeesSection() {
         </div>
       </dl>
       <p className="mt-3 max-w-[560px] text-[13px] leading-relaxed text-muted">
-        Staking counts the USDC it receives at its next sync (any stake, claim or Distribute). To share non-USDC fees too, swap them to USDC and add them to the pack pool as revenue; Distribute then sends the staking share. The treasury wallet is the deployer for now and also holds gas.
+        Staking counts the USDT it receives at its next sync (any stake, claim or Distribute). To share non-USDT fees too, swap them to USDT and add them to the pack pool as revenue; Distribute then sends the staking share. The treasury wallet is the deployer for now and also holds gas.
       </p>
     </section>
   );
