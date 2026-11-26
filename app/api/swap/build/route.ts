@@ -3,9 +3,9 @@ import { isAddress } from "viem";
 
 import { BETA_COOKIE, validToken } from "@/lib/beta-gate";
 import { kyberBuild, SwapError, type RouteSummary } from "@/lib/kyber";
-import { TOKENS } from "@/lib/tokens";
+import { SWAP_KEYS, TOKENS } from "@/lib/tokens";
 
-const ALLOWED = new Set(Object.values(TOKENS).map((t) => t.address.toLowerCase()));
+const ALLOWED = new Set(SWAP_KEYS.map((key) => TOKENS[key].address.toLowerCase()));
 const MAX_SLIPPAGE_BPS = 500; // 5%
 
 /**

@@ -6,13 +6,13 @@ import { erc20Abi, formatUnits, parseUnits } from "viem";
 import { useAccount, useBalance, useReadContracts, useSendTransaction, useWaitForTransactionReceipt } from "wagmi";
 
 import type { RouteSummary } from "@/lib/kyber";
-import { SWAP_ROUTER, TOKENS, tokenFor } from "@/lib/tokens";
+import { SWAP_KEYS, SWAP_ROUTER, TOKENS, tokenFor } from "@/lib/tokens";
 import { useApproval } from "@/lib/use-approval";
 import { useWalletSync } from "@/lib/use-wallet-sync";
 
-const ERC20_KEYS = Object.keys(TOKENS).filter((key) => !TOKENS[key].native);
+const ERC20_KEYS = SWAP_KEYS.filter((key) => !TOKENS[key].native);
 
-/** Wallet balances of every swappable token, raw and as numbers. */
+/** Wallet balances of every swappable token (USDT, USDC, BNB and the stocks), raw and as numbers. */
 export function useDexBalances(enabled: boolean) {
   const { address } = useAccount();
   const native = useBalance({ address, query: { enabled: enabled && Boolean(address), refetchInterval: 15_000 } });

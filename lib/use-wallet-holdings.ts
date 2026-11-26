@@ -11,14 +11,14 @@ import { useStockPrices } from "@/lib/use-stock-prices";
 /** The real BNB Chain tokens a wallet can hold here (BNB is read separately). Keyed by price ticker. */
 const TOKENS = Object.entries(REAL_TOKENS)
   .filter(([, t]) => !t.native)
-  .map(([key, t]) => ({ key, label: t.symbol, token: t.address, decimals: t.decimals, color: key === "USDC" ? "#2775ca" : CARD_BY_TICKER[key]?.accent ?? "#888" }));
+  .map(([key, t]) => ({ key, label: t.symbol, token: t.address, decimals: t.decimals, color: key === "USDC" ? "#2775ca" : key === "USDT" ? "#26a17b" : CARD_BY_TICKER[key]?.accent ?? "#888" }));
 
 const AVAX_COLOR = "#f0b90b";
 
 export type Holding = { label: string; color: string; value: number; price: number | null };
 
 /**
- * BNB plus every token the wallet holds, priced in USD (USDC is $1, the rest
+ * BNB plus every token the wallet holds, priced in USD (USDC and USDT are $1, the rest
  * use live DEX prices). The connected wallet unless `account` is given. In
  * demo mode the connected view uses the simulated ledger instead of the chain;
  * another account's is always read live.
@@ -40,7 +40,7 @@ export function useWalletHoldings(account?: Address) {
   });
 
   const avaxUsd = byTicker.WBNB?.price ?? null;
-  const priceOf = (key: string) => (key === "USDC" ? 1 : byTicker[key]?.price ?? null);
+  const priceOf = (key: string) => (key === "USDC" || key === "USDT" ? 1 : byTicker[key]?.price ?? null);
 
   let loaded: boolean;
   let holdings: Holding[];

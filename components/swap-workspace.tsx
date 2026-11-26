@@ -15,16 +15,24 @@ import { useConnectWallet } from "@/components/beta-access";
 import { formatUnits, parseEther } from "viem";
 import { appChain } from "@/lib/chain";
 import { useAccount } from "wagmi";
-import { useCards } from "@/lib/use-cards";
-import { tokenFor } from "@/lib/tokens";
+import { STOCK_ASSETS } from "@/lib/stock-assets";
+import { SWAP_BASES, tokenFor } from "@/lib/tokens";
 import { toUnits, useDexBalances, useDexSwap } from "@/lib/use-dex-swap";
 import { usd, useStockPrices } from "@/lib/use-stock-prices";
 import { txErrorMessage } from "@/lib/tx-error";
 
-/** What tokens are paid with. USDC counts as $1. */
-const BASES = ["USDC", "BNB"] as const;
+/** What stocks are bought and sold with. USDT and USDC count as $1. */
+const BASES = SWAP_BASES;
 type Base = (typeof BASES)[number];
-const BASE_NAMES: Record<Base, string> = { USDC: "USD Coin", BNB: "BNB Chain" };
+const BASE_NAMES: Record<Base, string> = { USDT: "Tether USD", USDC: "USD Coin", BNB: "BNB" };
+/** The tokenized stocks (lib/stock-assets.ts); the default pair is USDT -> NVDA. */
+const STOCKS = STOCK_ASSETS;
+const DEFAULT_STOCK = "NVDA";
+/** Any base for any stock, or stock for stock. */
+const TOKEN_LIST: TokenOption[] = [
+  ...BASES.map((b) => ({ symbol: b, name: BASE_NAMES[b] })),
+  ...STOCKS.map((s) => ({ symbol: s.ticker, name: s.name })),
+];
 
 const fmt = (n: number) =>
   n.toLocaleString("en-US", { maximumFractionDigits: 6 });
@@ -150,7 +158,7 @@ function TokenPicker({ id, label, value, options, onSelect, balanceOf, priceOf }
               );
             })}
           </ul>
-          {matches.length === 0 && <p className="px-2 pt-3.5 pb-1.5 text-sm text-muted">No matching tokens.</p>}
+          {matches.length === 0 && <p className="px-2 pt-3.5 pb-1.5 text-sm text-muted">No matches.</p>}
         </div>
       )}
     </div>
@@ -173,17 +181,8 @@ export function SwapWorkspace() {
   const [result, setResult] = useState<(SwapLegs & { hash?: string }) | null>(
     null,
   );
-  // Demo mode trades stocks; the live app trades BNB Chain tokens.
-  const { cards } = useCards();
-  const STOCKS = [cards[2], cards[0], cards[3], cards[1], cards[4]]; // Neural Eye first in the market dropdown
-  const COMPANIES: Record<string, string> = Object.fromEntries(cards.map((c) => [c.ticker, c.tokenName]));
-  // Any token for any token: USDC and BNB plus every stock (demo) or token (live).
-  const TOKEN_LIST: TokenOption[] = [
-    ...BASES.map((b) => ({ symbol: b, name: BASE_NAMES[b] })),
-    ...STOCKS.map((c) => ({ symbol: c.ticker, name: COMPANIES[c.ticker], accent: c.accent })),
-  ];
-  const [fromPick, setFrom] = useState<string>("USDC");
-  const [toPick, setTo] = useState<string>(STOCKS[0].ticker);
+  const [fromPick, setFrom] = useState<string>("USDT");
+  const [toPick, setTo] = useState<string>(DEFAULT_STOCK);
   const [amount, setAmountText] = useState("");
   // 25/50/75/Max fill the exact wei; the box shows it trimmed. Typing clears it.
   const [exactWei, setExactWei] = useState<bigint | null>(null);
@@ -193,14 +192,14 @@ export function SwapWorkspace() {
   const [reviewing, setReviewing] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
 
-  const { byTicker } = useStockPrices();
-  // Switching demo on or off changes the list; fall back to USDC -> the first token.
+  // Stock prices from Atlas, BNB from its DEX pool: the same set in demo and live.
+  const { byTicker } = useStockPrices(60_000, "tokens");
   const known = (sym: string) => TOKEN_LIST.some((t) => t.symbol === sym);
-  const from = known(fromPick) ? fromPick : "USDC";
-  const to = known(toPick) && toPick !== from ? toPick : STOCKS.find((c) => c.ticker !== from)!.ticker;
-  // The chart and its market dropdown follow the token being traded (not USDC/BNB).
+  const from = known(fromPick) ? fromPick : "USDT";
+  const to = known(toPick) && toPick !== from ? toPick : from === DEFAULT_STOCK ? "USDT" : DEFAULT_STOCK;
+  // The chart and its market dropdown follow the stock being traded (not USDT/USDC/BNB).
   const isBase = (sym: string) => (BASES as readonly string[]).includes(sym);
-  const ticker = !isBase(to) ? to : !isBase(from) ? from : STOCKS[0].ticker;
+  const ticker = !isBase(to) ? to : !isBase(from) ? from : DEFAULT_STOCK;
   const parsed = Number.parseFloat(amount);
   const hasAmount = Number.isFinite(parsed) && parsed > 0;
 
@@ -244,9 +243,9 @@ export function SwapWorkspace() {
     updateSwap(address, { hash: dex.hash }, { status: dex.reverted ? "failed" : "confirmed" });
   }, [live, address, dex.hash, dex.confirmed, dex.reverted]);
 
-  // ---- demo quote, at live stock prices (Yahoo Finance) ----
+  // ---- demo quote, at live stock prices (Atlas) ----
   const avaxUsd = byTicker.WBNB?.price ?? null;
-  const usdOf = (sym: string) => (sym === "USDC" ? 1 : sym === "BNB" ? avaxUsd : byTicker[sym]?.price ?? null);
+  const usdOf = (sym: string) => (sym === "USDC" || sym === "USDT" ? 1 : sym === "BNB" ? avaxUsd : byTicker[sym]?.price ?? null);
   const fromUsd = usdOf(from);
   const toUsd = usdOf(to);
   const demoReceived = fromUsd && toUsd && hasAmount ? (parsed * fromUsd) / toUsd : null;
@@ -308,9 +307,9 @@ export function SwapWorkspace() {
     setResult(null);
     setAmount("");
   }
-  /** Market dropdown: trade this token (paying with USDC if it was the pay side). */
+  /** Market dropdown: trade this stock (paying with USDT if it was the pay side). */
   function selectStock(next: string) {
-    if (from === next) setFrom("USDC");
+    if (from === next) setFrom("USDT");
     setTo(next);
     reset();
   }
@@ -366,16 +365,16 @@ export function SwapWorkspace() {
     <div className="trade-workspace">
       <div className="trade-layout pt-6 pb-16 desk:pt-16">
 
-        {/* Market data and the watchlist in one: the chart's title is a dropdown of the five tokens. */}
+        {/* Market data and the watchlist in one: the chart's title is a dropdown of the stocks. */}
         <DemoPriceChart
           key={ticker}
           ticker={ticker}
-          markets={STOCKS.map((c) => ({ ticker: c.ticker, name: COMPANIES[c.ticker], accent: c.accent }))}
+          markets={STOCKS.map((s) => ({ ticker: s.ticker, name: s.name }))}
           onSelect={selectStock}
         />
         <section
           className="swap-column w-full min-w-0 max-desk:mx-auto max-desk:max-w-[520px]"
-          aria-label="Swap tokens"
+          aria-label="Swap"
         >
           <div className="swap-box rounded-md border border-border p-5 phone:p-6">
             <div className="swap-heading mb-8 flex items-center justify-between gap-3">
@@ -563,7 +562,7 @@ export function SwapWorkspace() {
             </p>
             {live && dex.quoteError && hasAmount && (
               <p className={errorText} role="alert">
-                No route right now: {dex.quoteError}
+                {dex.quoteError === "No route" ? `No route for ${from} → ${to} right now. Try another amount or pay token.` : `No route right now: ${dex.quoteError}`}
               </p>
             )}
             {live && dex.reverted && (

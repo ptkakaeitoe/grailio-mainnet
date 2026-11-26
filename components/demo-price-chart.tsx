@@ -4,7 +4,7 @@ import { CaretDownIcon } from "@phosphor-icons/react/ssr";
 import { useEffect, useId, useRef, useState } from "react";
 
 import type { HistoryPeriod, PriceHistory } from "@/lib/quotes";
-import { DEMO_STOCK_CARDS } from "@/lib/cards";
+import { isStock as isStockAsset } from "@/lib/stock-assets";
 import { usd, useStockPrices } from "@/lib/use-stock-prices";
 import { cleanChip, cn } from "@/components/clean-ui";
 import { TokenIcon } from "@/components/token-icon";
@@ -62,7 +62,7 @@ function MarketPicker({ ticker, markets, onSelect }: { ticker: string; markets: 
   const [open, setOpen] = useState(false);
   const box = useRef<HTMLDivElement>(null);
   const button = useRef<HTMLButtonElement>(null);
-  const { byTicker } = useStockPrices();
+  const { byTicker } = useStockPrices(60_000, "tokens");
   useEffect(() => {
     if (!open) return;
     const onPointer = (event: PointerEvent) => { if (!box.current?.contains(event.target as Node)) setOpen(false); };
@@ -93,7 +93,7 @@ function MarketPicker({ ticker, markets, onSelect }: { ticker: string; markets: 
           id="market-list"
           role="listbox"
           aria-label="Markets"
-          className="frost market-menu absolute top-[calc(100%+8px)] left-0 z-40 grid w-[min(340px,calc(100vw-36px))] animate-[popover-in_.15s_ease-out] list-none gap-1 rounded-[10px] border border-border bg-white/72 backdrop-blur-[14px] p-1.5 shadow-[0_12px_30px_#00000014]"
+          className="frost market-menu absolute top-[calc(100%+8px)] left-0 z-40 grid max-h-[420px] overflow-y-auto w-[min(340px,calc(100vw-36px))] animate-[popover-in_.15s_ease-out] list-none gap-1 rounded-[10px] border border-border bg-white/72 backdrop-blur-[14px] p-1.5 shadow-[0_12px_30px_#00000014]"
         >
           {markets.map((m) => {
             const q = byTicker[m.ticker];
@@ -130,10 +130,10 @@ function MarketPicker({ ticker, markets, onSelect }: { ticker: string; markets: 
 export function DemoPriceChart({ ticker, markets, onSelect }: { ticker: string; markets?: ChartMarket[]; onSelect?: (ticker: string) => void }) {
   const [period, setPeriod] = useState<HistoryPeriod>("24H");
   const gradient = useId();
-  const { byTicker } = useStockPrices();
+  const { byTicker } = useStockPrices(60_000, "tokens");
   const live = byTicker[ticker]?.price ?? null;
-  // Demo stocks come from Yahoo Finance; tokens from BNB Chain DEX pools.
-  const isStock = DEMO_STOCK_CARDS.some((c) => c.ticker === ticker);
+  // Stocks: Atlas price, Yahoo Finance history. Anything else: BNB Chain DEX pools.
+  const isStock = isStockAsset(ticker);
   const { history, failed } = useHistory(ticker, period);
   const real = history !== null;
   const values = real ? history.points.map((pt) => pt.p) : simulated(ticker, live ?? BASES[ticker] ?? 200);
@@ -162,7 +162,7 @@ export function DemoPriceChart({ ticker, markets, onSelect }: { ticker: string; 
   return (
     <aside
       className="demo-chart w-full min-w-0 pt-1 max-desk:mx-auto max-desk:max-w-[520px] max-desk:border-t max-desk:border-border max-desk:pt-7"
-      aria-label={`Demo ${ticker} price chart`}
+      aria-label={`${ticker} price chart`}
     >
       {/* .chart-main ends with the high/low rule; on two columns it shares a grid row with the swap box, so that rule lines up with the one above Recent trades. */}
       <div className="chart-main">
