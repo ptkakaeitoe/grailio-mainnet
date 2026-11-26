@@ -31,7 +31,7 @@ const publicClient = createPublicClient({ chain: appChain, transport });
  */
 const LIMITS = { perMinute: 6, perDay: 300, dailyTotal: Number(process.env.RELAY_DAILY_LIMIT ?? 3_000) };
 const MAX_GAS_PRICE = BigInt(Math.round(Number(process.env.RELAY_MAX_GWEI ?? 50) * 1e9));
-const MIN_BALANCE = 10_000_000_000_000_000n; // 0.01 BNB
+const MIN_BALANCE = 1_000_000_000_000_000n; // 0.001 BNB: a post costs ~0.00001 BNB at BSC gas prices
 
 /** Network and wallet checks before spending gas. */
 async function relayerReady(address: Hex): Promise<string | null> {
