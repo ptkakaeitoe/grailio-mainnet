@@ -198,7 +198,7 @@ export function CommunityWorkspace() {
           <h1 className="text-[22px] leading-[1.3] font-normal tracking-tight">Rooms</h1>
           <span className={ui.label}>[{pad(entries.length)} rooms]</span>
         </header>
-        <nav className="mt-4 grid min-h-0 flex-1 grid-cols-[minmax(0,1fr)] content-start gap-1.5 overflow-y-auto desk:mt-6" aria-label="Rooms">
+        <nav className="mt-4 grid min-h-0 flex-1 grid-cols-[minmax(0,1fr)] content-start gap-1.5 overflow-y-auto scroll-fade pb-4 desk:mt-6" aria-label="Rooms">
           {entries.map((e) => {
             const locked = !canEnterRoom(e, held);
             const q = e.ticker ? prices[e.ticker] : undefined;
@@ -220,7 +220,7 @@ export function CommunityWorkspace() {
             );
           })}
         </nav>
-        {/* Mirrors the composer's height so both rules line up. */}
+        {/* Your profile row (when connected) and the on-chain note; without a wallet the room list runs down to the note. */}
         <footer className={cn(ui.composerArea, "mt-4")}>
           {chat.address && (namesLive || avatarsLive) ? (
             <button type="button" className={cn(ui.roomRow, "h-12 py-0")} onClick={() => setEditing(true)}>
@@ -228,9 +228,7 @@ export function CommunityWorkspace() {
               <strong className="min-w-0 truncate text-base font-normal">{nameOf(chat.address) ?? "Set a username"}</strong>
               <span className="ml-auto text-muted"><ArrowUpRightIcon weight="bold" className="arrow-nudge" aria-hidden="true" /></span>
             </button>
-          ) : (
-            <div className="h-12" aria-hidden="true" />
-          )}
+          ) : null}
           <a className={cn(ui.note, "flex items-center justify-between transition-colors hover:text-black")} href={`${SNOWTRACE}/address/${chatAddress}`} target="_blank" rel="noreferrer">[ stored on bnb chain ] <ArrowUpRightIcon weight="bold" className="arrow-nudge" aria-hidden="true" /></a>
         </footer>
         {editing && chat.address && <MyProfileEditor account={chat.address as Address} onClose={() => setEditing(false)} />}

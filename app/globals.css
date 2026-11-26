@@ -498,3 +498,25 @@ html[data-scrolled]:has(#main-content details[open] .frost, #main-content .frost
 @media (prefers-reduced-motion: reduce) { .hand-float-left, .hand-float-right { animation: none; }
   .hero-card-tilt { transition: none; }
   .hero-pack-rays { animation: none; } }
+
+/* Scroll areas fade their content at the edges instead of cutting it off: the bottom fades while there's more below,
+   the top once you've scrolled, and each fade lifts at its end of the list. Driven by the element's own scroll
+   (a scroll-driven animation); a list that doesn't scroll gets no fade. Browsers without scroll-driven animations
+   keep a fixed bottom fade. */
+@property --fade-top { syntax: "<length>"; inherits: false; initial-value: 0px; }
+@property --fade-bottom { syntax: "<length>"; inherits: false; initial-value: 0px; }
+.scroll-fade {
+  --fade-top: 0px;
+  --fade-bottom: 40px;
+  -webkit-mask-image: linear-gradient(to bottom, transparent, #000 var(--fade-top), #000 calc(100% - var(--fade-bottom)), transparent);
+  mask-image: linear-gradient(to bottom, transparent, #000 var(--fade-top), #000 calc(100% - var(--fade-bottom)), transparent);
+}
+@supports (animation-timeline: scroll()) {
+  .scroll-fade { --fade-bottom: 0px; animation: scroll-fade linear both; animation-timeline: scroll(self); }
+}
+@keyframes scroll-fade {
+  0% { --fade-top: 0px; --fade-bottom: 48px; }
+  8% { --fade-top: 48px; --fade-bottom: 48px; }
+  92% { --fade-top: 48px; --fade-bottom: 48px; }
+  100% { --fade-top: 48px; --fade-bottom: 0px; }
+}

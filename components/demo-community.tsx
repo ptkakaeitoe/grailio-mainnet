@@ -100,7 +100,7 @@ function RoomList({ rooms, current, locked, onPick, prices, footer }: {
         <h1 className="text-[22px] leading-[1.3] font-normal tracking-tight">Rooms</h1>
         <span className={ui.label}>[{pad(rooms.length)} rooms]</span>
       </header>
-      <nav className="mt-4 grid min-h-0 flex-1 grid-cols-[minmax(0,1fr)] content-start gap-1.5 overflow-y-auto desk:mt-6" aria-label="Rooms">
+      <nav className="mt-4 grid min-h-0 flex-1 grid-cols-[minmax(0,1fr)] content-start gap-1.5 overflow-y-auto scroll-fade pb-4 desk:mt-6" aria-label="Rooms">
         {[...rooms]
           .map((r) => ({ r, rank: r.ticker === null ? 0 : locked(r) ? 2 : 1 }))
           // Lounge on top, then rooms you can enter, then by ticker.
@@ -259,7 +259,7 @@ export function CommunityPreview() {
   return (
     <ChatFrame
       showChat={showChat}
-      list={<RoomList rooms={rooms} current={roomId} locked={(r) => r.ticker !== null} onPick={(id) => { setRoomId(id); setShowChat(true); }} prices={byTicker} footer={<><div className="h-12" aria-hidden="true" /><p className={ui.note}>[ opening at launch ]</p></>} />}
+      list={<RoomList rooms={rooms} current={roomId} locked={(r) => r.ticker !== null} onPick={(id) => { setRoomId(id); setShowChat(true); }} prices={byTicker} footer={<p className={ui.note}>[ opening at launch ]</p>} />}
       chat={
         <>
           <ChatHeader title={room.label} label={room.ticker ? "holders" : "public"} onBack={() => setShowChat(false)} />
