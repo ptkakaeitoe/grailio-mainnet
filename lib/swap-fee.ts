@@ -14,8 +14,8 @@ import { TOKENS } from "@/lib/tokens";
 export const SWAP_FEE_BPS = 50;
 /** Share of the fee that goes to stakers when it's in USDC. */
 export const SWAP_FEE_STAKING_BPS = 25;
-/** Receives the treasury share. For now the deployer/owner wallet (STATUS.md plans a separate one). */
-export const SWAP_FEE_TREASURY: Address = "0x07a1944314f38ee5947301b0428958eaebde986a";
+/** Receives the treasury share of every swap fee. */
+export const SWAP_FEE_TREASURY: Address = "0x9c012Fd8571366DfF43F7D9f92A384e83208a524";
 
 export type SwapFee = { feeAmount: string; chargeFeeBy: "currency_in" | "currency_out"; isInBps: true; feeReceiver: string };
 

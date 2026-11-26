@@ -101,15 +101,14 @@ Third-party contracts, all read on chain 56 on 2026-11-26 (`lib/tokens.ts`, `lib
 | KyberSwap MetaAggregationRouterV2 (swaps may only go here) | `0x6131B5fae19EA4f9D964eAc0408E4408b66337b5` |
 | Price pools (PancakeSwap v3) | WBNB/USDC 0.01% `0xf268…12C4`, BTCB/WBNB 0.05% `0x6bbc…d636`, ETH/WBNB 0.05% `0xD0e2…8CBA`, LINK/WBNB 0.25% `0x0E18…94b9`, CAKE/WBNB 0.25% `0x133B…96BF` |
 
-The swap-fee treasury wallet in `lib/swap-fee.ts` (`SWAP_FEE_TREASURY`) is carried over from the earlier app; change it to your own wallet before taking swaps.
+The swap-fee treasury wallet is `SWAP_FEE_TREASURY` in `lib/swap-fee.ts` (`0x9c01…a524`).
 
 ## What is left for you
 
 1. **Review the 18-decimal USDC change** to `CollectPacks` (it now reads USDC's decimals; unit tests cover 6 and 18) and run the fork test with `BSC_RPC_URL` set. It's a real-money contract: have it reviewed before deploying.
 2. **Deploy the contracts yourself** (spends real BNB): the exact commands are in [`contracts/README.md`](contracts/README.md#deploy-you-run-this-it-spends-real-bnb-and-usdc). The script writes every address into `deployments/56.json`; rebuild the app afterwards and seed the pack pool with USDC.
 3. **Fill in `.env.local`** (or your host's env): Privy app ID with BNB Smart Chain enabled, beta codes and cookie secret, an Etherscan API v2 key, and optionally a relayer wallet with a little BNB plus Upstash.
-4. **Set `SWAP_FEE_TREASURY`** in `lib/swap-fee.ts` to your wallet.
-5. **Optional: outside NFTs as profile pictures.** BNB Chain has no keyless NFT index, so the picker offers Grailio cards only. Plug an NFT indexer into `lib/nft-metadata.ts` to bring this back.
+4. **Optional: outside NFTs as profile pictures.** BNB Chain has no keyless NFT index, so the picker offers Grailio cards only. Plug an NFT indexer into `lib/nft-metadata.ts` to bring this back.
 
 ## What changed from the earlier app
 
