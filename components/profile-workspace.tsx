@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowUpRightIcon, ClockCounterClockwiseIcon, KeyIcon, SignOutIcon } from "@phosphor-icons/react/ssr";
+import { ArrowUpRightIcon, KeyIcon, SignOutIcon } from "@phosphor-icons/react/ssr";
 import Link from "next/link";
 import { useState } from "react";
 import { useAccount } from "wagmi";
@@ -9,7 +9,7 @@ import { cleanButton, cn } from "@/components/clean-ui";
 import { useDemo } from "@/components/demo-provider";
 import { HoldingsPanel } from "@/components/holdings-panel";
 import { ProfileCards } from "@/components/profile-cards";
-import { ActivityDrawer } from "@/components/activity-log";
+import { ActivityList } from "@/components/activity-log";
 import { collectPacksLive } from "@/lib/collect-packs";
 import { DemoIdCard, IdentityCard } from "@/components/identity-card";
 import { ShareProfileButton } from "@/components/share-profile";
@@ -32,7 +32,7 @@ export function ProfileWorkspace() {
   const demo = useDemo();
   const { address } = useAccount();
   const { logout, exportWallet } = useWalletAuth();
-  const [activityOpen, setActivityOpen] = useState(false);
+  const [tab, setTab] = useState<"collection" | "activity">("collection");
   // On-chain history: live wallets only (demo has none).
   const showActivity = !demo.active && Boolean(address) && collectPacksLive;
 
@@ -61,18 +61,32 @@ export function ProfileWorkspace() {
         {demo.active ? (
           <DemoProfileIdentity actions={<ShareProfileButton card={<DemoIdCard />} />} />
         ) : (
-          address && <ProfileIdentity account={address} isMe actions={<><ShareProfileButton card={<IdentityCard account={address} />} />{showActivity && <button type="button" className={chipAction} aria-haspopup="dialog" onClick={() => setActivityOpen(true)}><ClockCounterClockwiseIcon /> Activity</button>}</>} accountActions={<>{exportWallet && <button type="button" className={chipAction} aria-haspopup="dialog" onClick={() => { void exportWallet().catch(() => {}); }}><KeyIcon /> Export wallet</button>}<button type="button" className={cn(chipAction, "text-down hover:border-down")} onClick={() => { void logout(); }}><SignOutIcon /> Sign out</button></>} />
+          address && <ProfileIdentity account={address} isMe actions={<><ShareProfileButton card={<IdentityCard account={address} />} /></>} accountActions={<>{exportWallet && <button type="button" className={chipAction} aria-haspopup="dialog" onClick={() => { void exportWallet().catch(() => {}); }}><KeyIcon /> Export wallet</button>}<button type="button" className={cn(chipAction, "text-down hover:border-down")} onClick={() => { void logout(); }}><SignOutIcon /> Sign out</button></>} />
         )}
       </section>
 
       <div className={marketGrid}>
         <section id="collection" className={marketMain} aria-labelledby="cards-title">
           <div className="mb-6 flex items-baseline justify-between gap-3">
-            <h2 id="cards-title" className={sectionTitle}>Collection</h2>
+            <h2 id="cards-title" className="sr-only">{tab === "activity" ? "Activity" : "Collection"}</h2>
+            <div className="flex items-baseline gap-5" role="tablist" aria-label="Profile">
+              {(showActivity ? (["collection", "activity"] as const) : (["collection"] as const)).map((t) => (
+                <button
+                  key={t}
+                  type="button"
+                  role="tab"
+                  aria-selected={tab === t}
+                  className={cn(sectionTitle, "transition-colors", tab === t ? "text-black" : "text-muted hover:text-black")}
+                  onClick={() => setTab(t)}
+                >
+                  {t === "activity" ? "Activity" : "Collection"}
+                </button>
+              ))}
+            </div>
             {/* Cards and packs have their own page; just a link there. */}
-            <Link href="/collection" className={cn(sectionLabel, "inline-flex shrink-0 items-center gap-1 hover:text-black")}>[ open collection <ArrowUpRightIcon className="size-3.5" weight="bold" /> ]</Link>
+            {tab === "collection" && <Link href="/collection" className={cn(sectionLabel, "inline-flex shrink-0 items-center gap-1 hover:text-black")}>[ open collection <ArrowUpRightIcon className="size-3.5" weight="bold" /> ]</Link>}
           </div>
-          <ProfileCards account={address} />
+          {tab === "activity" && showActivity && address ? <div role="tabpanel"><ActivityList account={address} /></div> : <ProfileCards account={address} />}
         </section>
 
         {/* Phones: holdings (and the ID card) first; the Collection box links to its own page. */}
@@ -80,7 +94,6 @@ export function ProfileWorkspace() {
           <HoldingsPanel />
         </aside>
       </div>
-      {activityOpen && address && <ActivityDrawer account={address} onClose={() => setActivityOpen(false)} />}
     </div>
   );
 }

@@ -77,7 +77,8 @@ export function ActivityDrawer({ account, onClose }: { account: Address; onClose
   );
 }
 
-function ActivityList({ account }: { account: Address }) {
+/** The wallet's history as a plain list (the profile's Activity tab, and the drawer). */
+export function ActivityList({ account }: { account: Address }) {
   const [state, setState] = useState<{ account: Address; items: ActivityItem[] | null; error: boolean } | null>(null);
   useEffect(() => {
     let cancelled = false;
