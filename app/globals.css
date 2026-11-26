@@ -135,6 +135,14 @@ body::before {
   animation: glow-hue 24s linear infinite;
 }
 @media (prefers-reduced-motion: reduce) { .footer-glow { animation: none; } }
+/* iPhone and iPad Safari paint the strip below the page (behind the toolbar and home bar) flat in the theme colour,
+   so the footer glow eases out over its bottom 48px instead of meeting that strip in a hard line. */
+@supports (-webkit-touch-callout: none) {
+  .footer-glow {
+    -webkit-mask-image: linear-gradient(to top, transparent 0, #000 48px, rgb(0 0 0 / .45) 45%, transparent 100%);
+    mask-image: linear-gradient(to top, transparent 0, #000 48px, rgb(0 0 0 / .45) 45%, transparent 100%);
+  }
+}
 /* iPhone and iPad Safari (the only browsers with -webkit-touch-callout): Safari paints the status-bar strip itself in
    the theme colour, so the glow eases in over the page's top 40px instead of starting at full strength under a flat
    strip. Short enough not to read as a band. */
