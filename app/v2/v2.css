@@ -1,0 +1,108 @@
+/* Presentation only: all actions run through the shared feature panels. */
+.v2-root { max-width: 1100px; margin: auto; padding: 16px; font: 14px/1.5 system-ui, sans-serif; }
+.v2-header, .v2-nav { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; padding-bottom: 16px; }
+.v2-header > a:first-child { margin-right: auto; font-weight: 600; }
+.v2-header > span { color: var(--muted); font-size: 12px; }
+.v2-header > button, .v2-nav a { padding: 8px 12px; border: 1px solid var(--border); border-radius: 4px; }
+.v2-nav { border-bottom: 1px solid var(--border); margin-bottom: 20px; }
+.v2-nav a { text-transform: capitalize; }
+.v2-nav a[aria-current="page"] { background: var(--foreground); color: white; }
+.v2-root :is(button, a, input, textarea, summary):focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+.v2-panel :is(.trade-topline, .trade-heading, .trade-footer, .market-description, .market-footnote, .swap-below, .swap-field-note, .featured-pack-subtitle, .featured-pack-description, .featured-pack-facts, .featured-pack-concept, .collection-welcome-art) { display: none; }
+.v2-panel :is(.trade-workspace, .market-workspace, .collection-body) { padding: 0; }
+.v2-panel .trade-layout { margin-top: 0; }
+.v2-panel--trade .swap-box { padding: 16px 0; border: 0; box-shadow: none; background: transparent; }
+.v2-panel--trade .swap-settings > p { display: none; }
+.v2-panel--packs { max-width: 600px; }
+.v2-panel--packs .featured-pack { display: block; padding: 0; margin: 0; border: 0; }
+.v2-panel--packs .featured-pack-art { display: flex; flex-direction: row; align-items: center; justify-content: flex-start; gap: 16px; min-height: 0; height: auto; padding: 0 0 16px; background: transparent; overflow: visible; }
+.v2-panel--packs :is(.pack-carousel, .pack-dots) { display: none; }
+.v2-panel--packs .pack-step { position: static; transform: none; width: 44px; height: 44px; }
+.v2-panel--packs .featured-pack-copy { padding: 0; max-width: none; }
+.v2-panel--packs .featured-pack-switch { min-height: 0; }
+.v2-panel--packs .featured-pack-switch h3 { font: 600 20px/1.4 system-ui; margin: 8px 0; }
+.v2-panel--packs .pack-contents { margin: 16px 0; }
+.v2-panel--packs .pack-contents > p { font-size: 0; margin: 8px 0; }
+.v2-panel--packs .pack-contents > p > button { font-size: 12px; }
+.v2-panel--packs .pack-checkout { padding: 16px 0; }
+.v2-panel--packs .pack-checkout-price { font-size: 22px; }
+.v2-panel--collection .collection-welcome { min-height: 0; padding: 16px 0; border: 0; background: transparent; }
+.v2-panel--collection .collection-welcome-copy :is(.eyebrow, p) { display: none; }
+.v2-panel--collection .collection-welcome h2 { font: 600 20px/1.4 system-ui; }
+.v2-panel--community { height: min(720px, 75dvh); min-height: 400px; }
+@media (max-width: 600px) {
+  .v2-root { padding: 12px; }
+  .v2-header { gap: 8px; }
+  .v2-nav { gap: 6px; }
+  .v2-nav a { padding: 8px; font-size: 12px; }
+}
+.v2-panel--trade .trade-layout { border: 0; padding: 0; }
+.v2-panel--trade .swap-heading { margin-bottom: 8px; }
+.v2-panel--trade .swap-input-box { padding: 10px; background: transparent; }
+.v2-panel--trade .swap-amount-row { margin-top: 8px; }
+.v2-panel--trade .swap-amount-row :is(input, output) { font-size: 24px; letter-spacing: 0; }
+.v2-panel--trade .swap-route { padding-block: 12px; }
+.v2-panel--trade .swap-preview-note { margin-top: 8px; }
+
+/* Monochrome development surface. Keep the main application theme intact. */
+body:has(.v2-root) { background: #fff; }
+.v2-root {
+  --background: #fff;
+  --surface: #fff;
+  --surface-muted: #f7f7f7;
+  --foreground: #111;
+  --muted: #666;
+  --muted-soft: #737373;
+  --border: #e5e5e5;
+  --border-strong: #bbb;
+  --accent: #111;
+  --accent-soft: #f3f3f3;
+  --positive: #111;
+  --warning: #111;
+  --warning-soft: #f5f5f5;
+  max-width: 1120px;
+  min-height: 100dvh;
+  padding: 32px 40px 64px;
+  color: #111;
+  background: #fff;
+}
+.v2-header { gap: 20px; padding-bottom: 28px; }
+.v2-header > button { background: #fff; border-color: #ddd; min-height: 40px; }
+.v2-header [data-rk] { filter: grayscale(1); }
+.v2-nav { gap: 24px; padding-bottom: 0; margin-bottom: 40px; }
+.v2-nav a { border: 0; border-bottom: 2px solid transparent; border-radius: 0; padding: 12px 0 16px; color: #666; }
+.v2-nav a[aria-current="page"] { background: transparent; color: #111; border-bottom-color: #111; }
+.v2-nav a:hover { color: #111; }
+.v2-panel :is(img, .swap-token-icon, .pack-rarity-dot, .pack-token-symbol, .market-symbol) { filter: grayscale(1); }
+.v2-panel .stock-card-front { --card-accent: #777 !important; }
+.v2-panel--community { filter: grayscale(1); }
+.v2-panel--trade .swap-column { max-width: none; margin: 0; }
+.v2-panel--trade .swap-box { padding: 0; }
+.v2-panel--trade .swap-heading { margin-bottom: 20px; }
+.v2-panel--trade .swap-input-box { padding: 18px; border-radius: 0; }
+.v2-panel--trade .swap-amount-row { margin-top: 16px; }
+.v2-panel--trade .swap-amount-row :is(input, output) { font-size: 28px; }
+.v2-panel--trade .swap-route { padding-block: 20px; }
+.v2-panel--trade .swap-submit { min-height: 48px; margin-top: 16px; background: #111; }
+.v2-panel--trade .swap-submit:disabled { background: #666; }
+.v2-panel--packs { margin-inline: auto; }
+.v2-panel--packs .featured-pack-art { gap: 12px; padding-bottom: 24px; }
+.v2-panel--packs .featured-pack-switch h3 { margin: 12px 0 24px; }
+.v2-panel--packs .pack-contents { margin: 24px 0; }
+.v2-panel--packs .pack-contents :is(td, th) { padding-block: 14px; }
+.v2-panel--packs .pack-checkout { margin-top: 24px; padding-block: 24px; }
+.v2-panel--packs .pack-checkout-fields { margin-bottom: 24px; }
+.v2-panel--packs .pack-tier-picker { gap: 12px; }
+.v2-panel--packs .pack-tier-picker button { background: #fff; color: #111; }
+.v2-panel--packs .pack-tier-picker button[aria-pressed="true"] { border-color: #111; background: #f3f3f3; }
+.v2-panel :is(.tx-error-note, .featured-pack-error) { color: #111; border-left: 2px solid #111; padding-left: 12px; }
+@media (max-width: 600px) {
+  .v2-root { padding: 20px 16px 40px; }
+  .v2-header { gap: 12px; padding-bottom: 20px; }
+  .v2-nav { gap: 8px 18px; margin-bottom: 28px; }
+  .v2-nav a { padding-block: 10px; font-size: 13px; }
+  .v2-panel--trade .swap-input-box { padding: 14px; }
+}
+.v2-header > div { filter: grayscale(1); }
+.v2-header button[data-testid="rk-connect-button"] { background: #111 !important; color: #fff !important; }
+.v2-panel--trade .market-option[aria-selected="true"] { border-color: #111; background: #f5f5f5; }

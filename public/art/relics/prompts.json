@@ -1,0 +1,32 @@
+{
+  "tool": "built-in image_gen",
+  "useCase": "stylized-concept",
+  "sharedDirection": "Art-only portrait 2:3 illustrations for a shared web trading-card frame. One centered original magical relic per image, fully visible with generous space. Premium painterly detail, subtle ink and halftone texture, restrained geometric background, minimal black-and-white editorial styling with one accent color. No text, numbers, card border, logo, watermark, characters, or existing-game iconography.",
+  "artworks": [
+    {
+      "ticker": "AAPL",
+      "name": "Silver Seed",
+      "prompt": "A singular luminous sculpted silver seed with a delicate stem, suspended above a small dark stone pedestal, pale blue light and a restrained salmon halo; simple cool blue and ivory geometric field."
+    },
+    {
+      "ticker": "MSFT",
+      "name": "Prism Gate",
+      "prompt": "A floating square portal of four translucent glass panes, with red, green, blue, and yellow reflections, dark metal frame and luminous central seam; pale gray and soft green geometric field."
+    },
+    {
+      "ticker": "NVDA",
+      "name": "Neural Eye",
+      "prompt": "A single emerald crystal lens held inside a dark graphite mechanical iris with fine circuitry and a luminous green core; pale gray and deep green geometric field."
+    },
+    {
+      "ticker": "TSLA",
+      "name": "Volt Crown",
+      "prompt": "A sleek sculptural white-metal circlet crowned by branching red lightning crystal, with arcs of controlled electric energy; pale gray and muted salmon geometric field."
+    },
+    {
+      "ticker": "AMZN",
+      "name": "Wayfinder Key",
+      "prompt": "An antique brass key fused with a subtle compass rose and orange glass inlay, floating above dark stone; warm gray and restrained orange geometric field."
+    }
+  ]
+}
