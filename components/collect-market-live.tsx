@@ -86,7 +86,7 @@ export function CollectMarketLive({ mode = "both" }: { mode?: MarketMode }) {
   const [rarity, setRarity] = useState("all");
   const [sort, setSort] = useState<"price" | "recent">("price");
   const inRarity = (l: CollectListing) => rarity === "all" || RARITY_NAMES[l.rarity] === rarity;
-  // Stocks always get a chip; the retired crypto assets only while listed.
+  // One chip per stock.
   const assets = useAssetFilter({ cards: STOCK_CARDS, keep: (c) => isStock(c.ticker), listings, tickerOf: (l) => l.ticker, usdOf, inView: inRarity });
   const usdValue = (l: CollectListing) => (l.inAvax ? priceAmount(l) * (avaxUsd ?? 0) : priceAmount(l));
   const shown = listings

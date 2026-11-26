@@ -61,24 +61,21 @@ export const MARKET_FEE = 0.01;
 export const RARITY_NAMES = ["Common", "Rare", "Epic", "Legendary"] as const;
 
 /**
- * Pack tiers, indexed by their CollectPacks tier id. Fable, Saga and Mythos are
- * three sizes ($1, $3, $5); each will come in Low, Medium and High risk. Low:
- * every card holds 95% of the price. Medium/High: odds set the value.
+ * Pack tiers, indexed by their CollectPacks tier id: Fable ($1) 0-2, Saga ($3)
+ * 3-5, Mythos ($5) 6-8, each Low / Medium / High. Low: every card holds 95% of
+ * the price. Medium/High: odds set the value. Each edition draws from its own
+ * stock basket (basketForTier in lib/stock-assets.ts).
  */
 export const PACK_TIERS = [
-  // Fable ($1) in three risks. Medium and High are on-chain but switched off until the pool is funded.
-  { id: 0, name: "Fable", level: "Low", risk: "Every card holds $0.95", range: "$0.95 in tokens", price: 1, odds: [50, 25, 20, 5], backing: [0.95, 0.95, 0.95, 0.95], retired: false },
-  { id: 1, name: "Fable · Medium", level: "Medium", risk: "Medium risk", range: "$0.46–$4.00 in tokens", price: 1, odds: [50, 25, 20, 5], backing: [0.46, 0.8, 1.4, 4], retired: false },
-  { id: 2, name: "Fable · High", level: "High", risk: "High risk", range: "$0.20–$10.13 in tokens", price: 1, odds: [60, 25, 12, 3], backing: [0.2, 0.6, 2.8, 10.13], retired: false },
-  // Saga ($3) and Mythos ($5), Low risk. Tier 4 is a duplicate Saga added by mistake: switched off on-chain and hidden.
-  { id: 3, name: "Saga", level: "Low", risk: "Every card holds $2.85", range: "$2.85 in tokens", price: 3, odds: [50, 25, 20, 5], backing: [2.85, 2.85, 2.85, 2.85], retired: false },
-  { id: 4, name: "Saga", level: "Low", risk: "Every card holds $2.85", range: "$2.85 in tokens", price: 3, odds: [50, 25, 20, 5], backing: [2.85, 2.85, 2.85, 2.85], retired: true },
-  { id: 5, name: "Mythos", level: "Low", risk: "Every card holds $4.75", range: "$4.75 in tokens", price: 5, odds: [50, 25, 20, 5], backing: [4.75, 4.75, 4.75, 4.75], retired: false },
-  // Planned: Medium and High for Saga and Mythos. Add them on-chain in this order so the ids match (6, 7, 8, 9).
-  { id: 6, name: "Saga · Medium", level: "Medium", risk: "Medium risk", range: "$1.38–$12.00 in tokens", price: 3, odds: [50, 25, 20, 5], backing: [1.38, 2.4, 4.2, 12], retired: false },
-  { id: 7, name: "Saga · High", level: "High", risk: "High risk", range: "$0.60–$30.39 in tokens", price: 3, odds: [60, 25, 12, 3], backing: [0.6, 1.8, 8.4, 30.39], retired: false },
-  { id: 8, name: "Mythos · Medium", level: "Medium", risk: "Medium risk", range: "$2.30–$20.00 in tokens", price: 5, odds: [50, 25, 20, 5], backing: [2.3, 4, 7, 20], retired: false },
-  { id: 9, name: "Mythos · High", level: "High", risk: "High risk", range: "$1.00–$50.65 in tokens", price: 5, odds: [60, 25, 12, 3], backing: [1, 3, 14, 50.65], retired: false },
+  { id: 0, name: "Fable", level: "Low", risk: "Every card holds $0.95", range: "$0.95 in stocks", price: 1, odds: [50, 25, 20, 5], backing: [0.95, 0.95, 0.95, 0.95], retired: false },
+  { id: 1, name: "Fable · Medium", level: "Medium", risk: "Medium risk", range: "$0.46–$4.00 in stocks", price: 1, odds: [50, 25, 20, 5], backing: [0.46, 0.8, 1.4, 4], retired: false },
+  { id: 2, name: "Fable · High", level: "High", risk: "High risk", range: "$0.20–$10.13 in stocks", price: 1, odds: [60, 25, 12, 3], backing: [0.2, 0.6, 2.8, 10.13], retired: false },
+  { id: 3, name: "Saga", level: "Low", risk: "Every card holds $2.85", range: "$2.85 in stocks", price: 3, odds: [50, 25, 20, 5], backing: [2.85, 2.85, 2.85, 2.85], retired: false },
+  { id: 4, name: "Saga · Medium", level: "Medium", risk: "Medium risk", range: "$1.38–$12.00 in stocks", price: 3, odds: [50, 25, 20, 5], backing: [1.38, 2.4, 4.2, 12], retired: false },
+  { id: 5, name: "Saga · High", level: "High", risk: "High risk", range: "$0.60–$30.39 in stocks", price: 3, odds: [60, 25, 12, 3], backing: [0.6, 1.8, 8.4, 30.39], retired: false },
+  { id: 6, name: "Mythos", level: "Low", risk: "Every card holds $4.75", range: "$4.75 in stocks", price: 5, odds: [50, 25, 20, 5], backing: [4.75, 4.75, 4.75, 4.75], retired: false },
+  { id: 7, name: "Mythos · Medium", level: "Medium", risk: "Medium risk", range: "$2.30–$20.00 in stocks", price: 5, odds: [50, 25, 20, 5], backing: [2.3, 4, 7, 20], retired: false },
+  { id: 8, name: "Mythos · High", level: "High", risk: "High risk", range: "$1.00–$50.65 in stocks", price: 5, odds: [60, 25, 12, 3], backing: [1, 3, 14, 50.65], retired: false },
 ] as const;
 
 /** The packs on offer (retired tiers left out), cheapest first. */

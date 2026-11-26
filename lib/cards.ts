@@ -1,16 +1,12 @@
 import { STOCK_ASSETS } from "./stock-assets.ts";
 
-/**
- * Shared card identities. Each relic (art + slot) has two identities: the live
- * app's BNB Chain token, and the demo's stock. The artwork is framed by
- * StockCardFront.
- */
+/** Card identities, one per tokenized stock. The artwork is framed by StockCardFront. */
 export type StockCard = {
   slug: string;
   ticker: string;
   /** Relic name on the card. */
   name: string;
-  /** What it tracks: the token ("Bitcoin") or, in the demo, the company ("Apple"). */
+  /** Company or fund name ("Apple"). */
   tokenName: string;
   src: string;
   accent: string;
@@ -28,17 +24,8 @@ const RELICS = [
   { name: "Wayfinder Key", src: "/art/relics/amzn-wayfinder-key.png" },
 ] as const;
 
-/** Original BNB Chain token cards (asset IDs 0-4), kept so existing cards still render. */
-const TOKEN_CARDS: StockCard[] = [
-  { slug: "btc-seed", ticker: "BTC", name: "Silver Seed", tokenName: "Bitcoin", src: "/art/relics/aapl-silver-seed.png", accent: "#f7931a", number: "01" },
-  { slug: "eth-prism", ticker: "ETH", name: "Prism Gate", tokenName: "Ethereum", src: "/art/relics/msft-prism-gate.png", accent: "#627eea", number: "02" },
-  { slug: "avax-eye", ticker: "WBNB", name: "Neural Eye", tokenName: "BNB", src: "/art/relics/nvda-neural-eye.png", accent: "#f0b90b", number: "03" },
-  { slug: "link-crown", ticker: "LINK", name: "Volt Crown", tokenName: "Chainlink", src: "/art/relics/tsla-volt-crown.png", accent: "#2a5ada", number: "04" },
-  { slug: "joe-key", ticker: "CAKE", name: "Wayfinder Key", tokenName: "PancakeSwap", src: "/art/relics/amzn-wayfinder-key.png", accent: "#1fc7d4", number: "05" },
-];
-
-/** Tokenized stock cards (asset IDs 5+), one per lib/stock-assets.ts entry. */
-const STOCK_ASSET_CARDS: StockCard[] = STOCK_ASSETS.map((stock, i) => {
+/** One card per lib/stock-assets.ts entry (asset ID = index). */
+export const STOCK_CARDS: StockCard[] = STOCK_ASSETS.map((stock, i) => {
   const relic = RELICS[stock.assetId % RELICS.length];
   return {
     slug: `${stock.ticker.toLowerCase()}-stock`,
@@ -52,27 +39,17 @@ const STOCK_ASSET_CARDS: StockCard[] = STOCK_ASSETS.map((stock, i) => {
   };
 });
 
-/** Live app: cards hold BNB Chain tokens (the original five) and tokenized stocks. */
-export const STOCK_CARDS: StockCard[] = [...TOKEN_CARDS, ...STOCK_ASSET_CARDS];
+/** Demo mode uses the same stocks and baskets. */
+export const DEMO_STOCK_CARDS: StockCard[] = STOCK_CARDS;
 
-/** Demo mode: the same relics, tracking stocks (prices from Yahoo Finance). */
-export const DEMO_STOCK_CARDS: StockCard[] = [
-  { slug: "btc-seed", ticker: "AAPL", name: "Silver Seed", tokenName: "Apple", src: "/art/relics/aapl-silver-seed.png", accent: "#7ba7c7", number: "01" },
-  { slug: "eth-prism", ticker: "MSFT", name: "Prism Gate", tokenName: "Microsoft", src: "/art/relics/msft-prism-gate.png", accent: "#c9a227", number: "02" },
-  { slug: "avax-eye", ticker: "NVDA", name: "Neural Eye", tokenName: "NVIDIA", src: "/art/relics/nvda-neural-eye.png", accent: "#76b900", number: "03" },
-  { slug: "link-crown", ticker: "TSLA", name: "Volt Crown", tokenName: "Tesla", src: "/art/relics/tsla-volt-crown.png", accent: "#cc3b3b", number: "04" },
-  { slug: "joe-key", ticker: "AMZN", name: "Wayfinder Key", tokenName: "Amazon", src: "/art/relics/amzn-wayfinder-key.png", accent: "#d99b45", number: "05" },
-];
-
-/** The card set for a mode: stocks in the demo, tokens otherwise. */
+/** The card set for a mode (the same in both). */
 export const cardsFor = (demo: boolean) => (demo ? DEMO_STOCK_CARDS : STOCK_CARDS);
 
 const byKey = (cards: StockCard[], key: "slug" | "ticker") =>
   Object.fromEntries(cards.map((card) => [card[key], card])) as Record<string, StockCard>;
 
 export const CARD_BY_SLUG = byKey(STOCK_CARDS, "slug");
-/** Looks up both sets. A live stock that shares a demo ticker (NVDA, AAPL) wins: same company either way. */
-export const CARD_BY_TICKER = { ...byKey(DEMO_STOCK_CARDS, "ticker"), ...byKey(STOCK_CARDS, "ticker") };
+export const CARD_BY_TICKER = byKey(STOCK_CARDS, "ticker");
 
 /** Existing art retained for packs whose new artwork has not been created yet. */
 const LEGACY_RARITY_ART = [
@@ -109,10 +86,10 @@ export const MYTHOS_RARITY_ART = [
 /** Art follows pack and rarity; the coin only sets its label, logo and stripe. */
 export function cardArt(ticker: string, rarity: number, tier = 0): StockCard {
   const coin = CARD_BY_TICKER[ticker];
-  const set = tier === 0 || tier === 1 || tier === 2
-    ? RARITY_ART
-    : [3, 4, 6, 7].includes(tier) ? SAGA_RARITY_ART
-    : [5, 8, 9].includes(tier) ? MYTHOS_RARITY_ART : LEGACY_RARITY_ART;
+  // Tiers 0-2 Fable, 3-5 Saga, 6-8 Mythos.
+  const set = tier >= 0 && tier <= 2 ? RARITY_ART
+    : tier >= 3 && tier <= 5 ? SAGA_RARITY_ART
+    : tier >= 6 && tier <= 8 ? MYTHOS_RARITY_ART : LEGACY_RARITY_ART;
   const art = set[rarity] ?? set[0];
   return {
     slug: `${coin?.slug ?? ticker.toLowerCase()}-r${rarity}`,

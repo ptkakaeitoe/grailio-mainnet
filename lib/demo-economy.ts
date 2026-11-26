@@ -2,7 +2,7 @@
 export type DemoTier = { id: number; price: number; odds: readonly number[]; backing: readonly number[] };
 export type DemoCard = { id: number; ticker: string; tier: number; rarity: number; amount: number; stakedAt: number | null; /** Staking: the pool's acc when this card was last paid. */ debt?: number };
 export type DemoState = { balances: Record<string, number>; packs: number[]; cards: DemoCard[]; nextId: number; listings: DemoListing[]; nextListingId: number; marketSeeded: boolean; gifts: DemoGift[]; claimed: string[]; points: number; /** Redeemed (burned) cards, kept for the profile. */ redeemed: DemoCard[]; /** Simulated CollectStaking pool; created on first use. */ staking?: DemoStaking };
-export const initialDemo = (): DemoState => ({ balances: { BNB: 100, USDT: 5000, USDC: 5000, NVDA: 0, AAPL: 0, TSLA: 0, MSFT: 0, AMZN: 0 }, packs: [], cards: [], nextId: 1, listings: [], nextListingId: 1, marketSeeded: false, gifts: [], claimed: [], points: 0, redeemed: [] });
+export const initialDemo = (): DemoState => ({ balances: { BNB: 100, USDT: 5000, USDC: 5000, NVDA: 0, AAPL: 0, TSLA: 0, AMZN: 0 }, packs: [], cards: [], nextId: 1, listings: [], nextListingId: 1, marketSeeded: false, gifts: [], claimed: [], points: 0, redeemed: [] });
 export function packCost(tier: DemoTier, quantity: number, price: number): number | null {
   if (!Number.isInteger(quantity) || quantity < 1 || quantity > 10 || !Number.isFinite(price) || price <= 0) return null;
   return tier.price * quantity / price;

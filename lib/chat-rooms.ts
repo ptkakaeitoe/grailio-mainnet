@@ -11,15 +11,13 @@ import { STOCK_ASSETS } from "./stock-assets.ts";
  * only, no redeploy); until that runs, the stock's room shows as not open yet.
  *
  * Open and token-gated rooms (the lounge, pack/edition rooms) stay on top.
- * Rooms for the original token cards (asset IDs 0-4) stay readable, listed
- * only for wallets that still hold such a card.
  */
 
 /** The fields of an on-chain room this list needs (see ChatRoom in lib/use-chat.ts). */
 export type OnChainRoom = { id: number; name: string; kind: number; gateId: bigint; minBalance: bigint; encrypted: boolean };
 
 export type RoomEntry<R extends OnChainRoom = OnChainRoom> = {
-  /** Stable key: "room:<id>" for top and legacy rooms, "stock:<ticker>" for stock rooms. */
+  /** Stable key: "room:<id>" for top rooms, "stock:<ticker>" for stock rooms. */
   key: string;
   /** The on-chain room; undefined while a stock's room isn't added yet. */
   room?: R;
@@ -35,8 +33,6 @@ export type RoomEntry<R extends OnChainRoom = OnChainRoom> = {
 };
 
 const CARD_GATE = 2;
-/** Original token cards, asset IDs 0-4 (MainnetConfig.addAssets order). */
-const LEGACY_TICKERS = ["BTC", "ETH", "WBNB", "LINK", "CAKE"];
 
 const stripTicker = (name: string) => name.replace(/^\$/, "");
 
@@ -52,14 +48,8 @@ export function buildRoomList<R extends OnChainRoom>(rooms: R[], held: Record<st
     return { key: `stock:${s.ticker}`, room, ticker: s.ticker, title: s.ticker, subtitle: s.name, top: false, minBalance: room ? Number(room.minBalance) : 1 };
   });
 
-  const legacy: RoomEntry<R>[] = cardRooms
-    .filter((r) => r.gateId < BigInt(LEGACY_TICKERS.length))
-    .map((r) => ({ r, ticker: LEGACY_TICKERS[Number(r.gateId)] }))
-    .filter(({ r, ticker }) => (held[ticker] ?? 0) >= Math.max(1, Number(r.minBalance)))
-    .map(({ r, ticker }) => ({ key: `room:${r.id}`, room: r, ticker, title: ticker, top: false, minBalance: Number(r.minBalance) }));
-
   const canEnter = (e: RoomEntry<R>) => (e.ticker ? (held[e.ticker] ?? 0) >= Math.max(1, e.minBalance) : true);
-  const cards = [...stocks, ...legacy].sort((a, b) => Number(canEnter(b)) - Number(canEnter(a)) || a.title.localeCompare(b.title));
+  const cards = [...stocks].sort((a, b) => Number(canEnter(b)) - Number(canEnter(a)) || a.title.localeCompare(b.title));
   return [...top, ...cards];
 }
 
