@@ -132,7 +132,7 @@ export async function POST(request: Request) {
 
 /** Plain-English versions of CollectChat's errors. */
 const REASONS: Record<string, string> = {
-  NotAllowed: "You need a card of this room's token to post here.",
+  NotAllowed: "You need a card of this room's stock to post here.",
   NotRegistered: "Unlock chat first.",
   Muted: "This account is muted.",
   SessionExpired: "Your chat session expired. Unlock chat again.",

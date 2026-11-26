@@ -10,6 +10,7 @@ import { ago, pad, ui } from "@/components/community-workspace";
 import { useDemo } from "@/components/demo-provider";
 import { TokenIcon } from "@/components/token-icon";
 import { DEMO_STOCK_CARDS, STOCK_CARDS, type StockCard } from "@/lib/cards";
+import { isStock } from "@/lib/stock-assets";
 import { useDemoProfile } from "@/lib/demo-profile";
 import { usd, useStockPrices } from "@/lib/use-stock-prices";
 
@@ -19,13 +20,16 @@ import { usd, useStockPrices } from "@/lib/use-stock-prices";
  * this demo session. CommunityPreview is the same layout before chat launches.
  */
 
-type Room = { id: string; label: string; ticker: string | null };
+type Room = { id: string; label: string; ticker: string | null; subtitle?: string };
 type Message = { id: string; author: string; text: string; time: number; mine?: boolean };
 
+/** The lounge on top, then one room per stock (logo, ticker, company name). */
 const ROOMS = (cards: StockCard[]): Room[] => [
   { id: "lounge", label: "The lounge", ticker: null },
-  ...cards.map((c) => ({ id: c.ticker, label: `$${c.ticker}`, ticker: c.ticker })),
+  ...cards.map((c) => ({ id: c.ticker, label: c.ticker, ticker: c.ticker, subtitle: c.tokenName })),
 ];
+/** Live stock cards only (asset IDs 5+): the original token cards have no room of their own here. */
+const LIVE_STOCK_CARDS = STOCK_CARDS.filter((c) => isStock(c.ticker));
 
 const PEOPLE = ["relicfox", "bluechip_ben", "tsla_maxi", "seedvault", "nightdesk"];
 const SEED: Record<string, string[]> = {
@@ -96,10 +100,11 @@ function RoomList({ rooms, current, locked, onPick, prices, footer }: {
         <h1 className="text-[22px] leading-[1.3] font-normal tracking-tight">Rooms</h1>
         <span className={ui.label}>[{pad(rooms.length)} rooms]</span>
       </header>
-      <nav className="mt-4 grid min-h-0 flex-1 content-start gap-1.5 overflow-y-auto desk:mt-6" aria-label="Rooms">
+      <nav className="mt-4 grid min-h-0 flex-1 grid-cols-[minmax(0,1fr)] content-start gap-1.5 overflow-y-auto desk:mt-6" aria-label="Rooms">
         {[...rooms]
           .map((r) => ({ r, rank: r.ticker === null ? 0 : locked(r) ? 2 : 1 }))
-          .sort((a, b) => a.rank - b.rank)
+          // Lounge on top, then rooms you can enter, then by ticker.
+          .sort((a, b) => a.rank - b.rank || (a.r.ticker ?? "").localeCompare(b.r.ticker ?? ""))
           .map(({ r }) => {
           const q = r.ticker ? prices[r.ticker] : undefined;
           const closed = locked(r);
@@ -110,7 +115,7 @@ function RoomList({ rooms, current, locked, onPick, prices, footer }: {
               <span className="flex min-w-0 flex-col">
                 <strong className={cn("text-base leading-snug font-normal", closed && "text-muted")}>{r.label}</strong>
                 <span className="inline-flex items-center gap-1 truncate text-sm leading-snug text-muted">
-                  {r.ticker ? <>{closed && <LockIcon size={12} />}Holders</> : "Public"}
+                  {r.ticker ? <>{closed && <LockIcon size={12} />}{r.subtitle ?? "Holders"}</> : "Public"}
                 </span>
               </span>
               {q?.price != null && (
@@ -247,7 +252,7 @@ export function DemoCommunity() {
 export function CommunityPreview() {
   const demo = useDemo();
   const { byTicker } = useStockPrices(60_000, "tokens");
-  const rooms = ROOMS(STOCK_CARDS);
+  const rooms = ROOMS(LIVE_STOCK_CARDS);
   const [roomId, setRoomId] = useState("lounge");
   const [showChat, setShowChat] = useState(false);
   const room = rooms.find((r) => r.id === roomId)!;
@@ -261,7 +266,7 @@ export function CommunityPreview() {
           <div className={ui.empty}>
             <p className={ui.label}>[ opening at launch ]</p>
             <h3 className={ui.emptyTitle}>Chat with fellow collectors.<br /><span>On BNB Chain, no gas.</span></h3>
-            <p className="max-w-[440px] text-sm text-muted">The lounge is open to everyone; each token’s room is for its card holders. Try it now with demo cards.</p>
+            <p className="max-w-[440px] text-sm text-muted">The lounge is open to everyone; each stock’s room is for its card holders. Try it now with demo cards.</p>
             <div className="flex flex-wrap justify-center gap-3">
               <button type="button" className={cleanButton.solid} onClick={demo.start}>Try the demo <ArrowUpRightIcon weight="bold" /></button>
               <Link href="/packs" className={cleanButton.outline}>Open a pack <ArrowUpRightIcon weight="bold" /></Link>

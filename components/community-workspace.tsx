@@ -12,7 +12,8 @@ import { CardAvatar } from "@/components/card-avatar";
 import { TokenIcon } from "@/components/token-icon";
 import { AvatarEditor, Bio, UsernameForm } from "@/components/community-profile";
 
-import { cardArt, STOCK_CARDS } from "@/lib/cards";
+import { cardArt } from "@/lib/cards";
+import { buildRoomList, canEnterRoom } from "@/lib/chat-rooms";
 import { StockCardFront } from "@/components/stock-card-front";
 import { avatarsLive, chatAddress, namesLive, RARITY_NAMES, SNOWTRACE } from "@/lib/contracts";
 import { useAvatars, type CardAvatarCrop } from "@/lib/use-avatars";
@@ -24,8 +25,9 @@ import { usd, useStockPrices } from "@/lib/use-stock-prices";
 
 /**
  * Community on CollectChat: every message is an event on BNB Chain.
- * The lounge is public; each token's room is encrypted so only holders of a
- * card of that token can read, and the contract only lets them post.
+ * The lounge (and any pack room) is public and pinned on top; each stock's room
+ * is encrypted so only holders of a card of that stock can read, and the
+ * contract only lets them post. Room ↔ stock mapping: lib/chat-rooms.ts.
  * Posting is gasless via the relay.
  */
 
@@ -52,7 +54,7 @@ export const ui = {
   row: "flex w-full items-center gap-3 rounded-md border border-border px-3 py-3 text-left transition-colors hover:border-black aria-[current=true]:border-black",
   symbol: "grid size-9 shrink-0 place-items-center rounded-full bg-surface-muted text-lg",
   /** Compact room row so every room fits above the profile footer without scrolling. */
-  roomRow: "flex w-full items-center gap-2.5 rounded-md border border-border px-3 py-2 text-left transition-colors hover:border-black aria-[current=true]:border-black",
+  roomRow: "flex w-full min-w-0 items-center gap-2.5 rounded-md border border-border px-3 py-2 text-left transition-colors hover:border-black aria-[current=true]:border-black",
   empty: "flex flex-1 flex-col items-center justify-center gap-6 px-4 py-10 text-center",
   emptyTitle: "text-[clamp(28px,3vw,40px)] leading-[1.15] font-normal tracking-[-0.02em] [&>span]:text-muted-soft",
   iconButton: "grid size-10 shrink-0 place-items-center rounded-md border border-border-strong text-black transition-colors hover:border-black disabled:cursor-not-allowed disabled:opacity-35",
@@ -76,9 +78,9 @@ export function CommunityWorkspace() {
   const held: Record<string, number> = {};
   for (const c of myCards.cards) held[c.ticker] = (held[c.ticker] ?? 0) + 1;
   const { byTicker: prices } = useStockPrices(60_000, "tokens");
-  const [roomId, setRoomId] = useState(0);
+  const [roomKey, setRoomKey] = useState("room:0");
   const [mobileChat, setMobileChat] = useState(true);
-  const [drafts, setDrafts] = useState<Record<number, string>>({});
+  const [drafts, setDrafts] = useState<Record<string, string>>({});
   const [search, setSearch] = useState("");
   const [searchOpen, setSearchOpen] = useState(false);
   const [reply, setReply] = useState<ChatMessage | null>(null);
@@ -92,13 +94,19 @@ export function CommunityWorkspace() {
   const composerInput = useRef<HTMLTextAreaElement>(null);
   const feed = useRef<HTMLDivElement>(null);
 
-  const room: ChatRoom | undefined = chat.rooms[roomId];
-  const ticker = room?.encrypted ? room.name.slice(1) : null;
-  const isHolder = !ticker || (held[ticker] ?? 0) >= Number(room?.minBalance ?? 0n);
+  // Lounge and pack rooms on top, then one room per stock (rooms you can enter first, then by ticker).
+  const entries = buildRoomList(chat.rooms, held);
+  const entry = entries.find((e) => e.key === roomKey) ?? entries[0];
+  const room: ChatRoom | undefined = entry?.room;
+  const ticker = entry?.ticker ?? null;
+  const gated = ticker !== null;
+  const isHolder = !entry || canEnterRoom(entry, held);
+  // A stock whose room isn't added on chain yet: listed, but nothing to read or post.
+  const notOpen = gated && !room;
   // Connected wallets enable chat first in every room (same unlock screen); signed-out visitors can still read the lounge.
-  const canRead = room?.encrypted ? isHolder && chat.ready : chat.ready || !chat.address;
+  const canRead = gated ? isHolder && !notOpen && chat.ready : chat.ready || !chat.address;
   const { messages, loading, send, dismiss, hiddenCount, showMuted, setShowMuted } = useRoomMessages(room, chat.keys);
-  const draft = drafts[roomId] ?? "";
+  const draft = drafts[roomKey] ?? "";
   const q = search.toLowerCase().trim();
   const shown = messages.filter((m) => !q || `${m.author} ${m.text ?? ""}`.toLowerCase().includes(q));
   const count = messages.length;
@@ -113,10 +121,10 @@ export function CommunityWorkspace() {
   }, []);
   useEffect(() => {
     if (feed.current) feed.current.scrollTop = feed.current.scrollHeight;
-  }, [roomId, count, mobileChat, canRead]);
+  }, [roomKey, count, mobileChat, canRead]);
 
-  function pickRoom(id: number) {
-    setRoomId(id);
+  function pickRoom(key: string) {
+    setRoomKey(key);
     setSearch("");
     setSearchOpen(false);
     setReply(null);
@@ -126,7 +134,7 @@ export function CommunityWorkspace() {
     if (!chat.ready || !isHolder || !draft.trim() || !room) return;
     const text = draft.trim();
     const replyTo = reply && reply.text !== null ? { id: reply.id, author: reply.author, text: reply.text } : undefined;
-    setDrafts((prev) => ({ ...prev, [roomId]: "" }));
+    setDrafts((prev) => ({ ...prev, [roomKey]: "" }));
     setReply(null);
     setSearch("");
     composerInput.current?.focus();
@@ -165,9 +173,7 @@ export function CommunityWorkspace() {
     profileDialog.current?.showModal();
   }
 
-  const roomLabel = (r: ChatRoom) => (r.encrypted ? r.name.slice(1) : "The lounge");
-  const roomInitial = (r: ChatRoom) => (r.encrypted ? r.name.slice(1, 2) : "#");
-  const accentOf = (r: ChatRoom) => (r.encrypted ? STOCK_CARDS.find((card) => card.ticker === r.name.slice(1))?.accent : undefined);
+  const title = entry?.title ?? "…";
   const isMe = (a: string) => Boolean(chat.address) && a.toLowerCase() === chat.address!.toLowerCase();
   const nameOf = (a: string) => names.get(a.toLowerCase());
   const who = (a: string) => nameOf(a) ?? (isMe(a) ? "you" : short(a));
@@ -176,8 +182,8 @@ export function CommunityWorkspace() {
 
   const unlockPanel = (
     <div className={ui.empty}>
-      <p className={ui.label}>[ {room?.encrypted ? "holders only" : "public"} ]</p>
-      <h3 className={ui.emptyTitle}>{room?.encrypted ? `Unlock ${room.name.slice(1)} holder chat.` : "Unlock public chat."}<br /><span>One signature. No gas.</span></h3>
+      <p className={ui.label}>[ {gated ? "holders only" : "public"} ]</p>
+      <h3 className={ui.emptyTitle}>{gated ? `Unlock ${ticker} holder chat.` : "Unlock public chat."}<br /><span>One signature. No gas.</span></h3>
       <button type="button" className={cleanButton.solid} disabled={chat.enabling} onClick={chat.enable}>
         {chat.enabling ? "Check your wallet…" : "Enable chat"} <ArrowUpRightIcon weight="bold" />
       </button>
@@ -190,23 +196,19 @@ export function CommunityWorkspace() {
       <aside className={cn("flex min-h-0 flex-col max-desk:w-full desk:border-r desk:border-border desk:pr-6", mobileChat ? "max-desk:hidden" : "")} aria-label="Community rooms">
         <header className="flex items-baseline justify-between gap-3 pt-6 desk:pt-10">
           <h1 className="text-[22px] leading-[1.3] font-normal tracking-tight">Rooms</h1>
-          <span className={ui.label}>[{pad(chat.rooms.length)} rooms]</span>
+          <span className={ui.label}>[{pad(entries.length)} rooms]</span>
         </header>
-        <nav className="mt-4 grid min-h-0 flex-1 content-start gap-1.5 overflow-y-auto desk:mt-6" aria-label="Rooms">
-          {[...chat.rooms]
-            .map((r) => ({ r, rank: !r.encrypted ? 0 : (held[r.name.slice(1)] ?? 0) >= Number(r.minBalance) ? 1 : 2 }))
-            .sort((a, b) => a.rank - b.rank)
-            .map(({ r }) => {
-            const t = r.encrypted ? r.name.slice(1) : null;
-            const locked = t !== null && (held[t] ?? 0) < Number(r.minBalance);
-            const q = t ? prices[t] : undefined;
+        <nav className="mt-4 grid min-h-0 flex-1 grid-cols-[minmax(0,1fr)] content-start gap-1.5 overflow-y-auto desk:mt-6" aria-label="Rooms">
+          {entries.map((e) => {
+            const locked = !canEnterRoom(e, held);
+            const q = e.ticker ? prices[e.ticker] : undefined;
             return (
               // Same as demo: locked rooms look locked (dashed, grey, faded logo); rooms you're in look normal.
-              <button key={r.id} type="button" className={cn(ui.roomRow, locked && "border-dashed bg-surface-muted")} aria-current={roomId === r.id ? "true" : undefined} aria-label={locked ? `${roomLabel(r)}, locked: hold a ${t} card to join` : undefined} onClick={() => pickRoom(r.id)}>
-                {r.encrypted ? <TokenIcon symbol={r.name.slice(1)} className={cn("size-8", locked && "opacity-40 grayscale")} /> : <span className={cn(ui.symbol, "size-8 text-base")} style={{ color: accentOf(r) }}>{roomInitial(r)}</span>}
+              <button key={e.key} type="button" className={cn(ui.roomRow, locked && "border-dashed bg-surface-muted")} aria-current={entry?.key === e.key ? "true" : undefined} aria-label={locked ? `${e.title}, locked: hold a ${e.ticker} card to join` : undefined} onClick={() => pickRoom(e.key)}>
+                {e.ticker ? <TokenIcon symbol={e.ticker} className={cn("size-8", locked && "opacity-40 grayscale")} /> : <span className={cn(ui.symbol, "size-8 text-base")}>#</span>}
                 <span className="flex min-w-0 flex-col">
-                  <strong className={cn("text-base leading-snug font-normal", locked && "text-muted")}>{roomLabel(r)}</strong>
-                  <span className="inline-flex items-center gap-1 truncate text-sm leading-snug text-muted">{r.encrypted ? <>{locked && <Icon name="lock" size={12} />}Holders</> : "Public"}</span>
+                  <strong className={cn("text-base leading-snug font-normal", locked && "text-muted")}>{e.title}</strong>
+                  <span className="flex min-w-0 items-center gap-1 text-sm leading-snug text-muted">{e.ticker ? <>{locked && <span className="shrink-0"><Icon name="lock" size={12} /></span>}<span className="truncate">{e.subtitle ?? "Holders"}</span></> : e.room?.encrypted ? "Holders" : "Public"}</span>
                 </span>
                 {q?.price != null && (
                   <span className="ml-auto flex flex-col items-end pl-2">
@@ -234,27 +236,29 @@ export function CommunityWorkspace() {
         {editing && chat.address && <MyProfileEditor account={chat.address as Address} onClose={() => setEditing(false)} />}
       </aside>
 
-      <section className={cn("flex min-h-0 min-w-0 flex-1 flex-col desk:pl-8", mobileChat ? "" : "max-desk:hidden")} aria-label={room ? roomLabel(room) : "Room"}>
+      <section className={cn("flex min-h-0 min-w-0 flex-1 flex-col desk:pl-8", mobileChat ? "" : "max-desk:hidden")} aria-label={entry ? title : "Room"}>
         <header className="flex shrink-0 items-center gap-3 border-b border-border pt-6 pb-4 desk:pt-10 desk:pb-5">
           <button type="button" className={cn(ui.iconButton, "desk:hidden")} aria-label="Back to rooms" onClick={() => setMobileChat(false)}><Icon name="back" /></button>
-          <h2 className="min-w-0 truncate py-0.5 text-[28px] leading-[1.2] font-normal tracking-tight">{room ? roomLabel(room) : "…"}</h2>
-          <span className={cn(ui.label, "shrink-0 whitespace-nowrap max-phone:hidden")}>[ {room?.encrypted ? "encrypted" : "public"} ]</span>
+          <h2 className="min-w-0 truncate py-0.5 text-[28px] leading-[1.2] font-normal tracking-tight">{title}</h2>
+          <span className={cn(ui.label, "shrink-0 whitespace-nowrap max-phone:hidden")}>[ {gated || room?.encrypted ? "encrypted" : "public"} ]</span>
           <div className="ml-auto flex gap-2">
             <button className={ui.iconButton} type="button" aria-label="Search messages" aria-expanded={searchOpen} disabled={!canRead} onClick={() => { setSearchOpen(!searchOpen); setSearch(""); }}><Icon name="search" size={18} /></button>
-            <button className={ui.iconButton} type="button" aria-label="View members" onClick={openMembers}><Icon name="members" size={18} /></button>
+            <button className={ui.iconButton} type="button" aria-label="View members" disabled={!room} onClick={openMembers}><Icon name="members" size={18} /></button>
           </div>
         </header>
         {searchOpen && <div className="flex shrink-0 items-center gap-2 border-b border-border py-3"><input autoFocus type="search" className={cleanField} aria-label="Search messages" placeholder="Search" value={search} onChange={(event) => setSearch(event.target.value)} /><button type="button" className={ui.iconButton} aria-label="Close search" onClick={() => { setSearchOpen(false); setSearch(""); }}><Icon name="close" size={18} /></button></div>}
 
-        {room?.encrypted && !isHolder ? (
+        {gated && !isHolder ? (
           <div className={ui.empty}>
             <p className={ui.label}>[ holders only ]</p>
-            <h3 className={ui.emptyTitle}>A room for {room.name.slice(1)} card holders.<br /><span>Hold a {room.name.slice(1)} card to read and post.</span></h3>
+            <h3 className={ui.emptyTitle}>A room for {ticker} card holders.<br /><span>Hold a {ticker} card to read and post.</span></h3>
             <div className="flex flex-wrap justify-center gap-3">
               {!connected && <WalletEntry className={cleanButton.solid} />}
               <Link href="/packs" className={connected ? cleanButton.solid : cleanButton.outline}>Open a pack <ArrowUpRightIcon weight="bold" /></Link>
             </div>
           </div>
+        ) : notOpen ? (
+          <div className={ui.empty}><p className={ui.label}>[ holders only ]</p><h3 className={ui.emptyTitle}>{ticker} room opens soon.</h3></div>
         ) : !canRead ? (
           chat.address ? unlockPanel : <div className={ui.empty}><p className={ui.label}>[ wallet ]</p><h3 className={ui.emptyTitle}>Connect to unlock.</h3><WalletEntry className={cleanButton.solid} /></div>
         ) : (
@@ -311,7 +315,7 @@ export function CommunityWorkspace() {
               <div className={ui.composerArea}>
                 {reply && <div className="mb-3 flex items-center gap-3 border-l-2 border-black pl-3"><div className="min-w-0 flex-1"><span className="text-xs">Replying to {who(reply.author)}</span><p className="truncate text-xs text-muted">{reply.text}</p></div><button type="button" className={ui.iconButton} aria-label="Cancel reply" onClick={() => setReply(null)}><Icon name="close" size={18} /></button></div>}
                 <form className="flex items-end gap-2 rounded-md border border-border-strong bg-white p-[3px] transition-colors focus-within:border-black" onSubmit={(event) => { event.preventDefault(); sendMessage(); }}>
-                  <textarea rows={1} ref={composerInput} className="max-h-[120px] min-h-10 min-w-0 flex-1 resize-none bg-transparent py-[9px] pr-2 pl-3 text-base leading-[22px] outline-none [field-sizing:content]" value={draft} onChange={(event) => setDrafts((prev) => ({ ...prev, [roomId]: event.target.value }))} onKeyDown={(event) => { if (event.key === "Enter" && !event.shiftKey && !event.nativeEvent.isComposing && window.matchMedia("(min-width: 801px)").matches) { event.preventDefault(); sendMessage(); } }} maxLength={500} placeholder={`Message ${room ? roomLabel(room) : ""}`} aria-label="Message" aria-describedby="chat-note" />
+                  <textarea rows={1} ref={composerInput} className="max-h-[120px] min-h-10 min-w-0 flex-1 resize-none bg-transparent py-[9px] pr-2 pl-3 text-base leading-[22px] outline-none [field-sizing:content]" value={draft} onChange={(event) => setDrafts((prev) => ({ ...prev, [roomKey]: event.target.value }))} onKeyDown={(event) => { if (event.key === "Enter" && !event.shiftKey && !event.nativeEvent.isComposing && window.matchMedia("(min-width: 801px)").matches) { event.preventDefault(); sendMessage(); } }} maxLength={500} placeholder={`Message ${title}`} aria-label="Message" aria-describedby="chat-note" />
                   <button type="submit" className="grid size-10 shrink-0 place-items-center rounded-md border-[1.5px] border-black bg-black text-white transition-colors hover:bg-white hover:text-black disabled:cursor-not-allowed disabled:opacity-35" disabled={!draft.trim()} aria-label="Send message"><Icon name="send" size={18} /></button>
                 </form>
                 <p id="chat-note" className={ui.note}>Gas covered</p>
@@ -325,7 +329,7 @@ export function CommunityWorkspace() {
         <header className="sticky top-0 z-10 bg-white flex items-center justify-between border-b border-border px-6 py-3"><span className={ui.label}>[ {room?.encrypted ? "holders" : "members"} ]</span><button type="button" className={cn(dialogClose, "hover:bg-black/5")} aria-label="Close members" onClick={() => membersDialog.current?.close()}><Icon name="close" size={18} /></button></header>
         <div className="px-6 pt-4 pb-10">
           <div className="flex items-baseline justify-between gap-3">
-            <h2 id="members-title" className="min-w-0 truncate text-[28px] leading-[1.1] font-normal tracking-tight">{room?.name ?? "Members"}</h2>
+            <h2 id="members-title" className="min-w-0 truncate text-[28px] leading-[1.1] font-normal tracking-tight">{entry?.title ?? "Members"}</h2>
             {!membersLoading && <span className={ui.label}>[{pad(roomMembers.length)}]</span>}
           </div>
           {membersLoading && roomMembers.length === 0 ? (
