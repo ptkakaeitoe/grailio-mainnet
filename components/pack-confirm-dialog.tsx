@@ -11,13 +11,13 @@ import type { Edition } from "@/lib/editions";
  * Confirm a pack purchase: which pack and how many, the total, your balance
  * before and after, and the points you earn. Nothing is bought until Confirm.
  */
-export function PackConfirmDialog({ edition, name, risk, quantity, total, balance, after, points, gift, onGiftChange, needsApproval = false, approving = false, onApprove, onConfirm, onClose }: {
+export function PackConfirmDialog({ edition, name, risk, quantity, total, balance, after, points, gift, onGiftChange, needsApproval = false, approving = false, onApprove, swap, onConfirm, onClose }: {
   edition: Edition;
   name: string;
   /** e.g. "Medium risk" */
   risk: string;
   quantity: number;
-  /** e.g. "3 USDC" */
+  /** e.g. "3 USDT" */
   total: string;
   balance: string | null;
   after: string | null;
@@ -26,10 +26,12 @@ export function PackConfirmDialog({ edition, name, risk, quantity, total, balanc
   gift: boolean;
   /** Shows the "Buy as a gift" checkbox. */
   onGiftChange?: (gift: boolean) => void;
-  /** Mainnet: USDC must first be allowed for the pack contract (once). */
+  /** Mainnet: USDT must first be allowed for the pack contract (once). */
   needsApproval?: boolean;
   approving?: boolean;
   onApprove?: () => void;
+  /** Paying with BNB: swap it for the missing USDT first. */
+  swap?: { bnb: string; swapping: boolean; ready: boolean; onSwap: () => void };
   onConfirm: () => void;
   onClose: () => void;
 }) {
@@ -72,13 +74,18 @@ export function PackConfirmDialog({ edition, name, risk, quantity, total, balanc
             </span>
           </label>
         )}
-        {needsApproval && <p className="mt-4 text-sm text-muted">First, allow Grailio&apos;s pack contract to use your USDC. You do this once.</p>}
+        {swap && <p className="mt-4 text-sm text-muted">Step 1: swap {swap.bnb} for USDT.</p>}
+        {!swap && needsApproval && <p className="mt-4 text-sm text-muted">First, allow Grailio&apos;s pack contract to use your USDT. You do this once.</p>}
       </div>
       <div className={cn(dialogFooter, "grid grid-cols-2 gap-2")}>
         <button type="button" className={cn(cleanButton.outline, "h-11 justify-center")} onClick={onClose}>Cancel</button>
-        {needsApproval ? (
+        {swap ? (
+          <button type="button" className={cn(cleanButton.solid, "h-11 justify-center")} disabled={swap.swapping || !swap.ready} onClick={swap.onSwap}>
+            {swap.swapping ? "Swapping BNB…" : swap.ready ? "Swap BNB" : "Getting quote…"}
+          </button>
+        ) : needsApproval ? (
           <button type="button" className={cn(cleanButton.solid, "h-11 justify-center")} disabled={approving} onClick={onApprove}>
-            {approving ? "Approving…" : "Approve USDC"}
+            {approving ? "Approving…" : "Approve USDT"}
           </button>
         ) : (
           <button type="button" className={cn(cleanButton.solid, "h-11 justify-center")} onClick={onConfirm}>

@@ -16,12 +16,13 @@ import { LivePackReveal } from "@/components/live-pack-reveal";
 import { PackContentsDialog } from "@/components/pack-contents-dialog";
 import { useDemo } from "@/components/demo-provider";
 import { useEffect, useRef, useState } from "react";
-import { erc20Abi, formatUnits, parseUnits } from "viem";
-import { useAccount, useReadContract, useReadContracts, useWaitForTransactionReceipt, useWriteContract } from "wagmi";
+import { erc20Abi, formatUnits, parseEther, parseUnits } from "viem";
+import { useAccount, useBalance, useReadContract, useReadContracts, useWaitForTransactionReceipt, useWriteContract } from "wagmi";
 
 import { PACK_TIERS, RARITY_NAMES } from "@/lib/contracts";
 import { collectPacksAbi, collectPacksAddress, collectPacksLive, collectPacksTierAbi } from "@/lib/collect-packs";
-import { TOKENS, USDC_DECIMALS } from "@/lib/tokens";
+import { PACK_DECIMALS, PACK_SYMBOL, PACK_TOKEN } from "@/lib/tokens";
+import { useDexSwap } from "@/lib/use-dex-swap";
 import { useApproval } from "@/lib/use-approval";
 import { playPurchase, unlockAudio } from "@/lib/sfx";
 
@@ -34,16 +35,20 @@ import { PackArt } from "@/components/pack-art";
 import { TokenIcon } from "@/components/token-icon";
 import { basketForTier } from "@/lib/stock-assets";
 
-/** The $1 pack is paid in USDC only. */
-const PAYMENTS = ["USDC"].map(token => ({ token, label: token }));
+/** Packs are paid in USDT; live, BNB is swapped to USDT first. */
+const PAYMENTS = ["USDT", "BNB"].map(token => ({ token, label: token }));
+/** BNB kept back for gas when paying with BNB. */
+const GAS_RESERVE = parseEther("0.001");
+/** Extra BNB swapped over the USD price, covering the 0.5% fee and slippage; leftover USDT stays in the wallet. */
+const BNB_HEADROOM = 1.03;
 /** Every live pack design; each sells one risk tier at the same $1. */
 // Live editions plus coming-soon ones (shown, not for sale yet); the picker opens on the live one.
 const SHOWN = EDITIONS.filter((edition) => edition.live || edition.comingSoon);
 const FIRST = Math.max(0, SHOWN.findIndex((edition) => edition.live));
 const amountText = (value: number) => value.toLocaleString("en-US", { maximumFractionDigits: 8 });
-/** Balance under the price: USDC as cents rounded down (never overstated), other tokens to 4 significant digits. */
+/** Balance under the price: USDT as cents rounded down (never overstated), other tokens to 4 significant digits. */
 const balanceText = (value: number, symbol: string) =>
-  symbol === "USDC"
+  symbol === "USDT"
     ? (Math.floor(value * 100) / 100).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })
     : tokenAmount(value);
 
@@ -53,16 +58,16 @@ const stepperButton = "grid size-[42px] place-items-center disabled:cursor-defau
 const status = "mt-3.5 text-sm leading-relaxed text-muted";
 /** Labels under a concept edition's facts, in the order lib/editions.ts lists them. */
 
-/** What the pack contract accepts. */
-const LIVE_PAYMENTS = ["USDC"];
+/** Live: USDT, or BNB swapped to USDT. Demo: USDT. */
+const LIVE_PAYMENTS = ["USDT", "BNB"];
+const DEMO_PAYMENTS = ["USDT"];
 
 const ownedButton = "flex min-h-12 items-center justify-between gap-2 rounded-md border border-border px-4 text-base transition-colors hover:border-black disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:border-border";
 
 export function PackPanel() {
   const demo = useDemo();
   const [rawQuantity, setQuantity] = useState(1);
-  const [paymentToken, setPaymentToken] = useState("USDC");
-  const payment = PAYMENTS.find((item) => item.token === paymentToken)!;
+  const [pickedPayment, setPaymentToken] = useState("USDT");
 
   const [purchasedCount, setPurchasedCount] = useState(1);
   const [showReveal, setShowReveal] = useState(false);
@@ -76,8 +81,11 @@ export function PackPanel() {
   const maxQty = budgeted ? Math.max(1, Math.min(RISKY_MAX_PER_BUY, left)) : 10;
   const quantity = Math.min(rawQuantity, maxQty);
   const budgetOut = budgeted && collectPacksLive && tierUsage !== null && left === 0;
+  // BNB is live-only; anywhere else the picker falls back to USDT.
+  const paymentToken = !demo.active && collectPacksLive && isConnected ? pickedPayment : DEMO_PAYMENTS.includes(pickedPayment) ? pickedPayment : "USDT";
+  const payment = PAYMENTS.find((item) => item.token === paymentToken)!;
   const { byTicker: demoPrices, failed: pricesFailed } = useStockPrices();
-  const demoPrice = paymentToken === "USDC" ? 1 : pricesFailed ? null : demoPrices[paymentToken]?.price;
+  const demoPrice = paymentToken === "USDT" ? 1 : pricesFailed ? null : demoPrices[paymentToken]?.price;
   const total = demoPrice && demoPrice > 0 ? tier.price * quantity / demoPrice : null;
   const live = !demo.active && collectPacksLive && isConnected;
   // Live packs need a wallet: show Connect in place of a disabled Buy.
@@ -99,10 +107,12 @@ export function PackPanel() {
   const [confirmBuy, setConfirmBuy] = useState(false);
   const [giftMade, setGiftMade] = useState<{ code: string; tier: number; quantity: number; demo: boolean } | null>(null);
 
-  // Live packs are paid in USDC (USDC_DECIMALS, 18 on BNB Chain) at the tier price ($1, $3 or $5).
-  const payToken = "USDC";
+  // Live packs are paid in USDT (PACK_DECIMALS, 18 on BNB Chain) at the tier price ($1, $3 or $5).
+  // Paying with BNB swaps just the missing USDT first (KyberSwap), then buys as usual.
+  const payBnb = live && paymentToken === "BNB";
+  const payToken = payBnb ? "BNB" : PACK_SYMBOL;
   const { data: usdcRaw, refetch: refetchUsdc } = useReadContract({
-    address: TOKENS.USDC.address,
+    address: PACK_TOKEN.address,
     abi: erc20Abi,
     functionName: "balanceOf",
     args: address ? [address] : undefined,
@@ -131,11 +141,32 @@ export function PackPanel() {
   }));
   const tierOff = !demo.active && collectPacksLive && (tierOn[tierId] === false || !editionForTier(tierId).live);
   const needsWallet = !demo.active && collectPacksLive && !isConnected && !tierOff;
-  const liveCost = parseUnits(String(tier.price), USDC_DECIMALS) * BigInt(quantity);
+  const liveCost = parseUnits(String(tier.price), PACK_DECIMALS) * BigInt(quantity);
   // Contracts pull payments with a standard approval: approve once, then buy.
-  const approval = useApproval(live ? TOKENS.USDC.address : null, collectPacksAddress, liveCost);
+  const approval = useApproval(live ? PACK_TOKEN.address : null, collectPacksAddress, liveCost);
   const liveBalance = usdcRaw ?? 0n;
-  const liveTotal = Number(formatUnits(liveCost, USDC_DECIMALS));
+  const liveTotal = Number(formatUnits(liveCost, PACK_DECIMALS));
+
+  // ---- pay with BNB: swap the shortfall to USDT, then the normal approve + buy ----
+  const { byTicker: tokenPrices } = useStockPrices(60_000, "tokens");
+  const bnbUsd = tokenPrices.WBNB?.price ?? null;
+  const bnbBalance = useBalance({ address, query: { enabled: live, refetchInterval: 15_000 } });
+  const bnbSpendable = (bnbBalance.data?.value ?? 0n) > GAS_RESERVE ? bnbBalance.data!.value - GAS_RESERVE : 0n;
+  const shortfall = liveCost > liveBalance ? liveCost - liveBalance : 0n;
+  const bnbIn = payBnb && shortfall > 0n && bnbUsd ? parseEther(((Number(formatUnits(shortfall, PACK_DECIMALS)) * BNB_HEADROOM) / bnbUsd).toFixed(12)) : 0n;
+  const bnbSwap = useDexSwap({ from: "BNB", to: PACK_SYMBOL, amountIn: bnbIn, slippagePct: "1", enabled: payBnb && bnbIn > 0n });
+  const swapDone = bnbSwap.confirmed && !bnbSwap.reverted;
+  useEffect(() => {
+    if (!swapDone) return;
+    void refetchUsdc();
+    void bnbBalance.refetch();
+    // Only when a new swap confirms.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [swapDone]);
+  const needsSwap = payBnb && shortfall > 0n;
+  // Confirmed, waiting for the new USDT balance: don't offer a second swap.
+  const swapping = bnbSwap.busy || (swapDone && needsSwap);
+  const bnbShort = needsSwap && !swapping && (bnbIn === 0n || bnbIn > bnbSpendable);
 
   const { writeContract, data: hash, isPending, error, reset } = useWriteContract();
   const receipt = useWaitForTransactionReceipt({ hash });
@@ -150,11 +181,13 @@ export function PackPanel() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [receipt.isSuccess]);
 
-  const selectedBalance = live ? Number(formatUnits(liveBalance, USDC_DECIMALS)) : demo.active ? demo.balances[paymentToken] ?? 0 : null;
-  const insufficient = live ? liveCost > liveBalance : selectedBalance !== null && total !== null && selectedBalance < total;
+  const selectedBalance = payBnb ? Number(formatUnits(bnbBalance.data?.value ?? 0n, 18)) : live ? Number(formatUnits(liveBalance, PACK_DECIMALS)) : demo.active ? demo.balances[paymentToken] ?? 0 : null;
+  const insufficient = payBnb ? bnbShort : live ? liveCost > liveBalance : selectedBalance !== null && total !== null && selectedBalance < total;
   const liveSupported = live;
-  const payments = live ? PAYMENTS.filter((item) => LIVE_PAYMENTS.includes(item.token)) : PAYMENTS;
-  const payLabel = PAYMENTS.find((item) => item.token === payToken)!.label;
+  const payments = PAYMENTS.filter((item) => (live ? LIVE_PAYMENTS : DEMO_PAYMENTS).includes(item.token));
+  const payLabel = PAYMENTS.find((item) => item.token === (live ? payToken : paymentToken))?.label ?? PACK_SYMBOL;
+  /** BNB to pay, shown approximately; 0 when the USDT already in the wallet covers it. */
+  const bnbCost = Number(formatUnits(bnbIn, 18));
 
   /** Runs once the purchase is confirmed. */
   function purchase() {
@@ -405,7 +438,7 @@ export function PackPanel() {
               <span className="ml-1 text-muted transition-transform group-open:rotate-180" aria-hidden="true"><CaretDownIcon /></span>
             </summary>
             <div className="frost absolute top-[calc(100%+8px)] left-0 z-10 w-[220px] animate-[popover-in_.15s_ease-out] rounded-md border border-border bg-white/72 backdrop-blur-[14px] p-1.5 shadow-[0_12px_30px_#0000001a]" role="group" aria-label="Payment token">
-              {payments.map((item) => <button type="button" key={item.token} aria-pressed={payToken === item.token} className="flex min-h-9 w-full items-center justify-between rounded px-2.5 py-2 text-sm transition-colors hover:bg-surface-muted aria-pressed:bg-surface-muted" onClick={(event) => { setPaymentToken(item.token); const picker = event.currentTarget.closest("details"); if (picker) { picker.open = false; picker.querySelector("summary")?.focus(); } }}><span>{item.label}</span><span className="text-[13px] text-muted">{demo.active ? amountText(demo.balances[item.token] ?? 0) : live ? amountText(selectedBalance ?? 0) : paymentToken === item.token && selectedBalance !== null ? amountText(selectedBalance) : ""}</span></button>)}
+              {payments.map((item) => <button type="button" key={item.token} aria-pressed={payToken === item.token} className="flex min-h-9 w-full items-center justify-between rounded px-2.5 py-2 text-sm transition-colors hover:bg-surface-muted aria-pressed:bg-surface-muted" onClick={(event) => { setPaymentToken(item.token); const picker = event.currentTarget.closest("details"); if (picker) { picker.open = false; picker.querySelector("summary")?.focus(); } }}><span>{item.label}</span><span className="text-[13px] text-muted">{demo.active ? amountText(demo.balances[item.token] ?? 0) : live ? amountText(item.token === "BNB" ? Number(formatUnits(bnbBalance.data?.value ?? 0n, 18)) : Number(formatUnits(liveBalance, PACK_DECIMALS))) : paymentToken === item.token && selectedBalance !== null ? amountText(selectedBalance) : ""}</span></button>)}
             </div>
           </details>
           <div className="flex h-11 items-center rounded-md border border-border">
@@ -417,7 +450,7 @@ export function PackPanel() {
         {/* Phones: price and Buy stick to the bottom of the screen, so buying needs no scrolling. */}
         <div className="pack-buy-bar mt-6 flex items-center justify-between gap-2 border-t border-border pt-6 phone:gap-4 max-desk:sticky max-desk:bottom-0 max-desk:z-20 max-desk:-mx-[18px] max-desk:bg-white max-desk:px-[18px] max-desk:pt-4 max-desk:pb-[max(16px,env(safe-area-inset-bottom))] phone:max-desk:-mx-6 phone:max-desk:px-6">
           <div className="min-w-0">
-            <strong className="pack-checkout-price block text-[28px] leading-none font-normal tracking-[-0.02em]"><span className="tabular-nums">{live ? amountText(liveTotal) : total === null ? "…" : amountText(total)}</span> <span className="text-sm tracking-normal text-muted">{live ? payToken : payment.label}</span></strong>
+            <strong className="pack-checkout-price block text-[28px] leading-none font-normal tracking-[-0.02em]"><span className="tabular-nums">{needsSwap ? (bnbIn > 0n ? `≈${tokenAmount(bnbCost)}` : "…") : live ? amountText(liveTotal) : total === null ? "…" : amountText(total)}</span> <span className="text-sm tracking-normal text-muted">{needsSwap ? "BNB" : live ? PACK_SYMBOL : payment.label}</span></strong>
             <p className="mt-3 text-sm text-muted">
               {selectedBalance !== null && <>Balance <span className="tabular-nums">{balanceText(selectedBalance, live ? payToken : payment.label)}</span><span className="max-phone:hidden"> · </span></>}
               <Link href="/trade" className={cn("whitespace-nowrap text-black underline-offset-4 hover:underline", selectedBalance !== null && "max-phone:hidden")}>Get more {payLabel}</Link>
@@ -430,15 +463,15 @@ export function PackPanel() {
           ) : <button
             type="button"
             className={cn(cleanButton.solid, "shrink-0 px-5")}
-            disabled={insufficient || comingSoon || tierOff || budgetOut || approval.approving || (demo.active ? total === null : !isConnected || busy || !collectPacksLive || !liveSupported)}
+            disabled={insufficient || comingSoon || tierOff || budgetOut || approval.approving || swapping || (demo.active ? total === null : !isConnected || busy || !collectPacksLive || !liveSupported)}
             aria-haspopup="dialog"
             onClick={() => {
-              // Everything, including a USDC approval, is confirmed in the pop-up before signing.
+              // Everything, including a USDT approval, is confirmed in the pop-up before signing.
               unlockAudio();
               setConfirmBuy(true);
             }}
           >
-            {tierOff ? "Coming soon" : budgetOut ? "Sold out" : approval.approving ? "Approving…" : busy && !demo.active ? "Working…" : comingSoon ? (capacity === 0n ? "Sold out" : `Only ${capacity} left`) : insufficient ? `Insufficient ${live ? payToken : payment.label}` : <>{`${asGift ? "Gift" : "Buy"} ${live ? `${editionForTier(tierId).name} ` : ""}${quantity === 1 ? "pack" : `${quantity} packs`}`} <ArrowUpRightIcon weight="bold" /></>}
+            {tierOff ? "Coming soon" : budgetOut ? "Sold out" : swapping ? "Swapping BNB…" : approval.approving ? "Approving…" : busy && !demo.active ? "Working…" : comingSoon ? (capacity === 0n ? "Sold out" : `Only ${capacity} left`) : insufficient ? `Insufficient ${live ? payToken : payment.label}` : <>{`${asGift ? "Gift" : "Buy"} ${live ? `${editionForTier(tierId).name} ` : ""}${quantity === 1 ? "pack" : `${quantity} packs`}`} <ArrowUpRightIcon weight="bold" /></>}
           </button>}
         </div>
       </div>
@@ -465,10 +498,11 @@ export function PackPanel() {
       {/* Back from a Google sign-in started here: reopens the claim with its code. */}
       <GiftFromLink />
       </>}
-      {demo.active && total === null && <p className={status} role="status">Token price unavailable. Try USDC or wait for prices.</p>}
+      {demo.active && total === null && <p className={status} role="status">Token price unavailable. Try USDT or wait for prices.</p>}
       {confirmBuy && (() => {
-        const unit = live ? payToken : payment.label;
+        const unit = live ? PACK_SYMBOL : payment.label;
         const cost = live ? liveTotal : total;
+        const usdtHeld = live ? Number(formatUnits(liveBalance, PACK_DECIMALS)) : selectedBalance;
         return cost === null ? null : (
           <PackConfirmDialog
             edition={editionForTier(tierId)}
@@ -476,8 +510,9 @@ export function PackPanel() {
             risk={tier.risk}
             quantity={quantity}
             total={`${amountText(cost)} ${unit}`}
-            balance={selectedBalance === null ? null : `${amountText(selectedBalance)} ${unit}`}
-            after={selectedBalance === null ? null : `${amountText(selectedBalance - cost)} ${unit}`}
+            balance={usdtHeld === null ? null : `${amountText(usdtHeld)} ${unit}`}
+            after={usdtHeld === null || needsSwap ? null : `${amountText(usdtHeld - cost)} ${unit}`}
+            swap={needsSwap ? { bnb: `≈${tokenAmount(bnbCost)} BNB`, swapping, ready: Boolean(bnbSwap.route) && !bnbShort, onSwap: () => { bnbSwap.reset(); void bnbSwap.swap(); } } : undefined}
             points={quantity}
             gift={asGift}
             onGiftChange={setAsGift}
@@ -507,6 +542,8 @@ export function PackPanel() {
         <LivePackReveal ready={readyPacks} sealed={sealedPacks} purchasedCount={bought.count} tierName={bought.tier} afterHash={hash} onClose={() => setBought(null)} onOpened={refetchPacks} />
       )}
       {approval.error && <p className={status} role="alert">{txErrorMessage(approval.error)}</p>}
+      {needsSwap && (bnbSwap.error || bnbSwap.quoteError) && <p className={status} role="alert">{bnbSwap.error ? txErrorMessage(new Error(bnbSwap.error)) : `BNB swap: ${bnbSwap.quoteError}`}</p>}
+      {needsSwap && bnbSwap.reverted && <p className={status} role="alert">BNB swap failed. Try again.</p>}
       {error && (
         <p className="featured-pack-error mt-3.5 rounded-md border border-border-strong px-3 py-2.5 text-sm leading-relaxed break-words text-down" role="alert">
           {txErrorMessage(error)}
