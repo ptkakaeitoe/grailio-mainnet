@@ -118,6 +118,14 @@ export function CollectMarketLive({ mode = "both" }: { mode?: MarketMode }) {
 
   // Sound and a visible step when an approval or a listing confirms.
   const listedId = receipt.isSuccess && action?.startsWith("list-") ? action.slice(5) : null;
+  // Listed / cancelled notes clear after a few seconds (the toast already confirmed it).
+  useEffect(() => {
+    if (!receipt.isSuccess || !(action?.startsWith("list-") || action?.startsWith("cancel-"))) return;
+    const t = setTimeout(() => { reset(); setAction(null); }, 5_000);
+    return () => clearTimeout(t);
+    // Only when a listing or cancel confirms.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [receipt.isSuccess, action]);
   // (Sounds come with the transaction toasts, lib/toast.ts.)
 
   function run(key: string, call: Parameters<typeof writeContract>[0]) {
@@ -191,7 +199,7 @@ export function CollectMarketLive({ mode = "both" }: { mode?: MarketMode }) {
         ? { title: "No cards yet.", action: <Link href="/packs" className={stateAction}>Open a pack<ArrowUpRightIcon weight="bold" /></Link> }
         : { title: "Connect to see your cards.", action: <button type="button" className={cn(cleanButton.solid, "justify-between")} onClick={openConnect}>Connect wallet <ArrowUpRightIcon weight="bold" /></button> }}
       selectedId={listedIds.has(sellId) ? sellId : selected?.id.toString() ?? null}
-      onSelect={setSellId}
+      onSelect={(id) => { setSellId(id); if (!busy) { reset(); setAction(null); } }}
       onCancel={(id) => run(`cancel-${id}`, { address: collectMarketAddress, abi: collectMarketAbi, functionName: "cancel", args: [collectPacksAddress, BigInt(id)] })}
       cancelBusy={busy && Boolean(action?.startsWith("cancel-"))}
       currency={currency}
@@ -395,7 +403,7 @@ export function CollectMarketLive({ mode = "both" }: { mode?: MarketMode }) {
           listedIds={listedIds}
           selectedId={selected?.id.toString() ?? null}
           worth={worth}
-          onSelect={setSellId}
+          onSelect={(id) => { setSellId(id); if (!busy) { reset(); setAction(null); } }}
           onClose={() => setPicking(false)}
         />
       )}
