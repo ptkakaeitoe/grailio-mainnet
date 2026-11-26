@@ -44,6 +44,8 @@ export const metadata: Metadata = {
 /** Draw under the iOS status bar so the hero glow runs to the top edge; the header pads itself by the safe-area inset. */
 export const viewport: Viewport = {
   viewportFit: "cover",
+  /** iOS Safari paints its status-bar strip in this colour (the page background); the glow eases in under it. */
+  themeColor: "#111111",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
