@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useMemo, useState, type ReactNode } from "react";
 
 import { cleanButton, cleanChip, cleanField, cn } from "@/components/clean-ui";
+import { CollectionWelcome } from "@/components/collection-welcome";
 import { MarketState, SortMenu, stateAction, sectionLabel, sectionTitle } from "@/components/market-parts";
 import { StockCardFront } from "@/components/stock-card-front";
 import { TokenIcon } from "@/components/token-icon";
@@ -49,8 +50,9 @@ export function SellWorkspace({
   fee: number;
   cards: SellCard[];
   loading?: boolean;
-  /** Shown instead of the grid when you have no cards (or no wallet). */
-  empty: { title: ReactNode; action?: ReactNode };
+  /** Shown instead of the grid when you have no cards (or no wallet). With `welcome` (the line under the title), it's
+   *  the collection's card-fan welcome instead of the small box. */
+  empty: { title: ReactNode; action?: ReactNode; welcome?: string };
   selectedId: string | null;
   onSelect: (id: string) => void;
   currency: SellCurrency;
@@ -120,7 +122,7 @@ export function SellWorkspace({
           {loading && cards.length === 0 ? (
             <div className="mt-6"><MarketState kind="loading" title="Loading your cards…" /></div>
           ) : cards.length === 0 ? (
-            <div className="mt-6"><MarketState title={empty.title} action={empty.action} /></div>
+            <div className="mt-6">{empty.welcome && typeof empty.title === "string" ? <CollectionWelcome label="token-backed cards" title={empty.title} body={empty.welcome} action={empty.action} /> : <MarketState title={empty.title} action={empty.action} />}</div>
           ) : shown.length === 0 ? (
             <div className="mt-6"><MarketState title="No cards in that rarity." action={<button type="button" className={stateAction} onClick={() => setRarity("all")}>Show all</button>} /></div>
           ) : (

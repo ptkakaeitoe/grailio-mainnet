@@ -122,7 +122,7 @@ export function DemoMarket({ mode = "both" }: { mode?: MarketMode }) {
         worth: worth(c),
         blocked: c.stakedAt !== null ? "Staked" : null,
       }))}
-      empty={{ title: "No cards yet.", action: <Link href="/packs" className={stateAction}>Open a demo pack<ArrowUpRightIcon weight="bold" className="arrow-nudge" aria-hidden="true" /></Link> }}
+      empty={{ title: "Your first card awaits.", welcome: "Open a demo pack to start.", action: <Link href="/packs" className={cleanButton.solid}>Open a demo pack <ArrowUpRightIcon weight="bold" className="arrow-nudge" aria-hidden="true" /></Link> }}
       selectedId={selected ? String(selected.id) : null}
       onSelect={setSellId}
       currency={currency}

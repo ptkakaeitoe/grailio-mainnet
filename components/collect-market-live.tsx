@@ -196,7 +196,7 @@ export function CollectMarketLive({ mode = "both" }: { mode?: MarketMode }) {
       })) : []}
       loading={Boolean(address) && mine.loading}
       empty={address
-        ? { title: "No cards yet.", action: <Link href="/packs" className={stateAction}>Open a pack<ArrowUpRightIcon weight="bold" className="arrow-nudge" aria-hidden="true" /></Link> }
+        ? { title: "Your first card awaits.", welcome: "Open a pack to start.", action: <Link href="/packs" className={cleanButton.solid}>Open a pack <ArrowUpRightIcon weight="bold" className="arrow-nudge" aria-hidden="true" /></Link> }
         : { title: "Connect to see your cards.", action: <button type="button" className={cn(cleanButton.solid, "justify-between")} onClick={openConnect}>Connect wallet <ArrowUpRightIcon weight="bold" className="arrow-nudge" aria-hidden="true" /></button> }}
       selectedId={listedIds.has(sellId) ? sellId : selected?.id.toString() ?? null}
       onSelect={(id) => { setSellId(id); if (!busy) { reset(); setAction(null); } }}
