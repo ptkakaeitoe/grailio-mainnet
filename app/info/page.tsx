@@ -27,7 +27,7 @@ const CHAPTERS: { id: string; title: string; lead: string; actions: Action[] }[]
   {
     id: "tokens",
     title: "Tokens",
-    lead: "USDC is the app's money and counts as $1. Token prices come from BNB Chain DEX pools; tokenized stocks from Atlas Oracle.",
+    lead: "USDT is the app's money and counts as $1. Token prices come from BNB Chain DEX pools; tokenized stocks from Atlas Oracle.",
     actions: [
       { name: "Swap", what: "Swap USDT, USDC or BNB for tokenized stocks (NVDA, AAPL, SPY and more), and back. KyberSwap routes each trade across BNB Chain DEXes for the best price. Approve a token once; your wallet signs every swap.", call: "KyberSwap router", address: SWAP_ROUTER, cost: "DEX fees + gas", href: "/trade" },
     ],
@@ -37,17 +37,17 @@ const CHAPTERS: { id: string; title: string; lead: string; actions: Action[] }[]
     title: "Packs & cards",
     lead: "Every card holds a tokenized stock. The pack design sets the risk; rarity sets how much.",
     actions: [
-      { name: "Buy a pack", what: "Every pack costs $1 in USDC and earns 1 collector point. Your payment goes into the prize pool, which only sells a pack it can pay out in full.", call: "CollectPacks.buy()", address: collectPacksAddress, cost: "1 USDC", href: "/packs" },
+      { name: "Buy a pack", what: "Every pack costs $1 in USDT and earns 1 collector point. Your payment goes into the prize pool, which only sells a pack it can pay out in full.", call: "CollectPacks.buy()", address: collectPacksAddress, cost: "1 USDT", href: "/packs" },
       { name: "Open a pack", what: "The next block's hash rolls a stock from the pack's basket and a rarity. The pool swaps the card's value into that stock on PancakeSwap, checked against its Atlas price, and locks it in your card. Open within 256 blocks or it opens as the lowest rarity.", call: "CollectPacks.open()", address: collectPacksAddress, cost: "Gas only", href: "/packs" },
-      { name: "Redeem a card", what: "Burns the card and sends you the tokens inside (or its USDC if it was never filled). Can't be undone.", call: "CollectPacks.redeem()", address: collectPacksAddress, cost: "Gas only", href: "/collection" },
+      { name: "Redeem a card", what: "Burns the card and sends you the tokens inside (or its USDT if it was never filled). Can't be undone.", call: "CollectPacks.redeem()", address: collectPacksAddress, cost: "Gas only", href: "/collection" },
     ],
   },
   {
     id: "market",
     title: "Marketplace",
-    lead: "Cards trade peer to peer, priced in BNB or USDC. Listings stay in the seller's wallet until they sell.",
+    lead: "Cards trade peer to peer, priced in BNB or USDT. Listings stay in the seller's wallet until they sell.",
     actions: [
-      { name: "List a card", what: "Approve the market once, then pick BNB or USDC, a price and how long. Nothing moves until it sells; cancel any time.", call: "CollectMarket.list()", address: collectMarketAddress, cost: "Gas only", href: "/marketplace" },
+      { name: "List a card", what: "Approve the market once, then pick BNB or USDT, a price and how long. Nothing moves until it sells; cancel any time.", call: "CollectMarket.list()", address: collectMarketAddress, cost: "Gas only", href: "/marketplace" },
       { name: "Buy a card", what: "Pay in the listing's currency. The seller gets 99%; 1% goes to the treasury.", call: "CollectMarket.buy()", address: collectMarketAddress, cost: "1% fee", href: "/marketplace" },
     ],
   },
@@ -75,8 +75,8 @@ const CHAPTERS: { id: string; title: string; lead: string; actions: Action[] }[]
 const SHOWN_CHAPTERS = CHAPTERS.filter((c) => DAO_VISIBLE || c.id !== "dao");
 
 const CONTRACTS = [
-  { name: "CollectPacks", role: "$1 packs, the USDC prize pool, and the cards (ERC-721)", address: collectPacksAddress },
-  { name: "CollectMarket", role: "Card trading in BNB or USDC, non-custodial", address: collectMarketAddress },
+  { name: "CollectPacks", role: "$1 packs, the USDT prize pool, and the cards (ERC-721)", address: collectPacksAddress },
+  { name: "CollectMarket", role: "Card trading in BNB or USDT, non-custodial", address: collectMarketAddress },
   { name: "CollectPoints", role: "Non-transferable collector points, 1 per pack", address: pointsAddress },
   ...(DAO_VISIBLE ? [{ name: "CollectDAO", role: "Proposals and points-weighted votes", address: daoAddress }] : []),
   { name: "CollectChat", role: "On-chain chat, card-gated encrypted rooms", address: chatAddress },

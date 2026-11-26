@@ -38,7 +38,7 @@ export type ActivityItem = {
   cardId?: string;
   tier?: number;
   quantity?: number;
-  /** USDC in its on-chain decimals, 18 on BNB Chain (paid, claimed, refunded, card value at opening). */
+  /** USDT in its on-chain decimals, 18 on BNB Chain (paid, claimed, refunded, card value at opening). */
   usdc?: string;
   asset?: number;
   rarity?: number;

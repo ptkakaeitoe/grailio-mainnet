@@ -72,7 +72,7 @@ export function CardPickerDialog({ cards, listedIds, selectedId, worth, onSelect
                     <span className="min-w-0 px-0.5">
                       <span className="block truncate text-sm">#{id} · {RARITY_NAMES[c.rarity]}</span>
                       <span className="block truncate text-[13px] text-muted tabular-nums">
-                        {c.filled ? `${tokenAmount(c.amount)} ${TOKENS[c.ticker]?.symbol ?? c.ticker}` : "USDC (unfilled)"} · {usd(worth(c))}
+                        {c.filled ? `${tokenAmount(c.amount)} ${TOKENS[c.ticker]?.symbol ?? c.ticker}` : "USDT (unfilled)"} · {usd(worth(c))}
                       </span>
                       {reason && <span className="block text-[13px] text-muted">{reason === "Staked" ? "Staked: unstake to sell" : "Already listed"}</span>}
                     </span>

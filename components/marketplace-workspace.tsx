@@ -56,7 +56,7 @@ export function MarketplaceWorkspace({ mode = "both" }: { mode?: MarketMode }) {
           empty={{ title: "Selling opens soon." }}
           selectedId={null}
           onSelect={() => {}}
-          currency="USDC"
+          currency="USDT"
           onCurrency={() => {}}
           price=""
           onPrice={() => {}}

@@ -8,8 +8,8 @@ export function packCost(tier: DemoTier, quantity: number, price: number): numbe
   return tier.price * quantity / price;
 }
 export function buyDemoPacks(state: DemoState, tier: DemoTier, quantity: number, payment: string, price: number): DemoState | null {
-  if (!['USDC', 'NVDA', 'AAPL', 'TSLA', 'MSFT', 'AMZN', 'WBNB', 'BTC', 'ETH', 'LINK', 'CAKE'].includes(payment)) return null;
-  const cost = packCost(tier, quantity, payment === 'USDC' ? 1 : price);
+  if (!['USDT', 'NVDA', 'AAPL', 'TSLA', 'MSFT', 'AMZN', 'WBNB', 'BTC', 'ETH', 'LINK', 'CAKE'].includes(payment)) return null;
+  const cost = packCost(tier, quantity, payment === 'USDT' ? 1 : price);
   if (cost === null || (state.balances[payment] ?? 0) < cost) return null;
   const packs = [...state.packs, ...Array<number>(quantity).fill(tier.id)];
   // 1 collector point per pack bought, like mainnet (they vote in the DAO).
@@ -35,7 +35,7 @@ export function openDemoPack(state: DemoState, tier: DemoTier, tickers: readonly
 }
 // ---- Staking (simulated CollectStaking) ----
 /**
- * Same rules as contracts/src/CollectStaking.sol: one USDC pool pays out with a
+ * Same rules as contracts/src/CollectStaking.sol: one USDT pool pays out with a
  * 7-day half-life, split by rarity weight through a per-weight accumulator.
  * Demo has no other players, so it starts with a pool from "other packs" and
  * other stakers holding DEMO_OTHER_WEIGHT; your opened packs add revenue.
@@ -64,7 +64,7 @@ function syncStaking(state: DemoState, now: number): DemoState {
 }
 /** Starts the pool for a save that has none (older saves): its staked cards earn from `now`. */
 export const startDemoStaking = (state: DemoState, now: number): DemoState => (state.staking ? state : syncStaking(state, now));
-/** USDC a staked card has earned and not claimed. */
+/** USDT a staked card has earned and not claimed. */
 export function pendingDemoReward(state: DemoState, card: DemoCard, now: number): number {
   if (card.stakedAt === null || card.debt === undefined || !state.staking) return 0;
   return DEMO_STAKE_WEIGHTS[card.rarity] * Math.max(0, settle(state, now).acc - card.debt);
@@ -98,21 +98,21 @@ export function actOnDemoCard(state: DemoState, id: number, action: 'stake' | 'c
   const current = synced.cards.find(c => c.id === id)!;
   const reward = action === 'stake' ? 0 : DEMO_STAKE_WEIGHTS[current.rarity] * Math.max(0, acc - (current.debt ?? acc));
   const next: DemoCard = action === 'unstake' ? { ...current, stakedAt: null, debt: undefined } : { ...current, stakedAt: action === 'stake' ? now : current.stakedAt, debt: acc };
-  return { ...synced, balances: { ...synced.balances, USDC: synced.balances.USDC + reward }, cards: synced.cards.map(c => c.id === id ? next : c) };
+  return { ...synced, balances: { ...synced.balances, USDT: synced.balances.USDT + reward }, cards: synced.cards.map(c => c.id === id ? next : c) };
 }
 
 // ---- Marketplace (simulated) ----
-export type DemoCurrency = 'USDC' | 'BNB';
+export type DemoCurrency = 'USDT' | 'BNB';
 /** A listed card is held by the market (escrow) until it sells or is cancelled. */
 export type DemoListing = { id: number; card: DemoCard; price: number; currency: DemoCurrency; seller: string; expiresAt: number };
 export const DEMO_MARKET_FEE = 0.01;
-/** Prices are kept at display precision: 4 decimals for BNB, cents for USDC. */
+/** Prices are kept at display precision: 4 decimals for BNB, cents for USDT. */
 export const roundPrice = (price: number, currency: DemoCurrency) => { const f = currency === 'BNB' ? 1e4 : 1e2; return Math.round(price * f) / f; };
 export const DEMO_SELLERS = ['@relicfox', '@bluechip_ben', '@tsla_maxi', '@seedvault', '@nightdesk'] as const;
 
 /**
  * Other collectors' listings, priced around what each card holds (a mix of
- * USDC and BNB). Seeded once, when prices are known.
+ * USDT and BNB). Seeded once, when prices are known.
  */
 export function seedDemoListings(state: DemoState, tickers: readonly string[], prices: Record<string, number>, avaxUsd: number, random: () => number, now: number): DemoState | null {
   if (state.marketSeeded) return null;
@@ -125,7 +125,7 @@ export function seedDemoListings(state: DemoState, tickers: readonly string[], p
     const rarity = drawRarity([50, 25, 20, 5], random());
     const card: DemoCard = { id: nextId++, ticker, tier: Math.floor(random() * 3), rarity, amount: backing[rarity] / prices[ticker], stakedAt: null };
     const usd = backing[rarity] * (0.9 + random() * 0.5);
-    const currency: DemoCurrency = random() < 0.4 ? 'BNB' : 'USDC';
+    const currency: DemoCurrency = random() < 0.4 ? 'BNB' : 'USDT';
     listings.push({ id: i + 1, card, currency, price: roundPrice(currency === 'BNB' ? usd / avaxUsd : usd, currency), seller: DEMO_SELLERS[i % DEMO_SELLERS.length], expiresAt: now + (1 + Math.floor(random() * 7)) * 86_400_000 });
   }
   return { ...state, listings, nextListingId: listings.length + 1, nextId, marketSeeded: true };

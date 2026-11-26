@@ -30,11 +30,11 @@ test('demo codes carry the pack type and count', () => {
 test('demo gifts: paid like packs, claimed once, cancel returns the packs', () => {
   const tier = { id: 1, price: 1, odds: [50, 25, 20, 5], backing: [0.46, 0.8, 1.4, 4] };
   const start = initialDemo();
-  const bought = buyDemoGift(start, tier, 3, 'USDC', 1, 'DEMO-103-X', 0);
-  assert.equal(bought.balances.USDC, start.balances.USDC - 3);
+  const bought = buyDemoGift(start, tier, 3, 'USDT', 1, 'DEMO-103-X', 0);
+  assert.equal(bought.balances.USDT, start.balances.USDT - 3);
   assert.equal(bought.packs.length, 0); // not yours: held for the code
   assert.equal(bought.gifts[0].status, 'open');
-  assert.equal(buyDemoGift({ ...start, balances: { ...start.balances, USDC: 1 } }, tier, 3, 'USDC', 1, 'C', 0), null);
+  assert.equal(buyDemoGift({ ...start, balances: { ...start.balances, USDT: 1 } }, tier, 3, 'USDT', 1, 'C', 0), null);
 
   const claimed = claimDemoGift(start, 'DEMO-103-Y', 1, 3); // someone else's code, in this browser
   assert.deepEqual(claimed.packs, [1, 1, 1]);
@@ -52,6 +52,6 @@ test('collector points: 1 per pack bought, gifts included', () => {
   const tier = { id: 1, price: 1, odds: [50, 25, 20, 5], backing: [0.46, 0.8, 1.4, 4] };
   const start = initialDemo();
   assert.equal(start.points, 0);
-  const bought = buyDemoGift(start, tier, 2, 'USDC', 1, 'DEMO-102-P', 0);
+  const bought = buyDemoGift(start, tier, 2, 'USDT', 1, 'DEMO-102-P', 0);
   assert.equal(bought.points, 2);
 });

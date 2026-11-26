@@ -6,7 +6,7 @@ import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { decodeEventLog, formatUnits, type Hex } from "viem";
 import { useWaitForTransactionReceipt, useWriteContract } from "wagmi";
-import { USDC_DECIMALS } from "@/lib/tokens";
+import { PACK_DECIMALS } from "@/lib/tokens";
 
 import { cleanButton, cleanDialog, cn, dialogClose, dialogFooter } from "@/components/clean-ui";
 import { BackingValue, PackRevealArt, RevealedCard, revealFrame } from "@/components/pack-reveal-art";
@@ -26,7 +26,7 @@ type Revealed = { ticker: string; rarity: number; usd: bigint; filled: boolean; 
  * pack with a Reveal button, then the card the PackOpened log describes. A pack
  * commits to the block after its purchase, so it's ready one block later. The
  * same transaction swaps the card's value into its token (CardFilled); if the
- * swap guard refused, the card holds USDC until it's filled.
+ * swap guard refused, the card holds USDT until it's filled.
  */
 export function LivePackReveal({
   ready,
@@ -157,13 +157,13 @@ export function LivePackReveal({
             <div className={revealFrame.row}><dt className="text-muted">Rarity</dt><dd>{RARITY_NAMES[revealed.card.rarity]}</dd></div>
             <div className={revealFrame.row}>
               <dt className="text-muted">Backing</dt>
-              {/* Dollars at opening; a card the swap guard left unfilled holds USDC until it's filled. */}
-              <dd><BackingValue ticker={revealed.card.filled ? revealed.card.ticker : "USDC"} usd={Number(formatUnits(revealed.card.usd, USDC_DECIMALS))} /></dd>
+              {/* Dollars at opening; a card the swap guard left unfilled holds USDT until it's filled. */}
+              <dd><BackingValue ticker={revealed.card.filled ? revealed.card.ticker : "USDT"} usd={Number(formatUnits(revealed.card.usd, PACK_DECIMALS))} /></dd>
             </div>
           </dl>
         )}
         {revealed && !revealed.card.filled && (
-          <p className={revealFrame.note}>The DEX price was off from the Atlas price, so this card holds its value in USDC for now. It can be filled with {revealed.card.ticker} later, or redeemed for the USDC.</p>
+          <p className={revealFrame.note}>The DEX price was off from the Atlas price, so this card holds its value in USDT for now. It can be filled with {revealed.card.ticker} later, or redeemed for the USDT.</p>
         )}
       </div>
       <div className={cn(dialogFooter, revealFrame.actions)}>

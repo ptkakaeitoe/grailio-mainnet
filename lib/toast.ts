@@ -94,7 +94,7 @@ export function txLabelsFor(functionName: string, args?: readonly unknown[]): Tx
     case "list": return { loading: `Listing ${card}`, success: `${Card} listed`, sound: "purchase" };
     case "cancel": return { loading: "Cancelling listing", success: "Listing cancelled" };
     case "buy": return args?.length === 4 ? { loading: `Buying ${card}`, success: `${Card} is yours`, sound: "purchase" } : null;
-    case "approve": return { loading: "Approving USDC", success: "USDC approved" };
+    case "approve": return { loading: "Approving", success: "Approved" };
     case "setApprovalForAll": return { loading: "Approving cards", success: "Cards approved" };
     case "stake": return { loading: `Staking ${card}`, success: `${Card} staked` };
     case "unstake": return { loading: `Unstaking ${card}`, success: `${Card} unstaked` };

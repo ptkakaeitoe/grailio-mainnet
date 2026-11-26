@@ -40,7 +40,7 @@ const DemoContext = createContext<{
   claimGift: (code: string, tier: number, quantity: number) => boolean;
   cancelGift: (code: string) => boolean;
   cardAction: (id: number, action: 'stake' | 'claim' | 'unstake' | 'redeem') => boolean;
-  /** Staking (7-day half-life pool): a card's unclaimed USDC, and the pool's payout now. */
+  /** Staking (7-day half-life pool): a card's unclaimed USDT, and the pool's payout now. */
   pending: (card: DemoCard, now: number) => number;
   stakingNow: (now: number) => ReturnType<typeof demoStakingNow>;
 } | null>(null);

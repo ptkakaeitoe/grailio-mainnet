@@ -16,16 +16,16 @@ import {
   collectStakingAddress,
   collectStakingLive,
 } from "@/lib/collect-packs";
-import { TOKENS, USDC_DECIMALS } from "@/lib/tokens";
+import { TOKENS, PACK_DECIMALS } from "@/lib/tokens";
 
 export type CardInfo = {
   id: bigint;
   ticker: string;
   tier: number;
   rarity: number;
-  /** True: holds `amount` of the token. False: holds `usd` USDC until filled. */
+  /** True: holds `amount` of the token. False: holds `usd` USDT until filled. */
   filled: boolean;
-  /** Card value at opening, in USDC base units (USDC_DECIMALS, 18 on BNB Chain). */
+  /** Card value at opening, in USDT base units (PACK_DECIMALS, 18 on BNB Chain). */
   usd: bigint;
   /** Tokens inside, as a number in whole tokens. */
   amount: number;
@@ -35,14 +35,14 @@ export type CardInfo = {
 
 export type CollectListing = CardInfo & {
   seller: Address;
-  /** In the listing's currency: BNB wei (18 dec) or USDC (6 dec). */
+  /** In the listing's currency: BNB wei (18 dec) or USDT (18 dec). */
   price: bigint;
   inAvax: boolean;
   expiresAt: number;
 };
 
 /** Price as a number in its own currency. */
-export const priceAmount = (l: Pick<CollectListing, "price" | "inAvax">) => Number(formatUnits(l.price, l.inAvax ? 18 : USDC_DECIMALS));
+export const priceAmount = (l: Pick<CollectListing, "price" | "inAvax">) => Number(formatUnits(l.price, l.inAvax ? 18 : PACK_DECIMALS));
 
 type RawCard = readonly [number, number, number, boolean, bigint, bigint];
 

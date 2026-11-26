@@ -12,7 +12,7 @@ import { useToastedWrite } from "@/lib/toast";
 
 import { collectCardsAbi, collectMarketAbi, collectMarketAddress, collectPacksAbi, collectPacksAddress, collectPacksTreasuryAbi, collectStakingAbi, collectStakingAddress, collectStakingLive, STAKE_WEIGHTS } from "@/lib/collect-packs";
 import { PACK_TIERS, RARITY_NAMES, SNOWTRACE } from "@/lib/contracts";
-import { TOKENS, USDC_DECIMALS } from "@/lib/tokens";
+import { TOKENS, PACK_DECIMALS } from "@/lib/tokens";
 import { cleanButton, cn } from "@/components/clean-ui";
 import { CollectionWelcome } from "@/components/collection-welcome";
 import { ListingCard, listingButton, listingButtonOutline, listingGrid } from "@/components/market-parts";
@@ -74,7 +74,7 @@ export function StockCardCollection() {
   const waitingRaw = distributableRead?.status === "success" && bpsRead?.status === "success"
     ? (distributableRead.result as bigint) * BigInt(bpsRead.result as number) / 10_000n
     : 0n;
-  const money6 = (raw: bigint) => `$${Number(formatUnits(raw, USDC_DECIMALS)).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 6 })}`;
+  const money6 = (raw: bigint) => `$${Number(formatUnits(raw, PACK_DECIMALS)).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 6 })}`;
 
   const { writeContract, data: hash, isPending, error, reset } = useToastedWrite();
   const receipt = useWaitForTransactionReceipt({ hash });
@@ -101,7 +101,7 @@ export function StockCardCollection() {
     else run(`stake-${id}`, { address: collectPacksAddress, abi: collectCardsAbi, functionName: "setApprovalForAll", args: [collectStakingAddress, true] });
   }
 
-  /** What the card holds, at live DEX prices (unfilled cards hold USDC). */
+  /** What the card holds, at live DEX prices (unfilled cards hold USDT). */
   const valueOf = (card: StockCardView) => (card.filled ? (byTicker[card.ticker]?.price ?? 0) * card.amount : card.usd);
   const totalValue = cards.reduce((sum, card) => sum + valueOf(card), 0);
   const totalAtOpen = cards.reduce((sum, card) => sum + card.usd, 0);
@@ -141,9 +141,9 @@ export function StockCardCollection() {
 
       {stakeOn && (
         <StakingPoolPanel
-          pool={Number(formatUnits(poolNow, USDC_DECIMALS))}
-          waiting={Number(formatUnits(waitingRaw, USDC_DECIMALS))}
-          perDay={Number(formatUnits(payoutPerDay, USDC_DECIMALS))}
+          pool={Number(formatUnits(poolNow, PACK_DECIMALS))}
+          waiting={Number(formatUnits(waitingRaw, PACK_DECIMALS))}
+          perDay={Number(formatUnits(payoutPerDay, PACK_DECIMALS))}
           totalWeight={Number(totalWeight)}
           myWeight={myWeight}
           stakedCount={stakedCards.length}
@@ -165,7 +165,7 @@ export function StockCardCollection() {
           const key = String(card.id);
           const working = (name: string) => busy && action === `${name}-${key}`;
           const listing = card.listPrice !== null ? `${card.listCurrency === "BNB" ? `${fmt(card.listPrice, 4)} BNB` : usd(card.listPrice)}` : null;
-          const status = card.staked ? "Staked" : listing ? `Listed · ${listing}` : card.filled ? "In wallet" : "In wallet · holding USDC";
+          const status = card.staked ? "Staked" : listing ? `Listed · ${listing}` : card.filled ? "In wallet" : "In wallet · holding USDT";
           const cardEarned = pendingOf.get(key) ?? 0n;
           return (
             <ListingCard
@@ -182,11 +182,11 @@ export function StockCardCollection() {
               </span>}
               details={[
                 { label: "Status", value: status },
-                { label: "Inside", value: card.filled ? `${tokenAmount(card.amount)} ${TOKENS[card.ticker]?.symbol ?? card.ticker}` : `${usd(card.usd)} USDC (not filled yet)` },
+                { label: "Inside", value: card.filled ? `${tokenAmount(card.amount)} ${TOKENS[card.ticker]?.symbol ?? card.ticker}` : `${usd(card.usd)} USDT (not filled yet)` },
                 { label: "At opening", value: usd(card.usd) },
                 { label: "Pack", value: PACK_TIERS[card.tier]?.name ?? "—" },
                 ...(collectStakingLive ? [{ label: "Stake weight", value: `${STAKE_WEIGHTS[card.rarity] ?? 1}×` }] : []),
-                ...(card.staked ? [{ label: "Earned", value: `${money6(cardEarned)} USDC` }] : []),
+                ...(card.staked ? [{ label: "Earned", value: `${money6(cardEarned)} USDT` }] : []),
               ]}
               action={
                 <span className="flex gap-2">

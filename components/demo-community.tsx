@@ -37,7 +37,7 @@ const SEED: Record<string, string[]> = {
   AAPL: ["Silver Seed holders, checking in", "holding mine until earnings", "the card is up a few cents today"],
   MSFT: ["Prism Gate gang", "rare pull last night, keeping it"],
   NVDA: ["Neural Eye is my favorite card", "NVDA cards are popular on the market today"],
-  TSLA: ["Volt Crown epic just landed", "who's listing in BNB vs USDC?"],
+  TSLA: ["Volt Crown epic just landed", "who's listing in BNB vs USDT?"],
   AMZN: ["Wayfinder Key collectors 🔑", "anyone redeem theirs yet?"],
 };
 const REPLIES = ["nice 🙌", "same here", "good luck with your pulls", "welcome!", "agreed", "that's a great card"];

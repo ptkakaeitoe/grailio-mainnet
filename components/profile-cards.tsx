@@ -12,7 +12,7 @@ import { useRedeemedCards } from "@/lib/use-collect-market";
 import { useStockCards } from "@/lib/use-stock-cards";
 import { usd, useStockPrices } from "@/lib/use-stock-prices";
 
-/** Where a card stands: earning in staking, up for sale, or still holding USDC until filled. */
+/** Where a card stands: earning in staking, up for sale, or still holding USDT until filled. */
 type CardStatus = "Staked" | "Listed" | "Unfilled";
 type Owned = { key: string; ticker: string; rarity: number; tier: number; value: number | null; status?: CardStatus };
 

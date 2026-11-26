@@ -90,13 +90,13 @@ export function DemoMarket({ mode = "both" }: { mode?: MarketMode }) {
   const [picking, setPicking] = useState(false);
   /** Demo cards in the picker's shape (demo cards are always filled). */
   const pickerCards = demo.cards.map((c): CardInfo => ({ id: BigInt(c.id), ticker: c.ticker, tier: c.tier, rarity: c.rarity, filled: true, usd: 0n, amount: c.amount, staked: c.stakedAt !== null }));
-  const [currency, setCurrency] = useState<DemoCurrency>("USDC");
+  const [currency, setCurrency] = useState<DemoCurrency>("USDT");
   const [price, setPrice] = useState("");
   const [days, setDays] = useState(7);
   const amount = Number(price);
   const valid = price.trim() !== "" && Number.isFinite(amount) && amount > 0;
   const selectedWorth = selected ? worth(selected) : null;
-  const suggestion = selectedWorth === null ? null : currency === "USDC" ? selectedWorth.toFixed(2) : avaxUsd ? (selectedWorth / avaxUsd).toFixed(4) : null;
+  const suggestion = selectedWorth === null ? null : currency === "USDT" ? selectedWorth.toFixed(2) : avaxUsd ? (selectedWorth / avaxUsd).toFixed(4) : null;
   const payout = valid ? amount * (1 - DEMO_MARKET_FEE) : 0;
 
   const SellTitle = mode === "sell" ? "h1" : "h2";
@@ -248,7 +248,7 @@ export function DemoMarket({ mode = "both" }: { mode?: MarketMode }) {
               <div className="flex flex-col gap-1.5 text-sm text-muted">
                 <span>Get paid in</span>
                 <div className="flex gap-1.5" role="group" aria-label="Listing currency">
-                  {(["USDC", "BNB"] as const).map((c) => (
+                  {(["USDT", "BNB"] as const).map((c) => (
                     <button key={c} type="button" aria-pressed={currency === c} className="inline-flex flex-1 items-center justify-center gap-2 rounded-md border border-border px-2 py-2 text-sm text-black transition-colors hover:border-black aria-pressed:border-black" onClick={() => { setCurrency(c); setPrice(""); }}>
                       <TokenIcon symbol={c} className="size-4" /> {c}
                     </button>

@@ -36,15 +36,15 @@ import { TokenIcon } from "@/components/token-icon";
 import { appChain, explorerUrl } from "@/lib/chain";
 import { collectMarketAbi, collectMarketAddress, collectPacksAddress } from "@/lib/collect-packs";
 import { erc20Abi, PACK_TIERS, RARITY_NAMES } from "@/lib/contracts";
-import { TOKENS, USDC_DECIMALS } from "@/lib/tokens";
+import { TOKENS, PACK_DECIMALS, PACK_TOKEN } from "@/lib/tokens";
 import { useApproval, useNftApproval } from "@/lib/use-approval";
 import { priceAmount, useCollectListings, useMyCollectCards, type CardInfo, type CollectListing } from "@/lib/use-collect-market";
 import { useNowSeconds } from "@/lib/use-now";
 import { usd, useStockPrices } from "@/lib/use-stock-prices";
 import { txErrorMessage } from "@/lib/tx-error";
 
-type Currency = "BNB" | "USDC";
-const money = (raw: bigint) => usd(Number(formatUnits(raw, USDC_DECIMALS)));
+type Currency = "BNB" | "USDT";
+const money = (raw: bigint) => usd(Number(formatUnits(raw, PACK_DECIMALS)));
 const short = (a: string) => `${a.slice(0, 6)}…${a.slice(-4)}`;
 const amountText = (n: number) => n.toLocaleString("en-US", { maximumFractionDigits: n < 1 ? 8 : 4 });
 const DURATIONS = [
@@ -76,11 +76,11 @@ export function CollectMarketLive({ mode = "both" }: { mode?: MarketMode }) {
 
   /** What a card holds, at live DEX prices. */
   const worth = (card: CardInfo) => {
-    if (!card.filled) return Number(formatUnits(card.usd, USDC_DECIMALS));
+    if (!card.filled) return Number(formatUnits(card.usd, PACK_DECIMALS));
     const price = byTicker[card.ticker]?.price;
     return price ? card.amount * price : null;
   };
-  /** A listing's price in USD, so BNB and USDC listings compare. */
+  /** A listing's price in USD, so BNB and USDT listings compare. */
   const usdOf = (l: CollectListing) => (l.inAvax ? (avaxUsd ? priceAmount(l) * avaxUsd : null) : priceAmount(l));
 
   const [rarity, setRarity] = useState("all");
@@ -93,9 +93,9 @@ export function CollectMarketLive({ mode = "both" }: { mode?: MarketMode }) {
     .filter((l) => inRarity(l) && assets.matches(l))
     .sort((a, b) => (sort === "price" ? usdValue(a) - usdValue(b) : Number(b.id - a.id)));
 
-  // One USDC approval covers every USDC listing up to the dearest one. BNB needs none.
+  // One USDT approval covers every USDT listing up to the dearest one. BNB needs none.
   const maxUsdcPrice = listings.reduce((m, l) => (!l.inAvax && l.price > m ? l.price : m), 0n);
-  const usdcApproval = useApproval(address ? TOKENS.USDC.address : null, collectMarketAddress, maxUsdcPrice);
+  const usdcApproval = useApproval(address ? PACK_TOKEN.address : null, collectMarketAddress, maxUsdcPrice);
   const nftApproval = useNftApproval(collectPacksAddress, collectMarketAddress);
   const { data: feeBps } = useReadContract({ address: collectMarketAddress, abi: collectMarketAbi, functionName: "feeBps" });
   const fee = Number(feeBps ?? 100n) / 10_000;
@@ -107,7 +107,7 @@ export function CollectMarketLive({ mode = "both" }: { mode?: MarketMode }) {
   // The listing being confirmed before it's bought.
   const [confirming, setConfirming] = useState<CollectListing | null>(null);
   const avaxBalance = useBalance({ address, query: { enabled: Boolean(address && confirming) } });
-  const usdcBalance = useReadContract({ address: TOKENS.USDC.address, abi: erc20Abi, functionName: "balanceOf", args: address ? [address] : undefined, query: { enabled: Boolean(address && confirming) } });
+  const usdcBalance = useReadContract({ address: PACK_TOKEN.address, abi: erc20Abi, functionName: "balanceOf", args: address ? [address] : undefined, query: { enabled: Boolean(address && confirming) } });
   useEffect(() => {
     if (!receipt.isSuccess) return;
     refetch();
@@ -145,18 +145,18 @@ export function CollectMarketLive({ mode = "both" }: { mode?: MarketMode }) {
   // The sell page starts with nothing picked; the side form picks your first card.
   const selected = sellable.find((c) => c.id.toString() === sellId) ?? (mode === "sell" ? undefined : sellable[0]);
   const [picking, setPicking] = useState(false);
-  const [currency, setCurrency] = useState<Currency>("USDC");
+  const [currency, setCurrency] = useState<Currency>("USDT");
   const [price, setPrice] = useState("");
   const [days, setDays] = useState(7);
   let priceRaw = 0n;
   try {
-    priceRaw = price.trim() ? parseUnits(price.trim(), currency === "BNB" ? 18 : USDC_DECIMALS) : 0n;
+    priceRaw = price.trim() ? parseUnits(price.trim(), currency === "BNB" ? 18 : PACK_DECIMALS) : 0n;
   } catch {
     priceRaw = 0n;
   }
   const selectedWorth = selected ? worth(selected) : null;
   // Suggested price: what the card holds, in the chosen currency.
-  const suggestion = selectedWorth === null ? null : currency === "USDC" ? selectedWorth.toFixed(2) : avaxUsd ? (selectedWorth / avaxUsd).toFixed(4) : null;
+  const suggestion = selectedWorth === null ? null : currency === "USDT" ? selectedWorth.toFixed(2) : avaxUsd ? (selectedWorth / avaxUsd).toFixed(4) : null;
   const payoutRaw = priceRaw - (priceRaw * BigInt(Math.round(fee * 10_000))) / 10_000n;
   const payoutText = currency === "BNB" ? `${amountText(Number(formatUnits(payoutRaw, 18)))} BNB` : money(payoutRaw);
 
@@ -176,7 +176,7 @@ export function CollectMarketLive({ mode = "both" }: { mode?: MarketMode }) {
         id: c.id.toString(),
         art: cardArt(c.ticker, c.rarity, c.tier),
         rarity: c.rarity,
-        inside: c.filled ? `${tokenAmount(c.amount)} ${TOKENS[c.ticker]?.symbol ?? c.ticker}` : `${money(c.usd)} USDC (unfilled)`,
+        inside: c.filled ? `${tokenAmount(c.amount)} ${TOKENS[c.ticker]?.symbol ?? c.ticker}` : `${money(c.usd)} USDT (unfilled)`,
         worth: worth(c),
         blocked: c.staked ? "Staked" : listedIds.has(c.id.toString()) ? "Listed" : null,
       })) : []}
@@ -250,15 +250,15 @@ export function CollectMarketLive({ mode = "both" }: { mode?: MarketMode }) {
                     title={`card #${key}`}
                     price={
                       <span className="inline-flex items-center gap-1.5">
-                        <TokenIcon symbol={l.inAvax ? "BNB" : "USDC"} className="size-4" title={l.inAvax ? "Priced in BNB" : "Priced in USDC"} />
+                        <TokenIcon symbol={l.inAvax ? "BNB" : "USDT"} className="size-4" title={l.inAvax ? "Priced in BNB" : "Priced in USDT"} />
                         {priceText(l)}
                         {l.inAvax && priceUsd !== null && <span className="text-sm text-muted">≈ {usd(priceUsd)}</span>}
                       </span>
                     }
                     details={[
-                      { label: "Inside", value: l.filled ? `${tokenAmount(l.amount)} ${TOKENS[l.ticker].symbol}` : `${money(l.usd)} USDC (unfilled)` },
+                      { label: "Inside", value: l.filled ? `${tokenAmount(l.amount)} ${TOKENS[l.ticker].symbol}` : `${money(l.usd)} USDT (unfilled)` },
                       { label: "Worth now", value: value === null ? "—" : usd(value) },
-                      { label: "Paid in", value: l.inAvax ? "BNB" : "USDC" },
+                      { label: "Paid in", value: l.inAvax ? "BNB" : "USDT" },
                       { label: "Pack", value: PACK_TIERS[l.tier]?.name ?? "—" },
                       { label: "Seller", value: own ? "You" : short(l.seller) },
                       { label: "Ends in", value: timeLeft(l.expiresAt, now) },
@@ -273,7 +273,7 @@ export function CollectMarketLive({ mode = "both" }: { mode?: MarketMode }) {
                         </button>
                       ) : !l.inAvax && usdcApproval.needsApproval ? (
                         <button type="button" className={listingButton} disabled={usdcApproval.approving || !onChain} onClick={usdcApproval.approve}>
-                          {usdcApproval.approving ? "Approving…" : "Approve USDC"}
+                          {usdcApproval.approving ? "Approving…" : "Approve USDT"}
                         </button>
                       ) : (
                         <button type="button" aria-haspopup="dialog" className={listingButton} disabled={busy || !onChain} onClick={() => { reset(); setConfirming(l); }}>
@@ -329,13 +329,13 @@ export function CollectMarketLive({ mode = "both" }: { mode?: MarketMode }) {
                 {selected && (
                   <p className="text-sm text-muted">
                     {/* e.g. "Contains $0.94 ETH": what the card holds, in dollars. */}
-                    Contains {!selected.filled ? `${money(selected.usd)} USDC` : selectedWorth !== null ? `$${selectedWorth.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${selected.ticker}` : `${amountText(selected.amount)} ${TOKENS[selected.ticker].symbol}`}
+                    Contains {!selected.filled ? `${money(selected.usd)} USDT` : selectedWorth !== null ? `$${selectedWorth.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${selected.ticker}` : `${amountText(selected.amount)} ${TOKENS[selected.ticker].symbol}`}
                   </p>
                 )}
                 <div className="flex flex-col gap-1.5 text-sm text-muted">
                   <span>Get paid in</span>
                   <div className="flex gap-1.5" role="group" aria-label="Listing currency">
-                    {(["USDC", "BNB"] as const).map((c) => (
+                    {(["USDT", "BNB"] as const).map((c) => (
                       <button key={c} type="button" aria-pressed={currency === c} className="inline-flex flex-1 items-center justify-center gap-2 rounded-md border border-border px-2 py-2 text-sm text-black transition-colors hover:border-black aria-pressed:border-black" onClick={() => { setCurrency(c); setPrice(""); }}>
                         <TokenIcon symbol={c} className="size-4" /> {c}
                       </button>
@@ -393,7 +393,7 @@ export function CollectMarketLive({ mode = "both" }: { mode?: MarketMode }) {
         const l = confirming;
         const art = cardArt(l.ticker, l.rarity, l.tier);
         // Your balance of the listing's currency, in whole units.
-        const have = l.inAvax ? (avaxBalance.data ? Number(formatUnits(avaxBalance.data.value, 18)) : null) : usdcBalance.data !== undefined ? Number(formatUnits(usdcBalance.data as bigint, USDC_DECIMALS)) : null;
+        const have = l.inAvax ? (avaxBalance.data ? Number(formatUnits(avaxBalance.data.value, 18)) : null) : usdcBalance.data !== undefined ? Number(formatUnits(usdcBalance.data as bigint, PACK_DECIMALS)) : null;
         const cost = priceAmount(l);
         const money = (n: number) => (l.inAvax ? `${amountText(n)} BNB` : usd(n));
         const value = worth(l);
@@ -404,7 +404,7 @@ export function CollectMarketLive({ mode = "both" }: { mode?: MarketMode }) {
           <BuyConfirmDialog
             art={art}
             rarity={l.rarity}
-            inside={l.filled ? `${tokenAmount(l.amount)} ${TOKENS[l.ticker].symbol}` : `${money(Number(formatUnits(l.usd, USDC_DECIMALS)))} USDC`}
+            inside={l.filled ? `${tokenAmount(l.amount)} ${TOKENS[l.ticker].symbol}` : `${money(Number(formatUnits(l.usd, PACK_DECIMALS)))} USDT`}
             worth={value === null ? "—" : usd(value)}
             price={priceText(l)}
             priceUsd={l.inAvax && priceUsd !== null ? `≈ ${usd(priceUsd)}` : undefined}

@@ -13,7 +13,7 @@ export const metadata: Metadata = {
 export default function TreasuryPage() {
   return (
     <PageShell>
-      <PageHeading label="treasury · owner" title="Pack pool" subtitle="in USDC." intro="Every pack's $1 lands here. What's owed to players stays locked; the rest the owner can withdraw." />
+      <PageHeading label="treasury · owner" title="Pack pool" subtitle="in USDT." intro="Every pack's $1 lands here. What's owed to players stays locked; the rest the owner can withdraw." />
       <TreasuryWorkspace />
     </PageShell>
   );

@@ -48,7 +48,7 @@ export function useWalletHoldings(account?: Address) {
     loaded = true;
     holdings = [
       { label: "BNB", color: AVAX_COLOR, value: demo.balances.BNB ?? 0, price: avaxUsd },
-      ...[{ label: "USDC", color: "#2775ca", key: "USDC" }, ...DEMO_STOCK_CARDS.map((card) => ({ label: card.ticker, color: card.accent, key: card.ticker }))]
+      ...[{ label: "USDT", color: "#26a17b", key: "USDT" }, ...DEMO_STOCK_CARDS.map((card) => ({ label: card.ticker, color: card.accent, key: card.ticker }))]
         .flatMap((t) => {
           const value = demo.balances[t.label] ?? 0;
           return value > 0 ? [{ label: t.label, color: t.color, value, price: priceOf(t.key) }] : [];

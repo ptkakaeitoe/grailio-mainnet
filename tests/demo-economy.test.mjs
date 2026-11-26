@@ -11,13 +11,13 @@ test('quotes stock purchases and stores the purchased tier for every pack',()=>{
  assert.equal(next.balances.WBNB,.9);assert.deepEqual(next.packs,[2,2]);
  assert.equal(buyDemoPacks(state,tier,1,'BNB',10),null);
  assert.equal(buyDemoPacks(state,tier,1,'WBNB',0),null);
- assert.equal(buyDemoPacks(state,tier,11,'USDC',1),null);
+ assert.equal(buyDemoPacks(state,tier,11,'USDT',1),null);
 });
 test('rarity selection follows cumulative tier odds including exact boundaries',()=>{
  assert.deepEqual([0,.59999,.6,.84999,.85,.96999,.97,.99999].map(r=>drawRarity(tier.odds,r)),[0,0,1,1,2,2,3,3]);
 });
 test('opens the saved tier, selects any stock, fixes backing at opening, and rejects repeat redemption',()=>{
- const purchased=buyDemoPacks(initialDemo(),tier,1,'USDC',1);
+ const purchased=buyDemoPacks(initialDemo(),tier,1,'USDT',1);
  const tickers=['BTC','ETH','WBNB','LINK','CAKE'];const prices=Object.fromEntries(tickers.map(t=>[t,100]));
  assert.equal(openDemoPack(purchased,tier,tickers,{},0,.99),null);
  const opened=openDemoPack(purchased,tier,tickers,prices,.3,.99);
@@ -30,7 +30,7 @@ test('opens the saved tier, selects any stock, fixes backing at opening, and rej
 });
 test('staking pays a revenue pool with a 7-day half-life, split by weight',()=>{
  near(keptAfter(7*DAY),.5);near(keptAfter(14*DAY),.25);near(keptAfter(0),1);
- const purchased=buyDemoPacks(initialDemo(),tier,1,'USDC',1);
+ const purchased=buyDemoPacks(initialDemo(),tier,1,'USDT',1);
  const opened=openDemoPack(purchased,tier,['WBNB'],{WBNB:100},0,.99);// Legendary: weight 10
  const staked=actOnDemoCard(opened.state,1,'stake',0);
  assert.equal(actOnDemoCard(staked,1,'redeem',1000),null);
@@ -39,11 +39,11 @@ test('staking pays a revenue pool with a 7-day half-life, split by weight',()=>{
  const share=10/(DEMO_OTHER_WEIGHT+10);
  near(pendingDemoReward(staked,staked.cards[0],7*DAY),DEMO_STAKING_SEED/2*share);
  const claimed=actOnDemoCard(staked,1,'claim',7*DAY);
- near(claimed.balances.USDC,4990+DEMO_STAKING_SEED/2*share);
+ near(claimed.balances.USDT,4990+DEMO_STAKING_SEED/2*share);
  assert.equal(pendingDemoReward(claimed,claimed.cards[0],7*DAY),0);
  // The next 7 days pay half of what is left: payouts slow down.
  const unstaked=actOnDemoCard(claimed,1,'unstake',14*DAY);
- near(unstaked.balances.USDC,4990+DEMO_STAKING_SEED*3/4*share);
+ near(unstaked.balances.USDT,4990+DEMO_STAKING_SEED*3/4*share);
  assert.equal(unstaked.cards[0].stakedAt,null);assert.equal(unstaked.cards[0].debt,undefined);
  assert.ok(actOnDemoCard(unstaked,1,'redeem',14*DAY));
  // Daily payout is the pool times (1 - 2^(-1/7)), and yours is your weight's share.
@@ -59,14 +59,14 @@ test('an older save with a staked card and no pool starts earning when loaded',(
 });
 test('opened packs add their profit to the staking pool from now on',()=>{
  const t={id:1,price:1,odds:[50,25,20,5],backing:[.46,.8,1.4,4]};
- const bought=buyDemoPacks(initialDemo(),t,1,'USDC',1);
+ const bought=buyDemoPacks(initialDemo(),t,1,'USDT',1);
  const opened=openDemoPack(bought,t,['BTC'],{BTC:1},0,0,0);// Common: $0.54 profit, half to stakers
  near(opened.state.staking.pool,DEMO_STAKING_SEED+.27);
- const loss=openDemoPack(buyDemoPacks(initialDemo(),t,1,'USDC',1),t,['BTC'],{BTC:1},0,.99,0);
+ const loss=openDemoPack(buyDemoPacks(initialDemo(),t,1,'USDT',1),t,['BTC'],{BTC:1},0,.99,0);
  assert.equal(loss.state.staking,undefined);
 });
 
-test('every $1 tier costs 1 USDC and averages $0.91 of tokens (9% edge)',()=>{
+test('every $1 tier costs 1 USDT and averages $0.91 of tokens (9% edge)',()=>{
  const tiers=[
   {id:0,price:1,odds:[50,25,20,5],backing:[0.82,0.9,1.04,1.34]},
   {id:1,price:1,odds:[50,25,20,5],backing:[0.46,0.8,1.4,4]},
@@ -76,8 +76,8 @@ test('every $1 tier costs 1 USDC and averages $0.91 of tokens (9% edge)',()=>{
   assert.equal(t.odds.reduce((a,b)=>a+b,0),100);
   const ev=t.odds.reduce((sum,o,i)=>sum+o/100*t.backing[i],0);
   assert.ok(Math.abs(ev-0.91)<0.0005,`tier ${t.id} averages ${ev}`);
-  const bought=buyDemoPacks(initialDemo(),t,1,'USDC',1);
-  assert.equal(initialDemo().balances.USDC-bought.balances.USDC,1);
+  const bought=buyDemoPacks(initialDemo(),t,1,'USDT',1);
+  assert.equal(initialDemo().balances.USDT-bought.balances.USDT,1);
   const top=openDemoPack(bought,t,['BTC'],{BTC:60000},0,.99);
   assert.equal(top.card.rarity,3);assert.ok(Math.abs(top.card.amount*60000-t.backing[3])<1e-9);
  }
@@ -98,7 +98,7 @@ test('demo market: seeds once, buys with the listing currency, lists, cancels an
  const card=bought.cards[0];
  const listed=listDemoCard(bought,card.id,5,'BNB',7,0);
  assert.equal(listed.cards.length,0);assert.equal(listed.listings.at(-1).seller,'you');
- assert.equal(listDemoCard(bought,card.id,0,'USDC',7,0),null);
+ assert.equal(listDemoCard(bought,card.id,0,'USDT',7,0),null);
  const mine=listed.listings.at(-1);
  assert.equal(buyDemoListing(listed,mine.id),null);
  assert.equal(cancelDemoListing(listed,mine.id).cards.length,1);

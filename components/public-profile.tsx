@@ -123,7 +123,7 @@ function PublicCards({ account }: { account: Address }) {
             price={value == null ? "—" : usd(value)}
             details={[
               { label: "Status", value: status },
-              { label: "Inside", value: card.filled ? `${tokenAmount(card.amount)} ${TOKENS[card.ticker]?.symbol ?? card.ticker}` : `${usd(card.usd)} USDC` },
+              { label: "Inside", value: card.filled ? `${tokenAmount(card.amount)} ${TOKENS[card.ticker]?.symbol ?? card.ticker}` : `${usd(card.usd)} USDT` },
               { label: "Pack", value: PACK_TIERS[card.tier]?.name ?? "—" },
             ]}
             action={card.listPrice !== null ? <Link className="text-sm underline underline-offset-4" href="/marketplace">On the market</Link> : null}

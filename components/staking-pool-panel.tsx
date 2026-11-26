@@ -15,7 +15,7 @@ const usd = (n: number) =>
 const pct = (n: number) => `${(n * 100).toLocaleString("en-US", { maximumFractionDigits: n < 0.01 ? 2 : 1 })}%`;
 
 export type StakingPoolPanelProps = {
-  /** USDC in the staking pool now. */
+  /** USDT in the staking pool now. */
   pool: number;
   /** Stakers' share of revenue not yet distributed (joins the pool on Distribute). */
   waiting?: number;

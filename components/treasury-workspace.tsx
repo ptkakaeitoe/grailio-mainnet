@@ -12,16 +12,16 @@ import { useConnectWallet } from "@/components/beta-access";
 import { SwapFeesSection } from "@/components/swap-fees-section";
 import { appChain, explorerUrl } from "@/lib/chain";
 import { collectMarketAbi, collectMarketAddress, collectMarketLive, collectPacksAddress, collectPacksLive, collectPacksTreasuryAbi, collectStakingAbi, collectStakingAddress, collectStakingLive } from "@/lib/collect-packs";
-import { TOKENS, USDC_DECIMALS } from "@/lib/tokens";
+import { PACK_DECIMALS, PACK_TOKEN } from "@/lib/tokens";
 import { txErrorMessage } from "@/lib/tx-error";
 
-const USDC = TOKENS.USDC.address;
+const USDT = PACK_TOKEN.address;
 const money = (raw: bigint | undefined) =>
-  raw === undefined ? "—" : `$${Number(formatUnits(raw, USDC_DECIMALS)).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 6 })}`;
+  raw === undefined ? "—" : `$${Number(formatUnits(raw, PACK_DECIMALS)).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 6 })}`;
 const label = "text-sm text-muted";
 
 /**
- * The pack contract's USDC treasury. Anyone can see the numbers and share out
+ * The pack contract's USDT treasury. Anyone can see the numbers and share out
  * pending revenue (staking and DAO shares); only the owner can withdraw the
  * rest or pause sales. The contract enforces all of it: a withdraw shares
  * pending revenue first and never takes what players or shares are owed.
@@ -43,7 +43,7 @@ export function TreasuryWorkspace() {
       { ...pack, functionName: "pendingUsdc" },
       { ...pack, functionName: "nextPackId" },
       { ...pack, functionName: "nextCardId" },
-      { address: USDC, abi: erc20Abi, functionName: "balanceOf", args: [collectPacksAddress] },
+      { address: USDT, abi: erc20Abi, functionName: "balanceOf", args: [collectPacksAddress] },
       { ...pack, functionName: "pendingRevenue" },
       { ...pack, functionName: "distributable" },
       { ...pack, functionName: "stakingBps" },
@@ -109,7 +109,7 @@ export function TreasuryWorkspace() {
     void refetch();
     void refetchMarket();
   }, [receipt.isSuccess, refetch, refetchMarket]);
-  // distribute() (also run by withdraw) sends USDC to staking without syncing it, so the
+  // distribute() (also run by withdraw) sends USDT to staking without syncing it, so the
   // payout would only start at the next stake or claim. Sync right after it confirms.
   const syncAfter = useRef(false);
   const syncTx = useToastedWrite();
@@ -126,7 +126,7 @@ export function TreasuryWorkspace() {
 
   let amountRaw = 0n;
   try {
-    amountRaw = amount.trim() ? parseUnits(amount.trim(), USDC_DECIMALS) : 0n;
+    amountRaw = amount.trim() ? parseUnits(amount.trim(), PACK_DECIMALS) : 0n;
   } catch {
     amountRaw = -1n;
   }
@@ -150,7 +150,7 @@ export function TreasuryWorkspace() {
     <div className="treasury-workspace pb-16">
       <StatStrip
         items={[
-          { label: "Pool (USDC held)", value: money(balance) },
+          { label: "Pool (USDT held)", value: money(balance) },
           { label: "Owed to players", value: money(reserved), note: `${money(packReserve)} unopened · ${money(pendingUsdc)} unfilled cards` },
           { label: "Revenue to share", value: money(distributable), note: sharesNote },
           { label: "Withdrawable", value: money(withdrawable), note: "Owner's part, after shares" },
@@ -160,7 +160,7 @@ export function TreasuryWorkspace() {
 
       <div className="mt-10 grid grid-cols-1 gap-10 desk:grid-cols-2">
         <section aria-labelledby="withdraw-title">
-          <h2 id="withdraw-title" className="text-xl font-normal">Withdraw USDC</h2>
+          <h2 id="withdraw-title" className="text-xl font-normal">Withdraw USDT</h2>
           {!address ? (
             <button type="button" className={cn(cleanButton.solid, "mt-5")} onClick={openConnect}>
               Connect the owner wallet <ArrowUpRightIcon weight="bold" />
@@ -186,8 +186,8 @@ export function TreasuryWorkspace() {
               </label>
               <label className="flex flex-col gap-1.5">
                 <span className={cn(label, "flex justify-between")}>
-                  <span>Amount (USDC)</span>
-                  <button type="button" className="text-black underline-offset-4 hover:underline" onClick={() => withdrawable !== undefined && setAmount(formatUnits(withdrawable, USDC_DECIMALS))}>
+                  <span>Amount (USDT)</span>
+                  <button type="button" className="text-black underline-offset-4 hover:underline" onClick={() => withdrawable !== undefined && setAmount(formatUnits(withdrawable, PACK_DECIMALS))}>
                     Max {money(withdrawable)}
                   </button>
                 </span>
@@ -254,7 +254,7 @@ export function TreasuryWorkspace() {
         <section className="mt-12 border-t border-border pt-8" aria-labelledby="market-fees-title">
           <h2 id="market-fees-title" className="text-xl font-normal">Marketplace fees</h2>
           <p className="mt-3 max-w-[560px] text-base leading-relaxed text-muted">
-            Fees on USDC sales go into the pack pool above as revenue. Fees on BNB sales collect in the market contract until the owner withdraws them.
+            Fees on USDT sales go into the pack pool above as revenue. Fees on BNB sales collect in the market contract until the owner withdraws them.
           </p>
           <p className="mt-4 text-2xl tracking-[-0.02em] tabular-nums">
             {avaxFees === undefined ? "—" : `${Number(formatUnits(avaxFees, 18)).toLocaleString("en-US", { maximumFractionDigits: 6 })} BNB`}

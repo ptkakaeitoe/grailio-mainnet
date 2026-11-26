@@ -34,8 +34,14 @@ export const SWAP_KEYS: string[] = [...SWAP_BASES, ...STOCK_ASSETS.map((s) => s.
 /** A token /trade can swap, by key. */
 export const swapTokenFor = (key: string): TokenInfo | undefined => (SWAP_KEYS.includes(key) ? TOKENS[key] : undefined);
 
-/** USDC decimals on this chain: every USD amount from the contracts uses it. */
-export const USDC_DECIMALS = TOKENS.USDC.decimals;
+/**
+ * The packs, market and staking contracts' base token: BNB Chain USDT (18 decimals).
+ * Pack prices, card USD values, listings in dollars, staking rewards and the treasury all use it.
+ */
+export const PACK_TOKEN: TokenInfo = TOKENS.USDT;
+export const PACK_SYMBOL = PACK_TOKEN.symbol;
+/** Decimals of every USD amount from the contracts. */
+export const PACK_DECIMALS = PACK_TOKEN.decimals;
 
 export const tokenFor = (key: string): TokenInfo | undefined => TOKENS[key];
 

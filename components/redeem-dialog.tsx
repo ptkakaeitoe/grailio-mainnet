@@ -17,7 +17,7 @@ import type { StockCardView } from "@/lib/use-stock-cards";
 const fmt = (n: number) => n.toLocaleString("en-US", { maximumFractionDigits: 6 });
 
 /**
- * Redeem = burn the card, receive the tokens inside (or its USDC if the card
+ * Redeem = burn the card, receive the tokens inside (or its USDT if the card
  * was never filled). A confirm step first
  * (it can't be undone), then the result, in the pack-reveal dialog style.
  */
@@ -43,8 +43,8 @@ export function RedeemDialog({
   const { writeContract, data: hash, isPending, error, reset } = useToastedWrite();
   const receipt = useWaitForTransactionReceipt({ hash });
   const phase = receipt.isSuccess || demoDone ? "done" : isPending ? "wallet" : hash ? "burning" : "confirm";
-  // What the card pays out: its tokens, or its USDC if it was never filled.
-  const payout = card.filled ? { amount: fmt(card.amount), symbol: TOKENS[card.ticker]?.symbol ?? card.ticker } : { amount: fmt(card.usd), symbol: "USDC" };
+  // What the card pays out: its tokens, or its USDT if it was never filled.
+  const payout = card.filled ? { amount: fmt(card.amount), symbol: TOKENS[card.ticker]?.symbol ?? card.ticker } : { amount: fmt(card.usd), symbol: "USDT" };
   const stock = `${payout.amount} ${payout.symbol}`;
 
   useEffect(() => {

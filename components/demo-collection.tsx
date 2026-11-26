@@ -99,7 +99,7 @@ export function DemoCollection() {
   const earned = stakedCards.reduce((sum, c) => sum + demo.pending(c, now), 0);
   function claimAll() {
     stakedCards.forEach((c) => demo.cardAction(c.id, "claim"));
-    setNotice(`Claimed ${reward(earned)} USDC from staking.`);
+    setNotice(`Claimed ${reward(earned)} USDT from staking.`);
   }
 
   return (
@@ -147,13 +147,13 @@ export function DemoCollection() {
                   { label: "Status", value: staked ? "Staked" : "In wallet" },
                   {
                     label: "Stake weight",
-                    value: `${DEMO_STAKE_WEIGHTS[card.rarity]}× · ${(pool.perWeight * DEMO_STAKE_WEIGHTS[card.rarity]).toFixed(2)} USDC/day`,
+                    value: `${DEMO_STAKE_WEIGHTS[card.rarity]}× · ${(pool.perWeight * DEMO_STAKE_WEIGHTS[card.rarity]).toFixed(2)} USDT/day`,
                   },
                   ...(staked
                     ? [
                         {
                           label: "Pending",
-                          value: `${demo.pending(card, now).toFixed(6)} USDC`,
+                          value: `${demo.pending(card, now).toFixed(6)} USDT`,
                         },
                       ]
                     : []),

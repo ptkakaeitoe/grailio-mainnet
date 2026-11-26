@@ -9,10 +9,10 @@ import { explorerUrl } from "@/lib/chain";
 import { tickerForAsset } from "@/lib/collect-packs";
 import { PACK_TIERS, RARITY_NAMES } from "@/lib/contracts";
 import { tokenAmount } from "@/lib/format-amount";
-import { TOKENS, USDC_DECIMALS } from "@/lib/tokens";
+import { TOKENS, PACK_DECIMALS } from "@/lib/tokens";
 
 const usdc = (raw?: string) => {
-  const n = raw ? Number(formatUnits(BigInt(raw), USDC_DECIMALS)) : 0;
+  const n = raw ? Number(formatUnits(BigInt(raw), PACK_DECIMALS)) : 0;
   return `$${n.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: n > 0 && n < 0.01 ? 6 : 2 })}`;
 };
 const when = (t: number) => {

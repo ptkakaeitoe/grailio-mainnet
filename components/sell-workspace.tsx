@@ -24,7 +24,7 @@ export type SellCard = {
   blocked?: string | null;
 };
 
-export type SellCurrency = "USDC" | "BNB";
+export type SellCurrency = "USDT" | "BNB";
 
 const DURATIONS = [
   { label: "1 day", days: 1 },
@@ -32,7 +32,7 @@ const DURATIONS = [
   { label: "30 days", days: 30 },
 ];
 const dollars = (n: number) => `$${n.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-const inCurrency = (n: number, c: SellCurrency) => (c === "USDC" ? dollars(n) : `${n.toLocaleString("en-US", { maximumFractionDigits: n < 1 ? 6 : 4 })} BNB`);
+const inCurrency = (n: number, c: SellCurrency) => (c === "USDT" ? dollars(n) : `${n.toLocaleString("en-US", { maximumFractionDigits: n < 1 ? 6 : 4 })} BNB`);
 
 /**
  * The sell page: every card you own in a big grid to pick from, and the listing
@@ -80,7 +80,7 @@ export function SellWorkspace({
   const amount = Number(price);
   const valid = price.trim() !== "" && Number.isFinite(amount) && amount > 0;
   // Suggested price: what the card holds, in the chosen currency.
-  const suggestion = selected?.worth == null ? null : currency === "USDC" ? selected.worth.toFixed(2) : avaxUsd ? (selected.worth / avaxUsd).toFixed(4) : null;
+  const suggestion = selected?.worth == null ? null : currency === "USDT" ? selected.worth.toFixed(2) : avaxUsd ? (selected.worth / avaxUsd).toFixed(4) : null;
 
   return (
     <div>
@@ -180,7 +180,7 @@ export function SellWorkspace({
             <div className="flex flex-col gap-1.5 text-sm text-muted">
               <span>Get paid in</span>
               <div className="flex gap-1.5" role="group" aria-label="Listing currency">
-                {(["USDC", "BNB"] as const).map((c) => (
+                {(["USDT", "BNB"] as const).map((c) => (
                   <button key={c} type="button" aria-pressed={currency === c} className="inline-flex h-11 flex-1 items-center justify-center gap-2 rounded-md border border-border text-sm text-black transition-colors hover:border-border-strong aria-pressed:border-black" onClick={() => { onCurrency(c); onPrice(""); }}>
                     <TokenIcon symbol={c} className="size-4" /> {c}
                   </button>
@@ -192,7 +192,7 @@ export function SellWorkspace({
               <span className="flex items-baseline justify-between gap-2">
                 <span>Price ({currency})</span>
                 {suggestion && (
-                  <button type="button" className="text-black underline-offset-4 hover:underline" onClick={() => onPrice(suggestion)}>Use worth {currency === "USDC" ? `$${suggestion}` : `${suggestion} BNB`}</button>
+                  <button type="button" className="text-black underline-offset-4 hover:underline" onClick={() => onPrice(suggestion)}>Use worth {currency === "USDT" ? `$${suggestion}` : `${suggestion} BNB`}</button>
                 )}
               </span>
               <input className={cleanField} inputMode="decimal" placeholder={suggestion ?? "0.00"} value={price} disabled={!selected} onChange={(e) => onPrice(e.target.value.replace(/[^0-9.]/g, ""))} />

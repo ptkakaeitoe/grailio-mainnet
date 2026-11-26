@@ -5,7 +5,7 @@ import { appChain, rpcUrl } from "@/lib/chain";
 import { tickerForAsset, collectCardsAbi, collectPacksAddress, collectPacksLive } from "@/lib/collect-packs";
 import { PACK_TIERS, RARITY_NAMES } from "@/lib/contracts";
 import { tokenAmount } from "@/lib/format-amount";
-import { TOKENS, USDC_DECIMALS } from "@/lib/tokens";
+import { TOKENS, PACK_DECIMALS } from "@/lib/tokens";
 
 /**
  * Standard NFT metadata for a Grailio card: /api/card/3
@@ -37,8 +37,8 @@ export async function GET(req: Request, ctx: RouteContext<"/api/card/[id]">) {
   const art = cardArt(ticker, rarity, tier);
   const token = TOKENS[ticker];
   const origin = new URL(req.url).origin;
-  const atOpening = Number(formatUnits(usd, USDC_DECIMALS));
-  const inside = filled && token ? `${tokenAmount(Number(formatUnits(amount, token.decimals)))} ${token.symbol}` : `${atOpening.toFixed(2)} USDC`;
+  const atOpening = Number(formatUnits(usd, PACK_DECIMALS));
+  const inside = filled && token ? `${tokenAmount(Number(formatUnits(amount, token.decimals)))} ${token.symbol}` : `${atOpening.toFixed(2)} USDT`;
   const name = `${art?.name ?? "Grailio card"} #${id}`;
 
   return Response.json(

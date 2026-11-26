@@ -3,8 +3,8 @@ import { zeroAddress, type Address } from "viem";
 import deployment from "@/deployments/56.json";
 
 /**
- * CollectPacks (contracts/src/CollectPacks.sol): $1 USDC packs whose cards hold
- * real tokens, plus the USDC prize pool and its treasury controls. Written into
+ * CollectPacks (contracts/src/CollectPacks.sol): $1 USDT packs whose cards hold
+ * real tokens, plus the USDT prize pool and its treasury controls. Written into
  * deployments/56.json by contracts/script/DeployCollectPacks.s.sol.
  */
 export const collectPacksAddress = ((deployment as { collectPacks?: string }).collectPacks ?? zeroAddress) as Address;
@@ -72,7 +72,7 @@ export const collectStakingAbi = [
 /** Card asset ID = index in contracts/script/stocks.mainnet.json. */
 export { tickerForAsset } from "@/lib/stock-assets";
 
-/** CollectMarket (contracts/src/CollectMarket.sol): non-custodial card market, each listing priced in BNB or USDC. */
+/** CollectMarket (contracts/src/CollectMarket.sol): non-custodial card market, each listing priced in BNB or USDT. */
 export const collectMarketAddress = ((deployment as { collectMarket?: string }).collectMarket ?? zeroAddress) as Address;
 export const collectMarketLive = collectPacksLive && collectMarketAddress !== zeroAddress;
 
@@ -114,9 +114,9 @@ export const collectPacksAbi = [
   { type: "error", name: "NotYourGift", inputs: [] },
   { type: "error", name: "GiftCodeUsed", inputs: [] },
   { type: "function", name: "giftIdOf", inputs: [{ type: "address", name: "signer" }], outputs: [{ type: "uint256" }], stateMutability: "view" },
-  /** Burn a card for what it holds: its tokens, or its USDC if never filled. */
+  /** Burn a card for what it holds: its tokens, or its USDT if never filled. */
   { type: "function", name: "redeem", inputs: [{ type: "uint256", name: "cardId" }], outputs: [], stateMutability: "nonpayable" },
-  /** Swap an unfilled card's USDC into its token (anyone may call). */
+  /** Swap an unfilled card's USDT into its token (anyone may call). */
   { type: "function", name: "fill", inputs: [{ type: "uint256", name: "cardId" }], outputs: [], stateMutability: "nonpayable" },
   { type: "error", name: "SwapUnavailable", inputs: [] },
   { type: "error", name: "NotYourCard", inputs: [] },

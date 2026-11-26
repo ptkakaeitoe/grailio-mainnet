@@ -18,7 +18,7 @@ const FLOW = [
   },
   {
     title: "Choose a pack",
-    body: "Pick a risk tier. Every pack costs $1 in USDC.",
+    body: "Pick a risk tier. Every pack costs $1 in USDT.",
   },
   {
     title: "Reveal a card",
@@ -37,7 +37,7 @@ const CARD_ACTIONS = [
   },
   {
     title: "List",
-    body: "Set a price in USDC and put your card on the market.",
+    body: "Set a price in USDT and put your card on the market.",
     href: "/marketplace",
     cta: "visit the market",
     swatch: "bg-block-salmon",
