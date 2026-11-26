@@ -19,10 +19,10 @@ import {StockConfig} from "./StockConfig.sol";
 /// deploy. Cards hold tokenized stocks only (bStocks, priced by Atlas; see StockConfig and
 /// script/stocks.mainnet.json); asset ID = index in the config's `stocks`.
 ///
-/// USDC on BNB Chain has 18 decimals. CollectPacks reads USDC's decimals at deploy, so all
-/// USDC amounts below are written with 18 decimals.
+/// USDT on BNB Chain has 18 decimals. CollectPacks reads USDT's decimals at deploy, so all
+/// USDT amounts below are written with 18 decimals.
 library MainnetConfig {
-    address internal constant USDC = 0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d; // Binance-Peg USDC, 18 dec
+    address internal constant USDT = 0x55d398326f99059fF775485246999027B3197955; // Binance-Peg USDT, 18 dec
 
     // Routers. PancakeSwap's SmartRouter takes Uniswap SwapRouter02-style exactInput
     // (no deadline field), which matches ISwapRouter02 in CollectPacks.
@@ -53,9 +53,9 @@ library MainnetConfig {
     }
 
     function deployPacks(address owner) internal returns (CollectPacks) {
-        // Tier amounts above are written for 18-decimal USDC; stop if that ever stops being true.
-        require(IERC20Metadata(USDC).decimals() == 18, "MainnetConfig tier amounts assume 18-decimal USDC");
-        return new CollectPacks(IERC20(USDC), ISwapRouter02(PANCAKE_SMART_ROUTER), IV2Router(PANCAKE_V2_ROUTER), owner);
+        // Tier amounts above are written for 18-decimal USDT; stop if that ever stops being true.
+        require(IERC20Metadata(USDT).decimals() == 18, "MainnetConfig tier amounts assume 18-decimal USDT");
+        return new CollectPacks(IERC20(USDT), ISwapRouter02(PANCAKE_SMART_ROUTER), IV2Router(PANCAKE_V2_ROUTER), owner);
     }
 
     struct Params {
@@ -109,8 +109,8 @@ library MainnetConfig {
             }
         }
 
-        // Card market: BNB or USDC listings; USDC fees are pack-pool revenue.
-        d.market = new CollectMarket(IERC20(USDC), address(d.packs), p.deployer);
+        // Card market: BNB or USDT listings; USDT fees are pack-pool revenue.
+        d.market = new CollectMarket(IERC20(USDT), address(d.packs), p.deployer);
         d.market.setListable(address(d.packs), true);
         d.market.setTreasury(address(d.packs), true);
         // DAO points: 1 per pack bought (any price), non-transferable. The DAO votes with them.
@@ -119,7 +119,7 @@ library MainnetConfig {
         d.packs.setPoints(ICollectPoints(address(d.points)), 1);
         d.dao = new CollectDAO(IPoints(address(d.points)), p.deployer);
         // Staking: cards earn the staking share of revenue, paid out with a 7-day half-life.
-        d.staking = new CollectStaking(ICollectCards(address(d.packs)), IERC20(USDC));
+        d.staking = new CollectStaking(ICollectCards(address(d.packs)), IERC20(USDT));
         d.packs.setShares(address(d.staking), p.stakingBps, p.daoWallet, p.daoBps);
 
         // Chat: an open lounge, then one encrypted room per stock (asset order), named by

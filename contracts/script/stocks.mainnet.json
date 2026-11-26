@@ -1,5 +1,5 @@
 {
-  "schema": "One entry per bStock card asset, read by script/AddStocks.s.sol. symbol: card ticker. token: the bStock ERC-20 on BSC. atlasFeedId: Atlas MultiFeed feed ID (see bsctemp src/lib/atlas-feeds.ts). maxFeedAge: seconds before the price counts as stale. maxSlippageBps: swap tolerance vs the Atlas fair amount (max 1000). route: v3 or v2. v3Path: hops from USDC to token; each hop's fee is the PancakeSwap v3 pool fee to the next hop, the last hop has none. v2Path: token addresses from USDC to token. todo: the script refuses to run while any entry has a non-empty todo. Asset ID on a fresh deploy = index in `stocks`. baskets: the stocks each pack edition (all its risk levels) draws from, by ticker.",
+  "schema": "One entry per bStock card asset, read by script/AddStocks.s.sol. symbol: card ticker. token: the bStock ERC-20 on BSC. atlasFeedId: Atlas MultiFeed feed ID (see bsctemp src/lib/atlas-feeds.ts). maxFeedAge: seconds before the price counts as stale. maxSlippageBps: swap tolerance vs the Atlas fair amount (max 1000). route: v3 or v2. v3Path: hops from USDT to token; each hop's fee is the PancakeSwap v3 pool fee to the next hop, the last hop has none. v2Path: token addresses from USDT to token. todo: the script refuses to run while any entry has a non-empty todo. Asset ID on a fresh deploy = index in `stocks`. baskets: the stocks each pack edition (all its risk levels) draws from, by ticker.",
   "stocks": [
     {
       "symbol": "NVDAB",
@@ -12,10 +12,6 @@
       "maxSlippageBps": 300,
       "route": "v3",
       "v3Path": [
-        {
-          "token": "0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d",
-          "fee": 100
-        },
         {
           "token": "0x55d398326f99059fF775485246999027B3197955",
           "fee": 2500
@@ -38,10 +34,6 @@
       "route": "v3",
       "v3Path": [
         {
-          "token": "0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d",
-          "fee": 100
-        },
-        {
           "token": "0x55d398326f99059fF775485246999027B3197955",
           "fee": 2500
         },
@@ -62,10 +54,6 @@
       "maxSlippageBps": 300,
       "route": "v3",
       "v3Path": [
-        {
-          "token": "0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d",
-          "fee": 100
-        },
         {
           "token": "0x55d398326f99059fF775485246999027B3197955",
           "fee": 2500
@@ -88,10 +76,6 @@
       "route": "v3",
       "v3Path": [
         {
-          "token": "0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d",
-          "fee": 100
-        },
-        {
           "token": "0x55d398326f99059fF775485246999027B3197955",
           "fee": 2500
         },
@@ -112,10 +96,6 @@
       "maxSlippageBps": 300,
       "route": "v3",
       "v3Path": [
-        {
-          "token": "0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d",
-          "fee": 100
-        },
         {
           "token": "0x55d398326f99059fF775485246999027B3197955",
           "fee": 2500
@@ -138,10 +118,6 @@
       "route": "v3",
       "v3Path": [
         {
-          "token": "0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d",
-          "fee": 100
-        },
-        {
           "token": "0x55d398326f99059fF775485246999027B3197955",
           "fee": 100
         },
@@ -162,10 +138,6 @@
       "maxSlippageBps": 300,
       "route": "v3",
       "v3Path": [
-        {
-          "token": "0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d",
-          "fee": 100
-        },
         {
           "token": "0x55d398326f99059fF775485246999027B3197955",
           "fee": 500
@@ -188,10 +160,6 @@
       "route": "v3",
       "v3Path": [
         {
-          "token": "0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d",
-          "fee": 100
-        },
-        {
           "token": "0x55d398326f99059fF775485246999027B3197955",
           "fee": 2500
         },
@@ -212,10 +180,6 @@
       "maxSlippageBps": 300,
       "route": "v3",
       "v3Path": [
-        {
-          "token": "0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d",
-          "fee": 100
-        },
         {
           "token": "0x55d398326f99059fF775485246999027B3197955",
           "fee": 2500
@@ -238,10 +202,6 @@
       "route": "v3",
       "v3Path": [
         {
-          "token": "0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d",
-          "fee": 100
-        },
-        {
           "token": "0x55d398326f99059fF775485246999027B3197955",
           "fee": 2500
         },
@@ -262,10 +222,6 @@
       "maxSlippageBps": 300,
       "route": "v3",
       "v3Path": [
-        {
-          "token": "0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d",
-          "fee": 100
-        },
         {
           "token": "0x55d398326f99059fF775485246999027B3197955",
           "fee": 2500
@@ -288,10 +244,6 @@
       "route": "v3",
       "v3Path": [
         {
-          "token": "0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d",
-          "fee": 100
-        },
-        {
           "token": "0x55d398326f99059fF775485246999027B3197955",
           "fee": 2500
         },
@@ -312,10 +264,6 @@
       "maxSlippageBps": 300,
       "route": "v3",
       "v3Path": [
-        {
-          "token": "0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d",
-          "fee": 100
-        },
         {
           "token": "0x55d398326f99059fF775485246999027B3197955",
           "fee": 2500
@@ -338,10 +286,6 @@
       "route": "v3",
       "v3Path": [
         {
-          "token": "0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d",
-          "fee": 100
-        },
-        {
           "token": "0x55d398326f99059fF775485246999027B3197955",
           "fee": 2500
         },
@@ -362,10 +306,6 @@
       "maxSlippageBps": 300,
       "route": "v3",
       "v3Path": [
-        {
-          "token": "0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d",
-          "fee": 100
-        },
         {
           "token": "0x55d398326f99059fF775485246999027B3197955",
           "fee": 2500

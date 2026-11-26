@@ -9,12 +9,12 @@ import {MainnetConfig as M} from "../script/MainnetConfig.sol";
 import {StockConfig} from "../script/StockConfig.sol";
 
 /// The full deploy (MainnetConfig.deployAll, as DeployCollectPacks runs it) on a local fork of
-/// BNB Smart Chain mainnet, sent by a funded EOA through vm.startPrank: real USDC, Atlas
+/// BNB Smart Chain mainnet, sent by a funded EOA through vm.startPrank: real USDT, Atlas
 /// prices and PancakeSwap pools. Nothing is broadcast. Run with:
 ///   BSC_RPC_URL=https://bsc-rpc.publicnode.com forge test --match-contract Fork -vv
 contract CollectPacksForkTest is Test {
     address constant DEPLOYER = 0x073d76f407F9242E014a1A6f8B2f67286E5A547F;
-    IERC20 usdc = IERC20(M.USDC);
+    IERC20 usdt = IERC20(M.USDT);
     M.Deployment d;
     CollectPacks packs;
     StockConfig.Stock[] stocks;
@@ -41,9 +41,9 @@ contract CollectPacksForkTest is Test {
         vm.stopPrank();
         packs = d.packs;
 
-        deal(M.USDC, player, 100e18);
+        deal(M.USDT, player, 100e18);
         vm.prank(player);
-        usdc.approve(address(packs), type(uint256).max);
+        usdt.approve(address(packs), type(uint256).max);
     }
 
     function test_deployMatchesConfig() public view {
@@ -107,10 +107,10 @@ contract CollectPacksForkTest is Test {
         }
     }
 
-    function test_treasuryRoundTripOnRealUsdc() public {
+    function test_treasuryRoundTripOnRealUsdt() public {
         vm.prank(DEPLOYER);
         packs.setTierActive(2, true);
-        deal(M.USDC, address(packs), 50e18); // seed the pool
+        deal(M.USDT, address(packs), 50e18); // seed the pool
         vm.prank(player);
         uint256 packId = packs.buy(2, 1); // Fable High reserves $10.13
         assertEq(packs.reserved(), 10.13e18);
@@ -122,6 +122,6 @@ contract CollectPacksForkTest is Test {
         vm.prank(DEPLOYER);
         uint256 out = packs.withdrawAll(treasury);
         assertEq(out, 50e18);
-        assertEq(usdc.balanceOf(player), 100e18);
+        assertEq(usdt.balanceOf(player), 100e18);
     }
 }

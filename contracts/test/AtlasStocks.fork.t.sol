@@ -16,7 +16,7 @@ import {MainnetConfig} from "../script/MainnetConfig.sol";
 contract AtlasStocksForkTest is Test {
     CollectPacks PACKS;
     IAtlasMultiFeed constant ATLAS = IAtlasMultiFeed(0xEAcE519ebB14fB8404fA6DdD23C3b34abaDE44aa);
-    IERC20 constant USDC = IERC20(0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d);
+    IERC20 constant USDT = IERC20(0x55d398326f99059fF775485246999027B3197955);
     uint256 constant LOW = 0; // Fable Low: every card $0.95
 
     AddStocks script;
@@ -38,9 +38,9 @@ contract AtlasStocksForkTest is Test {
         script = new AddStocks();
         StockConfig.Stock[] memory s = StockConfig.load(vm.readFile(StockConfig.DEFAULT_PATH));
         for (uint256 i; i < s.length; ++i) stocks.push(s[i]);
-        deal(address(USDC), player, 100e18);
+        deal(address(USDT), player, 100e18);
         vm.prank(player);
-        USDC.approve(address(PACKS), type(uint256).max);
+        USDT.approve(address(PACKS), type(uint256).max);
     }
 
     function test_adapterReadsAtlas() public {
@@ -82,13 +82,13 @@ contract AtlasStocksForkTest is Test {
         assertGe(stocks.length, 1);
         StockConfig.Stock memory s = stocks[0];
         assertEq(uint8(s.route), uint8(CollectPacks.Route.UniswapV3));
-        assertEq(address(bytes20(s.v3Path)), address(USDC));
+        assertEq(address(bytes20(s.v3Path)), address(USDT));
         assertEq((s.v3Path.length - 20) % 23, 0);
         assertEq(s.maxFeedAge, 6 hours);
     }
 
     /// Add each stock to the live CollectPacks, make it the only active asset, open a Low pack.
-    /// With a working route the card fills within the Atlas guard; otherwise it holds USDC.
+    /// With a working route the card fills within the Atlas guard; otherwise it holds USDT.
     function test_lowPackOpensStockCard() public {
         uint256 n = PACKS.assetCount();
         for (uint256 i; i < stocks.length; ++i) {
@@ -114,21 +114,21 @@ contract AtlasStocksForkTest is Test {
             console.log("  amount:", amount);
             console.log("  fair  :", fair);
             uint256 before = IERC20(s.token).balanceOf(player);
-            uint256 usdcBefore = USDC.balanceOf(player);
+            uint256 usdcBefore = USDT.balanceOf(player);
             vm.prank(player);
             PACKS.redeem(cardId);
             if (filled) {
                 assertGe(amount, fair * (10_000 - s.maxSlippageBps) / 10_000);
                 assertEq(IERC20(s.token).balanceOf(player) - before, amount);
             } else {
-                // No fair swap: the card kept its $0.95 in USDC and redeems for it.
-                assertEq(USDC.balanceOf(player) - usdcBefore, 0.95e18);
+                // No fair swap: the card kept its $0.95 in USDT and redeems for it.
+                assertEq(USDT.balanceOf(player) - usdcBefore, 0.95e18);
             }
         }
     }
 
-    /// A feed older than maxFeedAge prices at 0, so the card falls back to USDC.
-    function test_staleFeedFallsBackToUsdc() public {
+    /// A feed older than maxFeedAge prices at 0, so the card falls back to USDT.
+    function test_staleFeedFallsBackToUsdt() public {
         uint256 id = _addStock(stocks[0]);
         _onlyActive(id);
         vm.warp(vm.getBlockTimestamp() + stocks[0].maxFeedAge + 1);

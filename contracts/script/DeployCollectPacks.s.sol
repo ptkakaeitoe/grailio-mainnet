@@ -24,7 +24,7 @@ import {StockConfig} from "./StockConfig.sol";
 /// Real deploy:
 ///   forge script script/DeployCollectPacks.s.sol --rpc-url bsc --account grailio-mainnet-deployer --broadcast --verify
 ///
-/// The pool starts empty: Low tiers need no seed; send USDC before turning on Medium/High.
+/// The pool starts empty: Low tiers need no seed; send USDT before turning on Medium/High.
 contract DeployCollectPacks is Script {
     function run() external returns (MainnetConfig.Deployment memory d) {
         string memory json = vm.readFile(vm.envOr("STOCKS_JSON", string(StockConfig.DEFAULT_PATH)));

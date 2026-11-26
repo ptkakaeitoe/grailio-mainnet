@@ -11,7 +11,7 @@ import {AtlasFeedAdapter, IAtlasMultiFeed} from "../src/AtlasFeedAdapter.sol";
 ///
 /// maxFeedAge: Atlas pushes bStock prices about every 60 seconds, around the clock (they track
 /// 24/7 venues, not only US market hours; measured on chain 2026-11-26, a US holiday). A short
-/// limit means a stuck feed stops swaps quickly: cards then keep their USDC until `fill`, which
+/// limit means a stuck feed stops swaps quickly: cards then keep their USDT until `fill`, which
 /// costs nothing but convenience. A long limit would let a card buy at a price hours old. The
 /// default, 6 hours, rides out an Atlas outage of a few hours without pausing cards. Override
 /// per entry with "maxFeedAge".
@@ -19,7 +19,7 @@ library StockConfig {
     Vm private constant vm = Vm(address(uint160(uint256(keccak256("hevm cheat code")))));
 
     IAtlasMultiFeed internal constant ATLAS = IAtlasMultiFeed(0xEAcE519ebB14fB8404fA6DdD23C3b34abaDE44aa);
-    address internal constant USDC = 0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d;
+    address internal constant USDT = 0x55d398326f99059fF775485246999027B3197955;
     uint32 internal constant DEFAULT_MAX_FEED_AGE = 6 hours;
     string internal constant DEFAULT_PATH = "script/stocks.mainnet.json";
 
@@ -81,7 +81,7 @@ library StockConfig {
             } else if (route == keccak256("v2")) {
                 s.route = CollectPacks.Route.V2;
                 s.v2Path = vm.parseJsonAddressArray(json, _k(i, ".v2Path"));
-                require(s.v2Path.length >= 2 && s.v2Path[0] == USDC, string.concat(s.symbol, ": v2Path must start at USDC"));
+                require(s.v2Path.length >= 2 && s.v2Path[0] == USDT, string.concat(s.symbol, ": v2Path must start at USDT"));
                 require(s.v2Path[s.v2Path.length - 1] == s.token, string.concat(s.symbol, ": v2Path must end at token"));
             } else {
                 revert(string.concat(s.symbol, ": route must be \"v3\" or \"v2\""));
@@ -121,7 +121,7 @@ library StockConfig {
         for (uint256 h; h < hops; ++h) {
             path = bytes.concat(path, _v3Hop(json, _hop(base, h), h + 1 < hops));
         }
-        require(address(bytes20(path)) == USDC, "v3Path must start at USDC");
+        require(address(bytes20(path)) == USDT, "v3Path must start at USDT");
         require(_lastToken(path) == vm.parseJsonAddress(json, _k(i, ".token")), "v3Path must end at token");
     }
 
