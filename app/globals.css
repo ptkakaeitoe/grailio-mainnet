@@ -120,6 +120,22 @@ body::before {
     mask-image: linear-gradient(to bottom, transparent 50%, #000 calc(50% + 120px), rgb(0 0 0 / .45) 70%, transparent 100%);
   }
 }
+/* The same rainbow at the foot of every page (SiteFooter): rising from the bottom edge, full screen width, fainter. */
+.footer-glow {
+  position: absolute;
+  bottom: 0;
+  left: calc(50% - 50vw);
+  width: 100vw;
+  height: min(32svh, 300px);
+  z-index: -1;
+  pointer-events: none;
+  background: linear-gradient(90deg, #8c6cff, #29b6f6 20%, #3ddc84 40%, #ffe14d 60%, #ff9f1c 80%, #ff3d7f);
+  -webkit-mask-image: linear-gradient(to top, #000 0%, rgb(0 0 0 / .45) 40%, transparent 100%);
+  mask-image: linear-gradient(to top, #000 0%, rgb(0 0 0 / .45) 40%, transparent 100%);
+  opacity: .08;
+  animation: glow-hue 24s linear infinite;
+}
+@media (prefers-reduced-motion: reduce) { .footer-glow { animation: none; } }
 @keyframes glow-hue { to { filter: hue-rotate(360deg); } }
 @keyframes glow-breathe { from { opacity: .16; } to { opacity: .26; } }
 @media (prefers-reduced-motion: reduce) { body::before { animation: none; } }
