@@ -39,7 +39,7 @@ export function WalletEntry({ className = cleanButton.solid, disabled = false, n
             <span className={rowIcon}><WalletIcon className="size-5" aria-hidden="true" /></span>
             <span className="min-w-0 flex-1">
               <span className="block text-base">Wallet or email</span>
-              <span className="block truncate text-[13px] text-muted">Beta code required</span>
+              <span className="block truncate text-[13px] text-muted">Email, Google or a wallet</span>
             </span>
             <ArrowUpRightIcon className="size-4 text-muted" aria-hidden="true" />
           </button>

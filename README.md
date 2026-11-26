@@ -74,7 +74,7 @@ The tradable tokens are the tokenized stocks in `lib/stock-assets.ts`, paid or r
 
 ### Beta gate
 
-Anyone can browse and use demo mode. **Connecting a wallet needs a beta code.** The code is checked on the server, which sets a signed httpOnly cookie for 90 days; wallets that connect without it are signed out. This is a UI gate: contracts on a public chain can still be called directly.
+Anyone can browse, use demo mode, connect a wallet, swap and chat: the beta gate is **off** (`BETA_GATE_ON = false` in `lib/beta-gate.ts`). To bring it back, set that to `true` and fill `BETA_ACCESS_CODES` / `BETA_COOKIE_SECRET`; the code is then checked on the server, which sets a signed httpOnly cookie for 90 days. It is a UI gate only: contracts on a public chain can always be called directly.
 
 ## Environment
 
@@ -83,7 +83,7 @@ Names are in `.env.example`; you fill in the values. Never commit `.env.local`.
 | Variable | Needed for | Required? |
 | --- | --- | --- |
 | `NEXT_PUBLIC_PRIVY_APP_ID` | Sign-in (Privy). Enable BNB Smart Chain and add your domain in the Privy dashboard | Yes for production; local dev falls back to a browser wallet |
-| `BETA_ACCESS_CODES`, `BETA_COOKIE_SECRET` | The beta gate for connecting wallets | Yes |
+| `BETA_ACCESS_CODES`, `BETA_COOKIE_SECRET` | The beta gate, only if you turn it back on (`lib/beta-gate.ts`) | No (gate is off) |
 | `ETHERSCAN_API_KEY` | Activity and chat history (contract logs via Etherscan API v2, chain 56). The key needs BNB Chain access | Yes once contracts are deployed |
 | `RELAYER_KEY` | Free chat posts and gift gas top-ups (a dedicated wallet with a little BNB) | Optional |
 | `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN` | Shared relay limits (or Vercel KV) | Required in production if `RELAYER_KEY` is set |
@@ -118,7 +118,7 @@ The swap-fee treasury wallet is `SWAP_FEE_TREASURY` in `lib/swap-fee.ts` (`0x9c0
 
 1. **Review `CollectPacks`** (18-decimal USDC, per-tier stock baskets) and run the fork test with `BSC_RPC_URL` set; it simulates the whole deploy and opens Fable, Saga and Mythos Low packs. It's a real-money contract: have it reviewed before deploying.
 2. **Deploy the contracts yourself** (spends real BNB): the exact commands are in [`contracts/README.md`](contracts/README.md#deploy-you-run-this-it-spends-real-bnb-and-usdc). The script writes every address into `deployments/56.json`; rebuild the app afterwards and seed the pack pool with USDC.
-3. **Fill in `.env.local`** (or your host's env): Privy app ID with BNB Smart Chain enabled, beta codes and cookie secret, an Etherscan API v2 key, and optionally a relayer wallet with a little BNB plus Upstash.
+3. **Fill in `.env.local`** (or your host's env): Privy app ID with BNB Smart Chain enabled, an Etherscan API v2 key, and optionally a relayer wallet with a little BNB plus Upstash.
 4. **Optional: outside NFTs as profile pictures.** BNB Chain has no keyless NFT index, so the picker offers Grailio cards only. Plug an NFT indexer into `lib/nft-metadata.ts` to bring this back.
 
 ## What changed from the earlier app
