@@ -4,14 +4,6 @@ Last updated 2026-11-26. Everything else is done and pushed.
 
 ## Must do before real users
 
-1. **Privy dashboard** (dashboard.privy.io → the app whose ID is in Vercel's `NEXT_PUBLIC_PRIVY_APP_ID`)
-   - Authentication: turn on **Email**, **Google**, **External wallets**; others off.
-   - Embedded wallets: **EVM** on, "create for users without wallets", confirmation pop-ups off.
-   - Allowed domains: `https://beta.grailio.xyz` (the live mainnet), `https://grailio-mainnet.vercel.app` and `http://localhost:3000`.
-   - Then redeploy on Vercel (Deployments → latest → Redeploy) if it doesn't pick it up.
-
-2. **Fund the chat relayer wallet** (the wallet whose key is `RELAYER_KEY` on Vercel) with a little BNB, ~0.01 BNB. It pays gas for free chat posts and gift top-ups. Keep only a small balance in it.
-
 3. **Etherscan API v2 key** (etherscan.io → API Keys; it must cover BNB Chain, chain 56). Add it to Vercel:
    `vercel env add ETHERSCAN_API_KEY production --sensitive` (run in `grailio-mainnet/`, paste the key when asked).
    Without it the activity feed and chat history stay empty.
@@ -34,6 +26,8 @@ Last updated 2026-11-26. Everything else is done and pushed.
 
 ## Already set up (no action)
 
+- Privy dashboard configured (login methods, embedded wallets, allowed domains).
+- Chat relayer wallet funded with BNB.
 - `beta.grailio.xyz` is served by the `grailio-mainnet` Vercel project (duplicate deleted); chat relay configured.
 - `/dao` is hidden on purpose (`DAO_VISIBLE` in the app); gifts live on the packs page.
 
