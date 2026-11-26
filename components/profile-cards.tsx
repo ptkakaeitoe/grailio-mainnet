@@ -1,8 +1,12 @@
 "use client";
 
+import { ArrowUpRightIcon } from "@phosphor-icons/react/ssr";
 import { cardArt } from "@/lib/cards";
 import Link from "next/link";
 import type { Address } from "viem";
+
+import { cleanButton } from "@/components/clean-ui";
+import { CollectionWelcome } from "@/components/collection-welcome";
 
 import { useDemo } from "@/components/demo-provider";
 import { StockCardFront } from "@/components/stock-card-front";
@@ -99,9 +103,12 @@ function LiveCards({ account }: { account: Address }) {
 function CardGrid({ cards }: { cards: Owned[] }) {
   if (cards.length === 0) {
     return (
-      <p className="rounded-md border border-dashed border-border-strong px-6 py-10 text-center text-sm text-muted">
-        No cards yet. <Link href="/packs" className="text-black underline underline-offset-4">Open a pack</Link>
-      </p>
+      <CollectionWelcome
+        label="token-backed cards"
+        title="Your first card awaits."
+        body="Open a pack to start."
+        action={<Link className={cleanButton.solid} href="/packs">Open a pack <ArrowUpRightIcon weight="bold" className="arrow-nudge" aria-hidden="true" /></Link>}
+      />
     );
   }
   const extra = cards.length - SHOWN;
