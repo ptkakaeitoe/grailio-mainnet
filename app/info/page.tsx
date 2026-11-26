@@ -27,7 +27,7 @@ const CHAPTERS: { id: string; title: string; lead: string; actions: Action[] }[]
   {
     id: "tokens",
     title: "Tokens",
-    lead: "USDC is the app's money and counts as $1. Token prices come from BNB Chain DEX pools.",
+    lead: "USDC is the app's money and counts as $1. Token prices come from BNB Chain DEX pools; tokenized stocks from Atlas Oracle.",
     actions: [
       { name: "Swap", what: "Swap USDC or BNB for BTCB, ETH, WBNB, LINK or CAKE, and back. KyberSwap routes each trade across BNB Chain DEXes for the best price. Approve a token once; your wallet signs every swap.", call: "KyberSwap router", address: SWAP_ROUTER, cost: "DEX fees + gas", href: "/trade" },
     ],
@@ -35,7 +35,7 @@ const CHAPTERS: { id: string; title: string; lead: string; actions: Action[] }[]
   {
     id: "packs",
     title: "Packs & cards",
-    lead: "Every card holds real tokens. The pack design sets the risk; rarity sets how much.",
+    lead: "Every card holds a tokenized stock. The pack design sets the risk; rarity sets how much.",
     actions: [
       { name: "Buy a pack", what: "Every pack costs $1 in USDC and earns 1 collector point. Your payment goes into the prize pool, which only sells a pack it can pay out in full.", call: "CollectPacks.buy()", address: collectPacksAddress, cost: "1 USDC", href: "/packs" },
       { name: "Open a pack", what: "The next block's hash rolls a token and rarity. The pool swaps the card's value into that token on a DEX, guarded by Chainlink prices, and locks it in your card. Open within 256 blocks or it opens as the lowest rarity.", call: "CollectPacks.open()", address: collectPacksAddress, cost: "Gas only", href: "/packs" },
@@ -139,7 +139,7 @@ export default function InfoPage() {
                 </li>
               ))}
             </ol>
-            <p className={chapterBody}>Public beta. Cards are collectibles backed by BNB Chain tokens.</p>
+            <p className={chapterBody}>Public beta. Cards are collectibles backed by tokenized stocks on BNB Chain.</p>
           </section>
 
           {SHOWN_CHAPTERS.map((ch, ci) => (

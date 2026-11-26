@@ -23,7 +23,7 @@ This Next.js version has breaking changes from older releases: read `AGENTS.md` 
 | --- | --- |
 | `/` | Live prices, packs, get started |
 | `/packs` | Buy and open $1 packs (three designs, three risk levels) |
-| `/trade` | Real swaps via KyberSwap at the best BSC DEX route |
+| `/trade` | Tokenized stocks for USDT, USDC or BNB, swapped via KyberSwap at the best BSC DEX route |
 | `/marketplace` | Buy and sell cards, priced in BNB or USDC |
 | `/collection` | Your cards (stake, redeem, view) and unopened packs |
 | `/gift` | Claim a gift code; see and cancel gifts you sent |
@@ -34,13 +34,13 @@ This Next.js version has breaking changes from older releases: read `AGENTS.md` 
 | `/info` | Field guide and contract table |
 | `/v2` | Minimal black-and-white test UI over the same code |
 
-Cards hold BTCB, ETH, WBNB, LINK or CAKE (1 in 5 each). Payments are in USDC (and BNB on the marketplace). DAO votes use non-transferable points; there is no Grailio token.
+Cards hold tokenized stocks (bStocks), listed in `lib/stock-assets.ts` and priced on chain by Atlas Oracle. Older cards may hold BTCB, ETH, WBNB, LINK or CAKE. Payments are in USDC (and BNB on the marketplace). DAO votes use non-transferable points; there is no Grailio token.
 
 ## How it works
 
 ### Packs
 
-Every pack costs **$1 in USDC** and earns **1 DAO point**. Each card holds one random token: BTCB, ETH, WBNB, LINK or CAKE, 1 in 5 each. Gas is paid in BNB. The three $1 tiers that `contracts/script/MainnetConfig.sol` adds:
+Every pack costs **$1 in USDC** and earns **1 DAO point**. Each card holds one random tokenized stock from `lib/stock-assets.ts` (older cards: BTCB, ETH, WBNB, LINK or CAKE). Gas is paid in BNB. The three $1 tiers that `contracts/script/MainnetConfig.sol` adds:
 
 | Pack (risk) | Common | Rare | Epic | Legendary | Average in tokens |
 | --- | --- | --- | --- | --- | --- |
@@ -57,10 +57,12 @@ In the Low pack every card holds the same $0.95; rarity only sets the card's sta
 - **Live price:** read on chain from pinned PancakeSwap v3 pools (WBNB/USDC, then BTCB, ETH, LINK and CAKE against WBNB, converted to USD through the WBNB/USDC pool), cached for 30 seconds. USDC is treated as $1.
 - **24h change and charts:** GeckoTerminal for the same pools, cached for 60 seconds.
 - The LINK and CAKE pools are thinner; the pack contract prices fills with Chainlink, not these pools.
+- **Tokenized stocks:** price read on chain from Atlas Oracle's MultiFeed (`0xeace…44aa`, `fetch(feedId)`, `lib/atlas.ts`) in the same 30-second cache; 24h change and charts from Yahoo Finance, ending on the Atlas price.
+- **Adding a stock:** one line in `lib/stock-assets.ts` (asset ID, ticker, name, token address, decimals, Atlas feed ID, accent). Logos are `public/logos/{TICKER}B.png`.
 
 ### Swaps (`/trade`)
 
-KyberSwap routes each trade across BSC DEXes (`lib/kyber.ts`). `GET /api/swap/quote` returns the route; `POST /api/swap/build` returns calldata (beta cookie required, slippage capped at 5%). The user's wallet signs; the server never signs or sends. Every swap must target KyberSwap's router, checked on the server and in the browser. Grailio takes a 0.5% fee inside each swap (`lib/swap-fee.ts`): when USDC is on either side, half goes to staking and half to the treasury wallet; otherwise all of it goes to the treasury.
+The tradable tokens are the tokenized stocks in `lib/stock-assets.ts`, paid or received in USDT, USDC or BNB (`SWAP_KEYS` in `lib/tokens.ts`). KyberSwap routes each trade across BSC DEXes (`lib/kyber.ts`). `GET /api/swap/quote` returns the route; `POST /api/swap/build` returns calldata (beta cookie required, slippage capped at 5%). The user's wallet signs; the server never signs or sends. Every swap must target KyberSwap's router, checked on the server and in the browser. Grailio takes a 0.5% fee inside each swap (`lib/swap-fee.ts`): when USDC is on either side, half goes to staking and half to the treasury wallet; otherwise all of it goes to the treasury.
 
 ### Beta gate
 

@@ -22,7 +22,7 @@ const FLOW = [
   },
   {
     title: "Reveal a card",
-    body: "Open it for a random token, rarity, and backing.",
+    body: "Open it for a random tokenized stock, rarity, and backing.",
   },
   { title: "Make it yours", body: "Keep, stake, list, or redeem your card." },
 ];
@@ -44,7 +44,7 @@ const CARD_ACTIONS = [
   },
   {
     title: "Redeem",
-    body: "Burn your card to receive the tokens inside.",
+    body: "Burn your card to receive the stock tokens inside.",
     href: "/collection",
     cta: "your collection",
     swatch: "bg-block-ink",
@@ -371,7 +371,7 @@ export default function Home() {
         <div className="mt-10 flex flex-col items-start justify-between gap-6 desk:mt-14 desk:flex-row desk:items-end">
           <p className="max-w-[540px] text-sm leading-normal text-muted">
             BNB Smart Chain, public beta. Cards are collectibles backed by
-            BNB Chain tokens, priced from DEX pools. Not investment products.
+            Tokenized stocks on BNB Chain, priced by Atlas Oracle. Not investment products.
           </p>
           <Link
             href="/packs"
