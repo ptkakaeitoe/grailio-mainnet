@@ -539,3 +539,44 @@ html[data-scrolled]:has(#main-content details[open] .frost, #main-content .frost
   92% { --fade-top: 48px; --fade-bottom: 48px; }
   100% { --fade-top: 48px; --fade-bottom: 0px; }
 }
+
+/* The first-load splash (components/splash.tsx): the mark fades and scales in over a soft gold glow that breathes,
+   then the whole screen fades away. Without JavaScript it still hides itself after 4s, so it can never get stuck. */
+.splash {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: grid;
+  place-items: center;
+  background: var(--background);
+  transition: opacity .5s ease, visibility .5s;
+  animation: splash-fallback .4s ease 4s forwards;
+}
+.splash::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 320px;
+  height: 320px;
+  translate: -50% -50%;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgb(255 205 110 / .22), rgb(240 150 50 / .08) 55%, transparent);
+  filter: blur(24px);
+  animation: splash-glow 1.6s ease-in-out infinite alternate;
+}
+.splash__mark {
+  position: relative;
+  width: 64px;
+  height: 64px;
+  color: var(--foreground);
+  animation: splash-in .6s cubic-bezier(.22, .8, .24, 1) both;
+}
+.splash[data-hide] { opacity: 0; visibility: hidden; }
+.splash[data-hide] .splash__mark { scale: 1.08; transition: scale .5s cubic-bezier(.22, .8, .24, 1); }
+@keyframes splash-in { from { opacity: 0; scale: .86; } to { opacity: 1; scale: 1; } }
+@keyframes splash-glow { from { opacity: .45; scale: .9; } to { opacity: 1; scale: 1.08; } }
+@keyframes splash-fallback { to { opacity: 0; visibility: hidden; } }
+@media (prefers-reduced-motion: reduce) {
+  .splash::before, .splash__mark { animation: none; }
+}

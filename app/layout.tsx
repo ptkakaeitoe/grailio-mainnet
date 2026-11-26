@@ -2,6 +2,8 @@ import type { Metadata, Viewport } from "next";
 import { DM_Sans, Geist_Mono, Outfit, Syne } from "next/font/google";
 import "./globals.css";
 
+import { Splash } from "@/components/splash";
+
 import { Providers } from "./providers";
 
 /** Body text: DM Sans. */
@@ -55,6 +57,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={`${dmSans.variable} ${outfit.variable} ${geistMono.variable} ${brandFont.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
+        <Splash />
         <Providers>{children}</Providers>
       </body>
     </html>
