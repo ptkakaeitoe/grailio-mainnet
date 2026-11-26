@@ -4,9 +4,6 @@ Last updated 2026-11-26. Everything else is done and pushed.
 
 ## Must do before real users
 
-3. ~~Etherscan API v2 key~~: **not needed any more.** The activity feed and chat history now read contract logs
-   over public BSC RPCs (`eth_getLogs`) and cache them in Upstash/KV. An Etherscan key is only useful for step 6.
-
 4. **One small real test** on https://beta.grailio.xyz: buy and open one **Fable Low** pack ($1 USDC + gas). Check the card holds one of NVDA, AAPL, TSLA, GOOGL or AMZN. Then try a $1 swap on /trade.
 
 ## When you're ready
@@ -14,8 +11,7 @@ Last updated 2026-11-26. Everything else is done and pushed.
 5. **Medium and High packs**: send USDC (BNB Chain USDC `0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d`) to the pack contract
    `0xdB862A24350E9fE184c0d1658912d309749D8672`. Each unopened pack reserves its top prize; `/treasury` shows capacity. The owner wallet can withdraw anything not owed.
 
-6. **Verify the contracts on BscScan** (needs an Etherscan API key that covers BNB Chain), from `contracts/`:
-   `ETHERSCAN_API_KEY=… BSC_RPC_URL=https://bsc-dataseed.bnbchain.org ./script/verify.sh`
+6. **(Optional) BscScan's own verified badge**: all 23 contracts are already verified as an exact match on Sourcify (sourcify.dev, chain 56). BscScan's own badge needs a *paid* Etherscan plan (the free plan doesn't cover BNB Chain); with one, run from `contracts/`: `ETHERSCAN_API_KEY=… BSC_RPC_URL=https://bsc-rpc.publicnode.com ./script/verify.sh`
 
 7. **Google sign-in branding**: add your own Google OAuth client in Privy so users see "Grailio", not Privy.
 
@@ -25,6 +21,8 @@ Last updated 2026-11-26. Everything else is done and pushed.
 
 ## Already set up (no action)
 
+- Contracts verified on Sourcify (exact match, all 23).
+- Activity feed and chat history read from public RPC logs, cached in Upstash (no Etherscan key needed).
 - Privy dashboard configured (login methods, embedded wallets, allowed domains).
 - Chat relayer wallet funded with BNB.
 - `beta.grailio.xyz` is served by the `grailio-mainnet` Vercel project (duplicate deleted); chat relay configured.
