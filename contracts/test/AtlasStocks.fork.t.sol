@@ -7,19 +7,21 @@ import {IERC20Metadata} from "@openzeppelin/contracts/token/ERC20/extensions/IER
 import {CollectPacks, IAggregatorV3} from "../src/CollectPacks.sol";
 import {AtlasFeedAdapter, IAtlasMultiFeed} from "../src/AtlasFeedAdapter.sol";
 import {AddStocks} from "../script/AddStocks.s.sol";
+import {StockConfig} from "../script/StockConfig.sol";
+import {MainnetConfig} from "../script/MainnetConfig.sol";
 
-/// Atlas bStock prices through AtlasFeedAdapter, added to the deployed CollectPacks on a
-/// BNB Chain mainnet fork (owner impersonated, nothing broadcast). Run with:
-///   BSC_RPC_URL=https://bsc-dataseed.bnbchain.org forge test --match-contract Fork -vv
+/// Atlas bStock prices through AtlasFeedAdapter, added to a fresh CollectPacks (no baskets) on a
+/// BNB Chain mainnet fork (nothing broadcast). Run with:
+///   BSC_RPC_URL=https://bsc-rpc.publicnode.com forge test --match-contract Fork -vv
 contract AtlasStocksForkTest is Test {
-    CollectPacks constant PACKS = CollectPacks(0xbdeb4324F9Ec736D1146798872E52E67cDE23DE5);
+    CollectPacks PACKS;
     IAtlasMultiFeed constant ATLAS = IAtlasMultiFeed(0xEAcE519ebB14fB8404fA6DdD23C3b34abaDE44aa);
     IERC20 constant USDC = IERC20(0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d);
-    uint256 constant LOW = 0; // Ember: every card $0.95
+    uint256 constant LOW = 0; // Fable Low: every card $0.95
 
     AddStocks script;
-    AddStocks.Stock[] stocks;
-    address owner;
+    StockConfig.Stock[] stocks;
+    address owner = makeAddr("owner");
     address player = makeAddr("player");
 
     function setUp() public {
@@ -29,9 +31,12 @@ contract AtlasStocksForkTest is Test {
             return;
         }
         vm.createSelectFork(rpc);
-        owner = PACKS.owner();
+        PACKS = MainnetConfig.deployPacks(owner);
+        vm.startPrank(owner);
+        MainnetConfig.addTiers(PACKS);
+        vm.stopPrank();
         script = new AddStocks();
-        AddStocks.Stock[] memory s = script.load(vm.readFile("script/stocks.mainnet.json"));
+        StockConfig.Stock[] memory s = StockConfig.load(vm.readFile(StockConfig.DEFAULT_PATH));
         for (uint256 i; i < s.length; ++i) stocks.push(s[i]);
         deal(address(USDC), player, 100e18);
         vm.prank(player);
@@ -53,6 +58,20 @@ contract AtlasStocksForkTest is Test {
         }
     }
 
+    /// AddStocks skips stocks already added and appends new ones to a tier's basket.
+    function test_addStocksHelpers() public {
+        _addStock(stocks[0]);
+        assertEq(script.newStocks(PACKS, stocks).length, stocks.length - 1);
+        uint256[] memory ids = new uint256[](1);
+        ids[0] = 3;
+        uint8[] memory list = script.withAssets(0x1, ids);
+        assertEq(list.length, 2);
+        assertEq(list[0], 0);
+        assertEq(list[1], 3);
+        vm.expectRevert();
+        script.withAssets(0, ids);
+    }
+
     function test_unknownFeedRefusedAtDeploy() public {
         vm.expectRevert(AtlasFeedAdapter.NoPrice.selector);
         new AtlasFeedAdapter(ATLAS, 1, "none");
@@ -61,7 +80,7 @@ contract AtlasStocksForkTest is Test {
     /// The config parses into the packed route CollectPacks expects.
     function test_configParses() public view {
         assertGe(stocks.length, 1);
-        AddStocks.Stock memory s = stocks[0];
+        StockConfig.Stock memory s = stocks[0];
         assertEq(uint8(s.route), uint8(CollectPacks.Route.UniswapV3));
         assertEq(address(bytes20(s.v3Path)), address(USDC));
         assertEq((s.v3Path.length - 20) % 23, 0);
@@ -73,7 +92,7 @@ contract AtlasStocksForkTest is Test {
     function test_lowPackOpensStockCard() public {
         uint256 n = PACKS.assetCount();
         for (uint256 i; i < stocks.length; ++i) {
-            AddStocks.Stock memory s = stocks[i];
+            StockConfig.Stock memory s = stocks[i];
             uint256 id = _addStock(s);
             assertEq(id, n + i);
             assertGt(PACKS.priceOf(id), 0, "stale Atlas price");
@@ -126,7 +145,7 @@ contract AtlasStocksForkTest is Test {
         assertEq(usd, 0.95e18);
     }
 
-    function _addStock(AddStocks.Stock memory s) internal returns (uint256 id) {
+    function _addStock(StockConfig.Stock memory s) internal returns (uint256 id) {
         AtlasFeedAdapter feed = new AtlasFeedAdapter(ATLAS, s.atlasFeedId, s.symbol);
         vm.prank(owner);
         id = PACKS.addAsset(

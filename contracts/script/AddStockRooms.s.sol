@@ -6,9 +6,9 @@ import {IERC20Metadata} from "@openzeppelin/contracts/token/ERC20/extensions/IER
 import {CollectPacks} from "../src/CollectPacks.sol";
 import {CollectChat} from "../src/CollectChat.sol";
 
-/// Adds one encrypted chat room per stock card asset (asset IDs 5 and up, added by AddStocks), gated by holding a
-/// card of that asset, the same way the deploy added the BTC–CAKE rooms. Room name: the plain ticker ("NVDAB" → "NVDA").
-/// Skips assets that already have a card room, so it is safe to re-run after adding more stocks.
+/// Adds one encrypted chat room per stock card asset that has none yet (e.g. stocks added later by AddStocks),
+/// gated by holding a card of that asset, like the rooms the deploy script creates. Room name: the plain ticker
+/// ("NVDAB" → "NVDA"). Skips assets that already have a card room, so it is safe to re-run.
 /// Must be sent by the CollectChat owner. Run AddStocks first.
 ///
 ///   # dry run (nothing is sent)
@@ -16,7 +16,7 @@ import {CollectChat} from "../src/CollectChat.sol";
 ///   # for real
 ///   forge script script/AddStockRooms.s.sol --rpc-url bsc --account <owner keystore> --broadcast
 contract AddStockRooms is Script {
-    uint256 internal constant FIRST_STOCK_ASSET = 5; // 0-4 are the original crypto assets
+    uint256 internal constant FIRST_STOCK_ASSET = 0; // every asset is a stock (no crypto assets)
 
     function run() external {
         string memory json = vm.readFile("../deployments/56.json");
