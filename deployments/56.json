@@ -2,106 +2,106 @@
   "chainId": 56,
   "treasury": "0x0000000000000000000000000000000000000000",
   "stockTokens": {},
-  "collectPacks": "0xdB862A24350E9fE184c0d1658912d309749D8672",
-  "collectMarket": "0xCCaC8A207a706af3e27B1588c89dD8bE1FD8a094",
+  "collectPacks": "0xfba2f95f7B4dC251e310830d16c14579FedA48cf",
+  "collectMarket": "0x1aF51f96ed7BEF036c805f668bCd10C6Fb114f8E",
   "deployBlocks": {
-    "collectPacks": 135875118,
-    "collectMarket": 135875118,
-    "collectChat": 135875118
+    "collectPacks": 135895169,
+    "collectMarket": 135895169,
+    "collectChat": 135895169
   },
-  "collectPoints": "0xf1B0E1872267685f06a5cA4D415229c767758F8E",
-  "collectDao": "0xC4405f92e6c4EB5d945A1b44E56669D626D453FB",
-  "collectChat": "0xC59A85E460221EFeeFF034eCC92Eb09048754e09",
-  "collectNames": "0x380A4b931D1F30dBa598a77a26b99ED30648DF01",
-  "collectProfiles": "0x838C649DC1Ad03ABCC30190edfa71343EbAB7D6c",
-  "collectStaking": "0xf67237982494Ce599a1BB051BBe01cAA3cd2256E",
+  "collectPoints": "0xB9e2f9ca9A3Cd685544a75e6fb6Ec335fb9797eE",
+  "collectDao": "0x0255552d14359EF44C6bc7b89b63655FcD071894",
+  "collectChat": "0xc7b63D7C7d8a235Ae4f5E3E0BdFaF652C8388B15",
+  "collectNames": "0xf9D0186A8fDd9D0886F3794638Fb62311a037dAF",
+  "collectProfiles": "0x533C8191B7bd61C918768466B9e70e3A4C9ec650",
+  "collectStaking": "0x3A6a51C0f6ac6283Ea720711Aba278A3AEA75B56",
   "stockAssets": {
     "AAPL": {
-      "adapter": "0x4e11A21e0aE1E78BF2E69944D780c25bF721dB21",
+      "adapter": "0x348A71554a137e3321DEa0B4c8AbB6297cE981DA",
       "assetId": 1,
       "atlasFeedId": 979,
       "token": "0x431a3BEE82E2ca41e49895CbECE5bB0F76A89b7A"
     },
     "AMZN": {
-      "adapter": "0x33e0CDA4c8C30C03BaC745aaB2F06e9775243ac8",
+      "adapter": "0xf40a42984165d2DCE7add62d7156CD60Cdc84bAf",
       "assetId": 4,
       "atlasFeedId": 981,
       "token": "0x1a4b499833A79A09ad7Cf1D42D7DacF71e92eb00"
     },
     "ANT": {
-      "adapter": "0x82A3cf752Ff6Fb12e33E4E37CC3E5b789C5821C4",
+      "adapter": "0xdEc3CDBcF18B2ed40EE683c7347bacC72A4b45aD",
       "assetId": 11,
       "atlasFeedId": 1169,
       "token": "0x38Dd26788Cf2d901E3aBf04efE3007d459d0Fc53"
     },
     "BABA": {
-      "adapter": "0xcaAB53C7D3163FD382a12F31f719F671408048E6",
+      "adapter": "0x83E65EadeDDbf7AF888f79D14f996B0e87ECB0a1",
       "assetId": 7,
       "atlasFeedId": 962,
       "token": "0x4eF9d3062c7F6ebA4AAE4990c5036598C6eff4ec"
     },
     "EWJ": {
-      "adapter": "0x777E65FEB140Bbf9926bD1498080824194c29A22",
+      "adapter": "0x406829B71C3505c367EAD2eb8512E506082B25d5",
       "assetId": 9,
       "atlasFeedId": 1163,
       "token": "0x26E32dAb9F844d7256Db4195b3a43750272A51E9"
     },
     "EWT": {
-      "adapter": "0x8c8b008161F08d5e5BE08CE9624dB44A4d6C07B2",
+      "adapter": "0xAE8F3c6A2C90222001c84C57d88818F6bFF7900a",
       "assetId": 14,
       "atlasFeedId": 1164,
       "token": "0x24824404bB9577697D11A07a5d88341191dE6578"
     },
     "EWY": {
-      "adapter": "0x1DCA8785fe45A55F27d434e80d869611C2A38132",
+      "adapter": "0xA69651e725De6443ED247f5C8901018E2CdA2810",
       "assetId": 13,
       "atlasFeedId": 941,
       "token": "0xBE82F76637DBA2C114C41Df856c2C51e522E2Cb8"
     },
     "GOOGL": {
-      "adapter": "0xA204783454d64060c506aD0fb75Be08b854870A7",
+      "adapter": "0xfc01334Fa07d577649b3951F238892afE37afb26",
       "assetId": 3,
       "atlasFeedId": 952,
       "token": "0x3F53De71c126BdaBAe20f9cD64848d317f6C3238"
     },
     "NFLX": {
-      "adapter": "0xB2b0731B5b7851B443f94fd8D4D696dDaAa18c6B",
+      "adapter": "0xd12655f4aBad5F8C5b3DE5E0f4e55bD585A1A98E",
       "assetId": 8,
       "atlasFeedId": 996,
       "token": "0xD6829Ea836b6FA224d099D40E54B31262f874631"
     },
     "NVDA": {
-      "adapter": "0x439c06378c73351C514B8362B73a60414A0748B0",
+      "adapter": "0x7B23A3A240CeeC5ED4fCEB9e0c95FA91A97fcBD3",
       "assetId": 0,
       "atlasFeedId": 934,
       "token": "0x02Fca66C1D1aFB4E2A7884261eB00F63598a7436"
     },
     "QQQ": {
-      "adapter": "0xB8AC0B13B57D6B0a0437A3F9b30cfCCefA88dF4b",
+      "adapter": "0x7C6657C6E5e842DC5d420A6a8691A2Ff0dd59Da5",
       "assetId": 6,
       "atlasFeedId": 947,
       "token": "0x205812CdBed920aFf76C6580abD681a46D11efc7"
     },
     "SKHY": {
-      "adapter": "0xA80c888db661e9d6FA1ea4B8FAa6e5666CF002d0",
+      "adapter": "0xa5B68a35c708BCf2054160725be75C5865Ce5739",
       "assetId": 12,
       "atlasFeedId": 958,
       "token": "0xCA750eF65f295BBECd685Abf54e82CAf297BDB61"
     },
     "SPCX": {
-      "adapter": "0x3CF873Db16d7D03CccF541D25b2D391ae8D652bC",
+      "adapter": "0xfF86Fb2ff92a32F80631E3945Ccc3eD89AD72858",
       "assetId": 10,
       "atlasFeedId": 938,
       "token": "0xbe9D156892E55e7154BcD3cB0FEA677F9D3103E1"
     },
     "SPY": {
-      "adapter": "0x375416572cA86bF9355FAb4a481E109b2dCb8e44",
+      "adapter": "0xd1D43B833cD4EEd47c7c1A555e4fC5e62F1Fc116",
       "assetId": 5,
       "atlasFeedId": 956,
       "token": "0x7138b48df7D98D7e3cc221BfE7192D0a178182D8"
     },
     "TSLA": {
-      "adapter": "0xEe449905B6635a7162867267943eC4Ba5849f1cF",
+      "adapter": "0xc31D575832e88322cfA6A05e28aa1155FA60bBF7",
       "assetId": 2,
       "atlasFeedId": 933,
       "token": "0x5b1910eAaD6450E50f816082Aa078C41F10C292f"
