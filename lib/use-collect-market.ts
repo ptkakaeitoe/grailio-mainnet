@@ -5,7 +5,7 @@ import { useAccount, useReadContract, useReadContracts } from "wagmi";
 
 import { CARD_BY_TICKER } from "@/lib/cards";
 import {
-  ASSET_TICKERS,
+  tickerForAsset,
   collectCardsAbi,
   collectMarketAbi,
   collectMarketAddress,
@@ -48,7 +48,7 @@ type RawCard = readonly [number, number, number, boolean, bigint, bigint];
 
 function toCard(id: bigint, raw: RawCard): CardInfo | null {
   const [asset, tier, rarity, filled, usd, amount] = raw;
-  const ticker = ASSET_TICKERS[asset];
+  const ticker = tickerForAsset(asset);
   if (!ticker || !CARD_BY_TICKER[ticker]) return null;
   return { id, ticker, tier, rarity, filled, usd, amount: Number(formatUnits(amount, TOKENS[ticker].decimals)) };
 }

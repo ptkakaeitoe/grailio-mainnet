@@ -1,7 +1,7 @@
 import { useQueries } from "@tanstack/react-query";
 import { useReadContracts } from "wagmi";
 
-import { ASSET_TICKERS, collectCardsAbi, collectPacksAddress } from "@/lib/collect-packs";
+import { tickerForAsset, collectCardsAbi, collectPacksAddress } from "@/lib/collect-packs";
 import { avatarsAbi, avatarsAddress, avatarsLive } from "@/lib/contracts";
 
 /**
@@ -53,7 +53,7 @@ export function useAvatars(accounts: string[]) {
     const card = cards?.[i];
     if (card?.status !== "success") return;
     const row = card.result as readonly [number, number, number, ...unknown[]];
-    const ticker = ASSET_TICKERS[row[0]];
+    const ticker = tickerForAsset(row[0]);
     if (ticker) avatars.set(a.account, { tokenId: a.tokenId, ticker, rarity: Number(row[2]), tier: Number(row[1]), x: a.x, y: a.y, zoom: a.zoom });
   });
   nftAvatars.forEach((a, i) => {

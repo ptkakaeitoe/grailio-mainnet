@@ -1,3 +1,5 @@
+import { STOCK_ASSETS } from "./stock-assets.ts";
+
 /**
  * Shared card identities. Each relic (art + slot) has two identities: the live
  * app's BNB Chain token, and the demo's stock. The artwork is framed by
@@ -17,14 +19,41 @@ export type StockCard = {
   of?: string;
 };
 
-/** Live app: cards hold real BNB Chain tokens. */
-export const STOCK_CARDS: StockCard[] = [
+/** The five relic artworks; stock cards reuse them, cycling by asset ID. */
+const RELICS = [
+  { name: "Silver Seed", src: "/art/relics/aapl-silver-seed.png" },
+  { name: "Prism Gate", src: "/art/relics/msft-prism-gate.png" },
+  { name: "Neural Eye", src: "/art/relics/nvda-neural-eye.png" },
+  { name: "Volt Crown", src: "/art/relics/tsla-volt-crown.png" },
+  { name: "Wayfinder Key", src: "/art/relics/amzn-wayfinder-key.png" },
+] as const;
+
+/** Original BNB Chain token cards (asset IDs 0-4), kept so existing cards still render. */
+const TOKEN_CARDS: StockCard[] = [
   { slug: "btc-seed", ticker: "BTC", name: "Silver Seed", tokenName: "Bitcoin", src: "/art/relics/aapl-silver-seed.png", accent: "#f7931a", number: "01" },
   { slug: "eth-prism", ticker: "ETH", name: "Prism Gate", tokenName: "Ethereum", src: "/art/relics/msft-prism-gate.png", accent: "#627eea", number: "02" },
   { slug: "avax-eye", ticker: "WBNB", name: "Neural Eye", tokenName: "BNB", src: "/art/relics/nvda-neural-eye.png", accent: "#f0b90b", number: "03" },
   { slug: "link-crown", ticker: "LINK", name: "Volt Crown", tokenName: "Chainlink", src: "/art/relics/tsla-volt-crown.png", accent: "#2a5ada", number: "04" },
   { slug: "joe-key", ticker: "CAKE", name: "Wayfinder Key", tokenName: "PancakeSwap", src: "/art/relics/amzn-wayfinder-key.png", accent: "#1fc7d4", number: "05" },
 ];
+
+/** Tokenized stock cards (asset IDs 5+), one per lib/stock-assets.ts entry. */
+const STOCK_ASSET_CARDS: StockCard[] = STOCK_ASSETS.map((stock, i) => {
+  const relic = RELICS[stock.assetId % RELICS.length];
+  return {
+    slug: `${stock.ticker.toLowerCase()}-stock`,
+    ticker: stock.ticker,
+    name: relic.name,
+    tokenName: stock.name,
+    src: relic.src,
+    accent: stock.accent,
+    number: String(i + 1).padStart(2, "0"),
+    of: String(STOCK_ASSETS.length).padStart(2, "0"),
+  };
+});
+
+/** Live app: cards hold BNB Chain tokens (the original five) and tokenized stocks. */
+export const STOCK_CARDS: StockCard[] = [...TOKEN_CARDS, ...STOCK_ASSET_CARDS];
 
 /** Demo mode: the same relics, tracking stocks (prices from Yahoo Finance). */
 export const DEMO_STOCK_CARDS: StockCard[] = [
@@ -42,7 +71,7 @@ const byKey = (cards: StockCard[], key: "slug" | "ticker") =>
   Object.fromEntries(cards.map((card) => [card[key], card])) as Record<string, StockCard>;
 
 export const CARD_BY_SLUG = byKey(STOCK_CARDS, "slug");
-/** Looks up both sets: token tickers and demo stock tickers never collide. */
+/** Looks up both sets. A live stock that shares a demo ticker (NVDA, AAPL) wins: same company either way. */
 export const CARD_BY_TICKER = { ...byKey(DEMO_STOCK_CARDS, "ticker"), ...byKey(STOCK_CARDS, "ticker") };
 
 /** Existing art retained for packs whose new artwork has not been created yet. */

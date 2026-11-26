@@ -4,7 +4,8 @@ import { fetchStockHistory } from "@/lib/stock-quotes";
 
 /**
  * Price history for the trade chart: /api/history?ticker=WBNB&period=7D for
- * tokens (DEX pools), or a demo stock ticker (Yahoo Finance), e.g. ticker=NVDA.
+ * live cards (DEX pools; tokenized stocks via Yahoo ending on the Atlas price),
+ * or a demo stock ticker (Yahoo Finance), e.g. ticker=NVDA.
  */
 export async function GET(req: Request) {
   const params = new URL(req.url).searchParams;

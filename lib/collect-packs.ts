@@ -1,6 +1,7 @@
 import { zeroAddress, type Address } from "viem";
 
 import deployment from "@/deployments/56.json";
+import { STOCK_ASSETS } from "@/lib/stock-assets";
 
 /**
  * CollectPacks (contracts/src/CollectPacks.sol): $1 USDC packs whose cards hold
@@ -69,8 +70,17 @@ export const collectStakingAbi = [
   { type: "error", name: "NoCards", inputs: [] },
 ] as const;
 
-/** Card asset index → card ticker, in MainnetConfig.addAssets order. */
-export const ASSET_TICKERS = ["BTC", "ETH", "WBNB", "LINK", "CAKE"] as const;
+/**
+ * Card asset ID → card ticker. IDs 0-4 are the original tokens (MainnetConfig.addAssets
+ * order) and stay so existing cards render; 5+ are the stocks in lib/stock-assets.ts.
+ */
+export const ASSET_TICKERS: Readonly<Record<number, string>> = {
+  ...["BTC", "ETH", "WBNB", "LINK", "CAKE"],
+  ...Object.fromEntries(STOCK_ASSETS.map((s) => [s.assetId, s.ticker])),
+};
+
+/** Ticker for a card's asset ID, or undefined for one the app doesn't know. */
+export const tickerForAsset = (asset: number | bigint): string | undefined => ASSET_TICKERS[Number(asset)];
 
 /** CollectMarket (contracts/src/CollectMarket.sol): non-custodial card market, each listing priced in BNB or USDC. */
 export const collectMarketAddress = ((deployment as { collectMarket?: string }).collectMarket ?? zeroAddress) as Address;

@@ -10,7 +10,7 @@ import { USDC_DECIMALS } from "@/lib/tokens";
 
 import { cleanButton, cleanDialog, cn, dialogClose, dialogFooter } from "@/components/clean-ui";
 import { BackingValue, PackRevealArt, RevealedCard, revealFrame } from "@/components/pack-reveal-art";
-import { ASSET_TICKERS, collectPacksAbi, collectPacksAddress } from "@/lib/collect-packs";
+import { tickerForAsset, collectPacksAbi, collectPacksAddress } from "@/lib/collect-packs";
 import { PACK_TIERS, RARITY_NAMES } from "@/lib/contracts";
 import type { MyPack } from "@/lib/use-my-packs";
 import { playReveal, playTear, unlockAudio } from "@/lib/sfx";
@@ -91,7 +91,7 @@ export function LivePackReveal({
       try {
         const event = decodeEventLog({ abi: collectPacksAbi, data: log.data, topics: log.topics });
         if (event.eventName === "PackOpened") {
-          const ticker = ASSET_TICKERS[event.args.asset];
+          const ticker = tickerForAsset(event.args.asset);
           if (ticker) opened = { ticker, rarity: event.args.rarity, usd: event.args.usd, filled: false, amount: 0n, expired: event.args.expired };
         }
         if (event.eventName === "CardFilled") filledAmount = event.args.amount;

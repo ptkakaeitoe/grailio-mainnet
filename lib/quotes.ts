@@ -10,10 +10,18 @@
  * factory getPool, deepest quote-side balance). LINK and CAKE pools are
  * thinner, so their prices are easier to move; don't settle real value
  * against them without a TWAP or a second source.
+ *
+ * Tokenized stocks (lib/stock-assets.ts) are priced on-chain from Atlas
+ * Oracle's MultiFeed (lib/atlas.ts) in the same cached load; their 24h change
+ * and charts come from Yahoo Finance (lib/stock-quotes.ts), ending on the
+ * Atlas price.
  */
 import { createPublicClient, http, type Address } from "viem";
 
+import { readAtlasPrices } from "@/lib/atlas";
 import { appChain, rpcUrl } from "@/lib/chain";
+import { STOCK_ASSETS, STOCK_BY_TICKER } from "@/lib/stock-assets";
+import { fetchStockHistory, fetchStockQuote } from "@/lib/stock-quotes";
 
 export type StockQuote = {
   ticker: string;
@@ -134,11 +142,34 @@ async function fetchChanges(addresses: string[]): Promise<Map<string, number>> {
 let cache: { at: number; quotes: Promise<Map<string, StockQuote>> } | null = null;
 const CACHE_MS = 30_000;
 
+/** Stock quotes: price from Atlas on-chain, previous close (for the change) from Yahoo. */
+async function loadStockQuotes(): Promise<StockQuote[]> {
+  const [atlas, closes] = await Promise.all([
+    readAtlasPrices(client, STOCK_ASSETS.map((s) => s.atlasFeedId)),
+    Promise.all(STOCK_ASSETS.map((s) => fetchStockQuote(s.ticker))),
+  ]);
+  return STOCK_ASSETS.map((stock, i) => {
+    const price = atlas.get(stock.atlasFeedId)?.price ?? null;
+    const previousClose = closes[i].previousClose;
+    return {
+      ticker: stock.ticker,
+      price,
+      previousClose,
+      changePct: price !== null && previousClose ? ((price - previousClose) / previousClose) * 100 : null,
+    };
+  });
+}
+
 async function loadQuotes(): Promise<Map<string, StockQuote>> {
   const tickers = Object.keys(POOLS);
   const pools = tickers.map((t) => POOLS[t]);
   const addresses = [...new Set(pools.map((p) => p.address.toLowerCase()))];
-  const [raw, changes] = await Promise.all([readPoolPrices(pools), fetchChanges(addresses)]);
+  // A failed stock read leaves stock prices empty without taking token prices down.
+  const [raw, changes, stocks] = await Promise.all([
+    readPoolPrices(pools),
+    fetchChanges(addresses),
+    loadStockQuotes().catch(() => [] as StockQuote[]),
+  ]);
 
   const bnbUsd = raw.get(BNB_POOL.address.toLowerCase()) ?? null;
   const quotes = new Map<string, StockQuote>();
@@ -154,12 +185,13 @@ async function loadQuotes(): Promise<Map<string, StockQuote>> {
       changePct,
     });
   }
+  for (const quote of stocks) quotes.set(quote.ticker, quote);
   return quotes;
 }
 
 export async function fetchQuote(ticker: string): Promise<StockQuote> {
   const empty: StockQuote = { ticker, price: null, previousClose: null, changePct: null };
-  if (!POOLS[ticker]) return empty;
+  if (!POOLS[ticker] && !STOCK_BY_TICKER[ticker]) return empty;
   if (!cache || Date.now() - cache.at > CACHE_MS) {
     const quotes = loadQuotes();
     cache = { at: Date.now(), quotes };
@@ -190,6 +222,7 @@ const MAX_POINTS = 120;
 /** USD price history for one token from its DEX pool; empty points if upstream fails. */
 export async function fetchHistory(ticker: string, period: HistoryPeriod): Promise<PriceHistory> {
   const empty: PriceHistory = { ticker, period, points: [] };
+  if (STOCK_BY_TICKER[ticker]) return fetchAtlasStockHistory(ticker, period);
   const pool = POOLS[ticker];
   if (!pool) return empty;
   try {
@@ -217,4 +250,12 @@ export async function fetchHistory(ticker: string, period: HistoryPeriod): Promi
   } catch {
     return empty;
   }
+}
+
+/** Stock chart from Yahoo Finance, ending on the Atlas price the cards are valued at. */
+async function fetchAtlasStockHistory(ticker: string, period: HistoryPeriod): Promise<PriceHistory> {
+  const [history, live] = await Promise.all([fetchStockHistory(ticker, period), fetchQuote(ticker)]);
+  const points = history.points;
+  if (points.length > 0 && live.price !== null) points[points.length - 1] = { ...points[points.length - 1], p: live.price };
+  return { ...history, points };
 }

@@ -6,7 +6,7 @@ import { formatUnits, type Address } from "viem";
 import { cleanDrawerRight, cn, dialogClose, dialogLabel } from "@/components/clean-ui";
 import type { ActivityItem } from "@/lib/activity";
 import { explorerUrl } from "@/lib/chain";
-import { ASSET_TICKERS } from "@/lib/collect-packs";
+import { tickerForAsset } from "@/lib/collect-packs";
 import { PACK_TIERS, RARITY_NAMES } from "@/lib/contracts";
 import { tokenAmount } from "@/lib/format-amount";
 import { TOKENS, USDC_DECIMALS } from "@/lib/tokens";
@@ -31,12 +31,12 @@ function describe(i: ActivityItem, assetOf: Map<string, number>): { title: strin
   const card = i.cardId ? `card #${i.cardId}` : "card";
   switch (i.kind) {
     case "bought": return { title: `Bought ${packs(i.quantity, i.tier)}`, value: `−${usdc(i.usdc)}` };
-    case "revealed": return { title: `Revealed ${RARITY_NAMES[i.rarity ?? 0]} ${ASSET_TICKERS[i.asset ?? 0] ?? ""} · ${card}`, value: usdc(i.usdc) };
+    case "revealed": return { title: `Revealed ${RARITY_NAMES[i.rarity ?? 0]} ${tickerForAsset(i.asset ?? 0) ?? ""} · ${card}`, value: usdc(i.usdc) };
     case "redeemed": {
       if (i.usdc) return { title: `Redeemed ${card}`, value: `+${usdc(i.usdc)}`, positive: true };
-      const ticker = ASSET_TICKERS[assetOf.get(i.cardId ?? "") ?? -1];
-      const decimals = ticker ? TOKENS[ticker]?.decimals : undefined;
-      return { title: `Redeemed ${card}`, value: decimals !== undefined ? `+${tokenAmount(Number(formatUnits(BigInt(i.amount ?? "0"), decimals)))} ${TOKENS[ticker].symbol}` : undefined, positive: true };
+      const ticker = tickerForAsset(assetOf.get(i.cardId ?? "") ?? -1);
+      const token = ticker ? TOKENS[ticker] : undefined;
+      return { title: `Redeemed ${card}`, value: token ? `+${tokenAmount(Number(formatUnits(BigInt(i.amount ?? "0"), token.decimals)))} ${token.symbol}` : undefined, positive: true };
     }
     case "giftBought": return { title: `Bought a gift of ${packs(i.quantity, i.tier)}` };
     case "giftClaimed": return { title: "Claimed a gift" };

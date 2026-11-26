@@ -1,4 +1,5 @@
 import { cn } from "@/components/clean-ui";
+import { stockLogo } from "@/lib/stock-assets";
 
 /**
  * Token and demo-stock marks drawn as inline SVG (no network requests), in
@@ -15,6 +16,17 @@ const MARKS: Record<string, { bg: string; mark: React.ReactNode }> = {
         />
         <path fill="none" stroke="#fff" strokeWidth="1.6" strokeLinecap="round" d="M11.6 8.4a9.4 9.4 0 0 0 0 15.2M20.4 8.4a9.4 9.4 0 0 1 0 15.2" />
       </>
+    ),
+  },
+  // Tether: a T over a flat ring, drawn here.
+  USDT: {
+    bg: "#26A17B",
+    mark: (
+      <g fill="#fff">
+        <rect x="9" y="8.4" width="14" height="3.2" />
+        <rect x="14.3" y="8.4" width="3.4" height="15.2" />
+        <ellipse cx="16" cy="15.6" rx="7.6" ry="2.2" fill="none" stroke="#fff" strokeWidth="1.4" />
+      </g>
     ),
   },
   // BNB's mark: a centre diamond with four smaller diamonds around it, drawn here.
@@ -119,7 +131,18 @@ const ALIASES: Record<string, string> = {
 /** `color`: background for symbols without a mark (e.g. demo stocks), drawn as their first letter. */
 export function TokenIcon({ symbol, className = "size-7", title, color }: { symbol: string; className?: string; title?: string; color?: string }) {
   const key = symbol.toUpperCase();
+  // Tokenized stocks (lib/stock-assets.ts) use their logo from public/logos.
+  const logo = stockLogo(key);
   const icon = MARKS[ALIASES[key] ?? key];
+  if (logo) {
+    return (
+      <svg viewBox="0 0 32 32" className={cn("shrink-0", className)} role={title ? "img" : undefined} aria-hidden={title ? undefined : true}>
+        {title && <title>{title}</title>}
+        <circle cx="16" cy="16" r="16" fill={color ?? "#fff"} />
+        <image href={logo} x="0" y="0" width="32" height="32" style={{ clipPath: "circle(50%)" }} />
+      </svg>
+    );
+  }
   return (
     <svg viewBox="0 0 32 32" className={cn("shrink-0", className)} role={title ? "img" : undefined} aria-hidden={title ? undefined : true}>
       {title && <title>{title}</title>}

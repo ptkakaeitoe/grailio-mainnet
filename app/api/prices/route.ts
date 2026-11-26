@@ -3,7 +3,8 @@ import { fetchQuote } from "@/lib/quotes";
 import { fetchStockQuote } from "@/lib/stock-quotes";
 
 /**
- * Prices for a card set: /api/prices (BNB Chain tokens, from DEX pools) or
+ * Prices for a card set: /api/prices (live cards: BNB Chain tokens from DEX
+ * pools, tokenized stocks from Atlas Oracle) or
  * /api/prices?set=stocks (demo stocks, from Yahoo Finance). The stock set also
  * includes WBNB so demo swaps can price BNB.
  */

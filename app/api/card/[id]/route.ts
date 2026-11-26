@@ -2,7 +2,7 @@ import { createPublicClient, formatUnits, http } from "viem";
 
 import { cardArt } from "@/lib/cards";
 import { appChain, rpcUrl } from "@/lib/chain";
-import { ASSET_TICKERS, collectCardsAbi, collectPacksAddress, collectPacksLive } from "@/lib/collect-packs";
+import { tickerForAsset, collectCardsAbi, collectPacksAddress, collectPacksLive } from "@/lib/collect-packs";
 import { PACK_TIERS, RARITY_NAMES } from "@/lib/contracts";
 import { tokenAmount } from "@/lib/format-amount";
 import { TOKENS, USDC_DECIMALS } from "@/lib/tokens";
@@ -33,7 +33,7 @@ export async function GET(req: Request, ctx: RouteContext<"/api/card/[id]">) {
   }
 
   const [asset, tier, rarity, filled, usd, amount] = card;
-  const ticker = ASSET_TICKERS[asset] ?? "?";
+  const ticker = tickerForAsset(asset) ?? "?";
   const art = cardArt(ticker, rarity, tier);
   const token = TOKENS[ticker];
   const origin = new URL(req.url).origin;
