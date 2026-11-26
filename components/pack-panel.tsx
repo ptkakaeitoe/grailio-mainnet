@@ -134,6 +134,32 @@ export function PackPanel() {
     contracts: PACK_TIERS.map((t) => ({ address: collectPacksAddress, abi: collectPacksTierAbi, functionName: "tier" as const, args: [BigInt(t.id)] as const })),
     query: { enabled: collectPacksLive, refetchInterval: 60_000 },
   });
+  // The prize pool: USDT the pack contract holds (backs Medium/High prizes). Readable without a wallet.
+  const { data: poolRaw } = useReadContract({
+    address: PACK_TOKEN.address,
+    abi: erc20Abi,
+    functionName: "balanceOf",
+    args: [collectPacksAddress],
+    query: { enabled: collectPacksLive && !demo.active, refetchInterval: 30_000 },
+  });
+  // Packs each tier can still sell (Low is unlimited: its cards never exceed the price).
+  const { data: capacityRows } = useReadContracts({
+    allowFailure: true,
+    contracts: PACK_TIERS.map((t) => ({ address: collectPacksAddress, abi: collectPacksAbi, functionName: "capacity" as const, args: [BigInt(t.id)] as const })),
+    query: { enabled: collectPacksLive && !demo.active, refetchInterval: 30_000 },
+  });
+  const capacityOf = (id: number): bigint | undefined => {
+    const row = capacityRows?.[PACK_TIERS.findIndex((t) => t.id === id)];
+    return row?.status === "success" ? (row.result as bigint) : undefined;
+  };
+  /** Packs a tier can still sell: the lower of the app's risk budget and the contract's capacity; null = unlimited. */
+  const leftFor = (id: number): number | null => {
+    const budget = TIER_BUDGETS[id] !== undefined && tierUsage ? packsLeft(id, tierUsage[id] ?? 0) : Infinity;
+    const c = capacityOf(id);
+    const onChain = c === undefined || c > 100_000n ? Infinity : Number(c);
+    const n = Math.min(budget, onChain);
+    return n === Infinity ? null : n;
+  };
   const tierOn: Record<number, boolean | undefined> = Object.fromEntries(PACK_TIERS.map((t, i) => {
     const row = tierRows?.[i];
     // A tier that doesn't exist yet (e.g. Saga Medium before addTier) reads as off.
@@ -406,6 +432,12 @@ export function PackPanel() {
             ))}
           </ul>
         </div>
+        {poolRaw !== undefined && (
+          <p className="pack-pool mb-3 flex items-baseline justify-between gap-3 text-sm text-muted">
+            <span>Prize pool</span>
+            <span className="text-base text-black tabular-nums">${Number(formatUnits(poolRaw, PACK_DECIMALS)).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+          </p>
+        )}
         {/* Risk: the same pack at Low, Medium or High risk. */}
         {(edition.live || edition.comingSoon) && (edition.tiers?.length ?? 0) > 1 && (
           <div className="pack-tier-picker mb-6 grid grid-cols-3 gap-1.5" role="group" aria-label="Risk">
@@ -420,7 +452,7 @@ export function PackPanel() {
                   className="flex min-w-0 flex-col gap-0.5 rounded-md border border-border px-3 py-2.5 text-left transition-colors hover:border-black aria-pressed:border-black"
                 >
                   <strong className="text-base font-normal">{t.level}</strong>
-                  <span className="truncate text-[13px] text-muted">{tierOn[id] === false && !demo.active ? "Coming soon" : TIER_BUDGETS[id] !== undefined && !demo.active && tierUsage ? (packsLeft(id, tierUsage[id] ?? 0) > 0 ? <><span className="tabular-nums">{packsLeft(id, tierUsage[id] ?? 0)}</span> left</> : "Sold out") : !demo.active ? <span aria-label="Unlimited">∞</span> : <span className="tabular-nums">{t.range.replace(" in stocks", "")}</span>}</span>
+                  <span className="truncate text-[13px] text-muted">{tierOn[id] === false && !demo.active ? "Coming soon" : !demo.active ? (() => { const n = leftFor(id); return n === null ? <span aria-label="Unlimited">∞</span> : n === 0 ? "Sold out" : <><span className="tabular-nums">{n}</span> left</>; })() : <span className="tabular-nums">{t.range.replace(" in stocks", "")}</span>}</span>
                 </button>
               );
             })}
