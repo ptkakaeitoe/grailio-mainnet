@@ -104,6 +104,7 @@ export function txLabelsFor(functionName: string, args?: readonly unknown[]): Tx
     case "distribute": return { loading: "Distributing revenue", success: "Revenue distributed" };
     case "withdraw": case "withdrawAll": return { loading: "Withdrawing", success: "Withdrawn" };
     case "withdrawAvaxFees": return { loading: "Withdrawing BNB fees", success: "BNB fees withdrawn" };
+    case "transfer": return { loading: "Sending", success: "Sent" };
     case "sync": return { loading: "Starting staking payout", success: "Staking payout started" };
     default: return null;
   }

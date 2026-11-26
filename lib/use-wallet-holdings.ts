@@ -15,7 +15,8 @@ const TOKENS = Object.entries(REAL_TOKENS)
 
 const AVAX_COLOR = "#f0b90b";
 
-export type Holding = { label: string; color: string; value: number; price: number | null };
+/** `key`: the TOKENS key (BNB, USDT, NVDA…), for sending. */
+export type Holding = { key: string; label: string; color: string; value: number; price: number | null };
 
 /**
  * BNB plus every token the wallet holds, priced in USD (USDC and USDT are $1, the rest
@@ -47,22 +48,22 @@ export function useWalletHoldings(account?: Address) {
   if (demo.active) {
     loaded = true;
     holdings = [
-      { label: "BNB", color: AVAX_COLOR, value: demo.balances.BNB ?? 0, price: avaxUsd },
+      { key: "BNB", label: "BNB", color: AVAX_COLOR, value: demo.balances.BNB ?? 0, price: avaxUsd },
       ...[{ label: "USDT", color: "#26a17b", key: "USDT" }, ...DEMO_STOCK_CARDS.map((card) => ({ label: card.ticker, color: card.accent, key: card.ticker }))]
         .flatMap((t) => {
           const value = demo.balances[t.label] ?? 0;
-          return value > 0 ? [{ label: t.label, color: t.color, value, price: priceOf(t.key) }] : [];
+          return value > 0 ? [{ key: t.key, label: t.label, color: t.color, value, price: priceOf(t.key) }] : [];
         }),
     ];
   } else {
     loaded = avax.data !== undefined && tokens.data !== undefined;
     holdings = loaded
       ? [
-          { label: "BNB", color: AVAX_COLOR, value: Number(formatEther(avax.data!.value)), price: avaxUsd },
+          { key: "BNB", label: "BNB", color: AVAX_COLOR, value: Number(formatEther(avax.data!.value)), price: avaxUsd },
           ...TOKENS.flatMap((t, i) => {
             const row = tokens.data![i];
             const raw = row?.status === "success" ? (row.result as bigint) : 0n;
-            return raw > 0n ? [{ label: t.label, color: t.color, value: Number(formatUnits(raw, t.decimals)), price: priceOf(t.key) }] : [];
+            return raw > 0n ? [{ key: t.key, label: t.label, color: t.color, value: Number(formatUnits(raw, t.decimals)), price: priceOf(t.key) }] : [];
           }),
         ]
       : [];
