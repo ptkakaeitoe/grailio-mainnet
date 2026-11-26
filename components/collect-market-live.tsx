@@ -139,7 +139,12 @@ export function CollectMarketLive({ mode = "both" }: { mode?: MarketMode }) {
   }
 
   // ---- sell panel ----
-  const listedIds = new Set(listings.filter((l) => address && l.seller.toLowerCase() === address.toLowerCase()).map((l) => l.id.toString()));
+  const myListings = new Map(listings.filter((l) => address && l.seller.toLowerCase() === address.toLowerCase()).map((l) => [l.id.toString(), l]));
+  const listedIds = new Set(myListings.keys());
+  const listingEnds = (l: CollectListing) => {
+    const left = l.expiresAt - now;
+    return left <= 0 ? "Ended" : left < 86_400 ? `in ${Math.max(1, Math.round(left / 3_600))}h` : `in ${Math.round(left / 86_400)}d`;
+  };
   const sellable = mine.cards.filter((c) => !c.staked && !listedIds.has(c.id.toString()));
   const [sellId, setSellId] = useState("");
   // The sell page starts with nothing picked; the side form picks your first card.
@@ -179,13 +184,16 @@ export function CollectMarketLive({ mode = "both" }: { mode?: MarketMode }) {
         inside: c.filled ? `${tokenAmount(c.amount)} ${TOKENS[c.ticker]?.symbol ?? c.ticker}` : `${money(c.usd)} USDT (unfilled)`,
         worth: worth(c),
         blocked: c.staked ? "Staked" : listedIds.has(c.id.toString()) ? "Listed" : null,
+        listing: !c.staked && myListings.has(c.id.toString()) ? { price: priceText(myListings.get(c.id.toString())!), ends: listingEnds(myListings.get(c.id.toString())!) } : null,
       })) : []}
       loading={Boolean(address) && mine.loading}
       empty={address
         ? { title: "No cards yet.", action: <Link href="/packs" className={stateAction}>Open a pack<ArrowUpRightIcon weight="bold" /></Link> }
         : { title: "Connect to see your cards.", action: <button type="button" className={cn(cleanButton.solid, "justify-between")} onClick={openConnect}>Connect wallet <ArrowUpRightIcon weight="bold" /></button> }}
-      selectedId={selected?.id.toString() ?? null}
+      selectedId={listedIds.has(sellId) ? sellId : selected?.id.toString() ?? null}
       onSelect={setSellId}
+      onCancel={(id) => run(`cancel-${id}`, { address: collectMarketAddress, abi: collectMarketAbi, functionName: "cancel", args: [collectPacksAddress, BigInt(id)] })}
+      cancelBusy={busy && Boolean(action?.startsWith("cancel-"))}
       currency={currency}
       onCurrency={setCurrency}
       price={price}
@@ -196,6 +204,9 @@ export function CollectMarketLive({ mode = "both" }: { mode?: MarketMode }) {
       status={<>
         {nftApproval.justApproved && !listedId && (
           <p className="flex items-center gap-1.5 text-sm text-up" role="status"><CheckIcon className="size-4" /> Cards approved. Now list your card.</p>
+        )}
+        {receipt.isSuccess && action?.startsWith("cancel-") && (
+          <p className="flex items-center gap-1.5 text-sm text-up" role="status"><CheckIcon className="size-4" /> Listing cancelled. Card #{action.slice(7)} can be listed again.</p>
         )}
         {listedId && (
           <p className="flex items-center gap-1.5 text-sm text-up" role="status"><CheckIcon className="size-4" /> Listed card #{listedId}. <Link href="/marketplace" className="underline underline-offset-4">See it on the market</Link></p>

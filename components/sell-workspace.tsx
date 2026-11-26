@@ -22,6 +22,8 @@ export type SellCard = {
   worth: number | null;
   /** Why it can't be listed ("Staked", "Listed"), if it can't. */
   blocked?: string | null;
+  /** Your live listing of this card, if any: picking it offers Cancel listing. */
+  listing?: { price: string; ends: string } | null;
 };
 
 export type SellCurrency = "USDT" | "BNB";
@@ -42,7 +44,7 @@ const inCurrency = (n: number, c: SellCurrency) => (c === "USDT" ? dollars(n) : 
 export function SellWorkspace({
   fee, cards, loading, empty, selectedId, onSelect,
   currency, onCurrency, price, onPrice, avaxUsd, days, onDays,
-  status, submitLabel, submitDisabled, onSubmit, note,
+  status, submitLabel, submitDisabled, onSubmit, note, onCancel, cancelBusy,
 }: {
   fee: number;
   cards: SellCard[];
@@ -63,6 +65,9 @@ export function SellWorkspace({
   submitDisabled: boolean;
   onSubmit: () => void;
   note: string;
+  /** Cancel your listing of a card. */
+  onCancel?: (id: string) => void;
+  cancelBusy?: boolean;
 }) {
   const [rarity, setRarity] = useState<number | "all">("all");
   const [sort, setSort] = useState<"value" | "newest">("value");
@@ -75,6 +80,7 @@ export function SellWorkspace({
     );
   }, [cards, rarity, sort]);
   const selected = cards.find((c) => c.id === selectedId && !c.blocked) ?? null;
+  const selectedListing = cards.find((c) => c.id === selectedId && c.listing) ?? null;
   const listable = cards.filter((c) => !c.blocked).length;
 
   const amount = Number(price);
@@ -120,17 +126,20 @@ export function SellWorkspace({
           ) : (
             <ul className="mt-6 grid list-none grid-cols-2 gap-3 p-0 phone:grid-cols-3 desk:gap-4 wide:grid-cols-4" role="listbox" aria-label="Your cards">
               {shown.map((c) => {
-                const picked = c.id === selected?.id;
+                const picked = c.id === selected?.id || c.id === selectedListing?.id;
+                // Listed cards stay pickable so the listing can be cancelled.
+                const locked = Boolean(c.blocked) && !c.listing;
                 return (
-                  <li key={c.id} role="option" aria-selected={picked} aria-disabled={Boolean(c.blocked)}>
+                  <li key={c.id} role="option" aria-selected={picked} aria-disabled={locked}>
                     <button
                       type="button"
-                      disabled={Boolean(c.blocked)}
+                      disabled={locked}
                       onClick={() => { onSelect(c.id); onPrice(""); }}
                       className={cn(
                         "relative flex w-full flex-col gap-3 rounded-lg border-[1.5px] p-2.5 text-left transition-colors",
                         picked ? "border-black" : "border-border hover:border-border-strong",
-                        c.blocked && "cursor-not-allowed opacity-45 hover:border-border",
+                        locked && "cursor-not-allowed opacity-45 hover:border-border",
+                        c.listing && !picked && "opacity-70",
                       )}
                     >
                       <StockCardFront art={c.art} rarity={c.rarity} decorative sizes="(min-width: 1201px) 220px, (min-width: 481px) 30vw, 45vw" className="w-full" />
@@ -140,7 +149,7 @@ export function SellWorkspace({
                           <span className="shrink-0 text-muted">{RARITY_NAMES[c.rarity]}</span>
                         </span>
                         <span className="mt-1 block truncate text-base tabular-nums">{c.worth === null ? "—" : dollars(c.worth)}</span>
-                        <span className="block truncate text-[13px] text-muted tabular-nums">{c.blocked ? (c.blocked === "Staked" ? "Staked: unstake to sell" : "Already listed") : c.inside}</span>
+                        <span className="block truncate text-[13px] text-muted tabular-nums">{c.listing ? `Listed · ${c.listing.price}` : c.blocked ? (c.blocked === "Staked" ? "Staked: unstake to sell" : "Already listed") : c.inside}</span>
                       </span>
                       {picked && <span className="absolute top-4 right-4 grid size-7 place-items-center rounded-full bg-black text-white"><CheckIcon className="size-4" /></span>}
                     </button>
@@ -164,7 +173,28 @@ export function SellWorkspace({
               <span className={sectionLabel}>[ fee {fee * 100}% ]</span>
             </div>
 
-            {selected ? (
+            {selectedListing ? (
+              <>
+                <div className="flex items-center gap-4">
+                  <StockCardFront art={selectedListing.art} rarity={selectedListing.rarity} decorative sizes="64px" className="w-16 shrink-0" />
+                  <div className="min-w-0">
+                    <p className="truncate text-base">{selectedListing.art.name}</p>
+                    <p className="text-sm text-muted">#{selectedListing.id} · {RARITY_NAMES[selectedListing.rarity]}</p>
+                    <p className="text-sm text-muted tabular-nums">{selectedListing.inside}</p>
+                  </div>
+                </div>
+                <dl className="grid grid-cols-[1fr_auto] gap-x-4 gap-y-2 border-t border-border pt-5 text-sm">
+                  <dt className="text-muted">Listed for</dt>
+                  <dd className="text-right text-base tabular-nums">{selectedListing.listing!.price}</dd>
+                  <dt className="text-muted">Ends</dt>
+                  <dd className="text-right tabular-nums">{selectedListing.listing!.ends}</dd>
+                </dl>
+                {status}
+                <button type="button" className={cn(cleanButton.outline, "w-full justify-between")} disabled={cancelBusy || !onCancel} onClick={() => onCancel?.(selectedListing.id)}>
+                  {cancelBusy ? "Cancelling…" : "Cancel listing"} <ArrowUpRightIcon weight="bold" />
+                </button>
+              </>
+            ) : selected ? (
               <div className="flex items-center gap-4">
                 <StockCardFront art={selected.art} rarity={selected.rarity} decorative sizes="64px" className="w-16 shrink-0" />
                 <div className="min-w-0">
@@ -177,6 +207,7 @@ export function SellWorkspace({
               <p className="rounded-md border border-dashed border-border-strong px-4 py-6 text-center text-sm text-muted">Pick a card</p>
             )}
 
+            {!selectedListing && <>
             <div className="flex flex-col gap-1.5 text-sm text-muted">
               <span>Get paid in</span>
               <div className="flex gap-1.5" role="group" aria-label="Listing currency">
@@ -224,6 +255,7 @@ export function SellWorkspace({
               {submitLabel} <ArrowUpRightIcon weight="bold" />
             </button>
             <p className="text-[13px] text-muted">{note}</p>
+            </>}
           </form>
         </aside>
       </div>
