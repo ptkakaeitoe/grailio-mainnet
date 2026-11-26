@@ -94,6 +94,36 @@ ETHERSCAN_API_KEY=... BSC_RPC_URL=https://bsc-dataseed.bnbchain.org ./script/ver
 
 The broadcast writes every address to `../deployments/56.json`. Rebuild the app afterwards: `/packs`, `/marketplace`, `/treasury`, `/dao` and `/community` go live (set `RELAYER_KEY` for free posting). Seed the pack pool with USDC before the first sale.
 
+## Add stock assets (Atlas)
+
+Cards can hold tokenized stocks (bStocks) priced by Atlas Oracle. Atlas serves every feed from one MultiFeed contract (`0xeace519e…44aa`, `fetchBatch(bytes4[] feedIds)` → `(value, timestamp, updatedAt)[]`, 18 decimals). `src/AtlasFeedAdapter.sol` wraps one feed ID in the Chainlink interface CollectPacks already uses; it reports Atlas's real report timestamp, and a missing price reads as 0, so the card keeps its USDC until `fill`.
+
+1. Edit `script/stocks.mainnet.json`: one entry per stock (token, Atlas feed ID, slippage, a route from USDC). Delete each entry's `todo` field once checked; the script refuses to run while any is left.
+2. Fork test: `BSC_RPC_URL=https://bsc-dataseed.bnbchain.org forge test --match-contract AtlasStocksFork -vv` (adds the stocks to the live contract on a fork and opens a Low pack with each).
+3. Dry run as the owner (nothing is sent):
+   ```bash
+   BSC_RPC_URL=https://bsc-dataseed.bnbchain.org forge script script/AddStocks.s.sol --rpc-url bsc --account <owner keystore>
+   ```
+4. Broadcast (owner `0x073d…547F`). Add `DISABLE_CRYPTO=1` to also switch off the five crypto assets (IDs 0-4):
+   ```bash
+   ETHERSCAN_API_KEY=... BSC_RPC_URL=https://bsc-dataseed.bnbchain.org forge script script/AddStocks.s.sol --rpc-url bsc --account <owner keystore> --broadcast --verify
+   ```
+
+The script prints each adapter and new asset ID and writes them to `../deployments/56.json` under `stockAssets`. **The app needs those asset IDs** (card ticker, logo and price per asset ID); until it knows them, stock cards show up as unknown assets.
+
+**Feed age.** Atlas pushes bStock prices about every 60 seconds around the clock, not only in US market hours (measured on chain on 2026-11-26, a US holiday). The default `maxFeedAge` is 6 hours: if Atlas stops, swaps stop within hours and cards keep their USDC until `fill`, instead of buying at an old price.
+
+### Then add a chat room per stock
+
+Each stock gets an encrypted room on CollectChat, gated by holding a card of that stock (like the BTC–CAKE rooms). Safe to re-run; it skips stocks that already have a room.
+
+```bash
+# dry run
+forge script script/AddStockRooms.s.sol --rpc-url bsc --sender <owner>
+# for real
+forge script script/AddStockRooms.s.sol --rpc-url bsc --account <owner keystore> --broadcast
+```
+
 ## Before the first sale
 
 - **Seed the pool.** Send USDC to the contract address. Each unopened pack reserves its top prize: $0.95 Ember, $4.00 Flare, $10.13 Nova. `capacity(tierId)` shows how many more can sell. Withdraw the seed any time it isn't owed.
