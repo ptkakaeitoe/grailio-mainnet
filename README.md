@@ -2,7 +2,7 @@
 
 The mainnet version of Grailio: open $1 packs, collect cards that hold tokenized stocks, trade them, vote and chat, on **BNB Smart Chain (chain 56)**. It is a separate Next.js app with its own Foundry contracts, kept apart from the testnet app in the repo root (`src/`, `contracts/`, `openfour/`). Nothing here imports from there.
 
-**Status: the contracts are deployed on BNB Smart Chain mainnet** (addresses in `deployments/56.json`, listed below). Low packs of all three editions are on sale; Medium and High open once the pool holds USDC. Swaps on `/trade` are real (KyberSwap's BSC aggregator; the user's wallet signs).
+**Status: the contracts are deployed on BNB Smart Chain mainnet** (addresses in `deployments/56.json`, listed below). Low packs of all three editions are on sale; Medium and High open once the pool holds USDT. Swaps on `/trade` are real (KyberSwap's BSC aggregator; the user's wallet signs).
 
 ## Run it
 
@@ -24,7 +24,7 @@ This Next.js version has breaking changes from older releases: read `AGENTS.md` 
 | `/` | Live prices, packs, get started |
 | `/packs` | Buy and open $1 packs (three designs, three risk levels) |
 | `/trade` | Tokenized stocks for USDT, USDC or BNB, swapped via KyberSwap at the best BSC DEX route |
-| `/marketplace` | Buy and sell cards, priced in BNB or USDC, with a Stock filter |
+| `/marketplace` | Buy and sell cards, priced in BNB or USDT, with a Stock filter |
 | `/collection` | Your cards (stake, redeem, view) and unopened packs |
 | `/gift` | Claim a gift code; see and cancel gifts you sent |
 | `/profile`, `/@handle` | Username, picture, bio, socials, ID card and holdings |
@@ -34,7 +34,7 @@ This Next.js version has breaking changes from older releases: read `AGENTS.md` 
 | `/info` | Field guide and contract table |
 | `/v2` | Minimal black-and-white test UI over the same code |
 
-Cards hold tokenized stocks (bStocks, issued by bStocks), listed in `lib/stock-assets.ts` and priced on chain by Atlas Oracle. Payments are in USDC (and BNB on the marketplace). DAO votes use non-transferable points; there is no Grailio token.
+Cards hold tokenized stocks (bStocks, issued by bStocks), listed in `lib/stock-assets.ts` and priced on chain by Atlas Oracle. Payments are in USDT (BNB is swapped to USDT at checkout, and accepted on the marketplace). DAO votes use non-transferable points; there is no Grailio token.
 
 ## How it works
 
@@ -58,7 +58,7 @@ Odds and card values per $1 of price (Saga is ×3, Mythos ×5), as `contracts/sc
 
 In a Low pack every card holds the same 95% of the price; rarity only sets the card's staking multiplier. The deploy puts the three Low tiers on sale; Medium and High need a seeded pool and are switched on later (`setTierActive`). Gas is paid in BNB.
 
-**Where the money goes:** into the pack contract's USDC pool. When a pack opens, the block hash rolls a rarity and picks a stock uniformly from the tier's basket (active assets only), swaps the card's value from USDC into that bStock on PancakeSwap v3 (USDC → USDT → bStock, routes in `stocks.mainnet.json`) and locks it in the card. Each swap must return at least the Atlas fair amount (read through that stock's `AtlasFeedAdapter`, a Chainlink-style interface) minus its slippage limit (3%). If the Atlas price is older than 6 hours or the swap would come up short, the card is minted holding its value in USDC and anyone can `fill` it later. The difference between the price and the card value is profit, which `distribute()` shares out to staking and the DAO. Staking rewards are paid in USDC. The owner can only withdraw USDC above what unopened packs and unfilled cards could still pay out, and never tokens locked in cards. Odds live in `PACK_TIERS` (`lib/contracts.ts`) and `contracts/script/MainnetConfig.sol`.
+**Where the money goes:** into the pack contract's USDT pool. When a pack opens, the block hash rolls a rarity and picks a stock uniformly from the tier's basket (active assets only), swaps the card's value from USDT into that bStock on PancakeSwap v3 (USDT → bStock, routes in `stocks.mainnet.json`) and locks it in the card. Each swap must return at least the Atlas fair amount (read through that stock's `AtlasFeedAdapter`, a Chainlink-style interface) minus its slippage limit (3%). If the Atlas price is older than 6 hours or the swap would come up short, the card is minted holding its value in USDT and anyone can `fill` it later. The difference between the price and the card value is profit, which `distribute()` shares out to staking and the DAO. Staking rewards are paid in USDT. The owner can only withdraw USDT above what unopened packs and unfilled cards could still pay out, and never tokens locked in cards. Odds live in `PACK_TIERS` (`lib/contracts.ts`) and `contracts/script/MainnetConfig.sol`.
 
 ### Prices (`lib/quotes.ts`)
 
@@ -68,7 +68,7 @@ In a Low pack every card holds the same 95% of the price; rarity only sets the c
 
 ### Swaps (`/trade`)
 
-The tradable tokens are the 15 stocks in `lib/stock-assets.ts`, paid or received in USDT, USDC or BNB (`SWAP_KEYS` in `lib/tokens.ts`). KyberSwap routes each trade across BSC DEXes (`lib/kyber.ts`). `GET /api/swap/quote` returns the route; `POST /api/swap/build` returns calldata (beta cookie required, slippage capped at 5%). The user's wallet signs; the server never signs or sends. Every swap must target KyberSwap's router, checked on the server and in the browser. Grailio takes a 0.5% fee inside each swap (`lib/swap-fee.ts`): when USDC is on either side, half goes to staking and half to the treasury wallet; otherwise all of it goes to the treasury.
+The tradable tokens are the 15 stocks in `lib/stock-assets.ts`, paid or received in USDT, USDC or BNB (`SWAP_KEYS` in `lib/tokens.ts`). KyberSwap routes each trade across BSC DEXes (`lib/kyber.ts`). `GET /api/swap/quote` returns the route; `POST /api/swap/build` returns calldata (beta cookie required, slippage capped at 5%). The user's wallet signs; the server never signs or sends. Every swap must target KyberSwap's router, checked on the server and in the browser. Grailio takes a 0.5% fee inside each swap (`lib/swap-fee.ts`): when USDT is on either side, half goes to staking and half to the treasury wallet; otherwise all of it goes to the treasury.
 
 ### Beta gate
 
@@ -126,7 +126,7 @@ The swap-fee treasury wallet is `SWAP_FEE_TREASURY` in `lib/swap-fee.ts` (`0x9c0
 ## What is left for you
 
 1. **Verify the contracts on BscScan** if any are still unverified: `cd contracts && ETHERSCAN_API_KEY=... BSC_RPC_URL=... ./script/verify.sh` (safe to re-run).
-2. **Fund the pack pool with USDC** before switching on Medium and High (`setTierActive`). Each unopened pack reserves its top prize; `capacity(tierId)` shows how many more can sell.
+2. **Fund the pack pool with USDT** before switching on Medium and High (`setTierActive`). Each unopened pack reserves its top prize; `capacity(tierId)` shows how many more can sell.
 3. **Fill in `.env.local`** (or your host's env): Privy app ID, and optionally a relayer wallet plus Upstash (which also caches the contract-log index).
 4. **Fund the relayer wallet** (`RELAYER_KEY`) with a little BNB and top it up; it refuses below 0.01 BNB.
 5. **Privy dashboard:** enable BNB Smart Chain and add your production domain.
@@ -134,7 +134,7 @@ The swap-fee treasury wallet is `SWAP_FEE_TREASURY` in `lib/swap-fee.ts` (`0x9c0
 
 ## What changed from the earlier app
 
-Branding is now Grailio, on BNB Chain: chain, RPC and explorer (BscScan); KyberSwap's BSC endpoint; contract logs read over public RPCs (`eth_getLogs`) into an incremental index cached in Upstash/KV; USD amounts formatted with USDC's 18 on-chain decimals; gas top-ups sized for BSC fees; outside-NFT avatars switched off. Cards no longer hold crypto (BTCB, ETH, WBNB, LINK, CAKE): they hold 15 bStocks, each pack edition drawing from its own basket of five. Card fills are priced by Atlas Oracle instead of Chainlink and bought on PancakeSwap v3 through USDT. Payments and staking rewards are in USDC. The exchange trades the stocks against USDT, USDC or BNB, the marketplace has a Stock filter, and the community has one room per stock.
+Branding is now Grailio, on BNB Chain: chain, RPC and explorer (BscScan); KyberSwap's BSC endpoint; contract logs read over public RPCs (`eth_getLogs`) into an incremental index cached in Upstash/KV; USD amounts formatted with USDT's 18 on-chain decimals; gas top-ups sized for BSC fees; outside-NFT avatars switched off. Cards no longer hold crypto (BTCB, ETH, WBNB, LINK, CAKE): they hold 15 bStocks, each pack edition drawing from its own basket of five. Card fills are priced by Atlas Oracle instead of Chainlink and bought on PancakeSwap v3 straight from USDT. Payments and staking rewards are in USDT. The exchange trades the stocks against USDT, USDC or BNB, the marketplace has a Stock filter, and the community has one room per stock.
 
 ## Stack
 

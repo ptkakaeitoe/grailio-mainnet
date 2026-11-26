@@ -27,16 +27,16 @@ Every pack comes in three risk levels:
 
 Low risk packs are on sale now; Medium and High open once the prize pool is funded.
 
-Odds and possible rewards for each pack are shown before you buy. Packs are paid for in USDC.
+Odds and possible rewards for each pack are shown before you buy. Packs are paid for in USDT, or in BNB swapped to USDT for you.
 
 ### Collection
 All your cards and unopened packs in one place. Each card shows its status (staked, listed or unfilled), its rarity and what it holds.
 
 ### Staking
-Stake cards to earn rewards, paid in USDC. Staked cards keep earning until you unstake them.
+Stake cards to earn rewards, paid in USDT. Staked cards keep earning until you unstake them.
 
 ### Marketplace
-Buy and sell cards with other collectors, priced in BNB or USDC, and filter by stock. Listings stay in your wallet until they sell.
+Buy and sell cards with other collectors, priced in BNB or USDT, and filter by stock. Listings stay in your wallet until they sell.
 
 ### Redeem
 Burn a card to receive the stock it holds. Redeemed cards stay visible on your profile as part of your history.

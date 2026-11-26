@@ -5,7 +5,7 @@ Grailio is a website that runs on BNB Smart Chain. Here's what we use and what e
 ## The blockchain
 
 - **BNB Smart Chain (chain 56)** is where everything lives: packs, cards, the assets inside them, the marketplace, staking, chat and profiles. We wrote 9 smart contracts that run the whole app, and they are live on mainnet.
-- **USDC** is what people pay with when they buy packs, and what staking rewards are paid in.
+- **USDT** is what people pay with when they buy packs, and what staking rewards are paid in.
 - **BscScan** lets anyone look up any transaction or card to check it's real.
 
 ## Signing in
@@ -17,8 +17,8 @@ Grailio is a website that runs on BNB Smart Chain. Here's what we use and what e
 ## Filling cards with stocks
 
 - **bStocks** issues the tokenized stocks that go inside the cards: 15 of them, five per pack edition.
-- **PancakeSwap v3** is the exchange our contract uses to buy the stock that goes inside each card when a pack is opened. Each purchase goes from USDC to USDT and then to the stock.
-- **Atlas Oracle** gives us trusted stock prices on-chain, so every one of those purchases gets a fair price. If the price is more than 6 hours old or the purchase would come up short, the card holds USDC instead and gets filled later.
+- **PancakeSwap v3** is the exchange our contract uses to buy the stock that goes inside each card when a pack is opened. Each purchase goes from USDT straight to the stock.
+- **Atlas Oracle** gives us trusted stock prices on-chain, so every one of those purchases gets a fair price. If the price is more than 6 hours old or the purchase would come up short, the card holds USDT instead and gets filled later.
 
 ## Swapping tokens
 
