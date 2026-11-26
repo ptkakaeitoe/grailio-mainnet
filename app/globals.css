@@ -64,6 +64,8 @@
     background: var(--background);
     color: var(--foreground);
     font-family: var(--font-dm-sans), system-ui, sans-serif;
+    /* Nothing scrolls sideways (the hero's light rays reach past narrow screens); clip, unlike hidden, keeps sticky working. */
+    overflow-x: clip;
   }
   /* Titles use Outfit; a font-* utility on a heading still overrides it. */
   :is(h1, h2, h3) { font-family: var(--font-outfit), system-ui, sans-serif; }
@@ -449,3 +451,32 @@ html[data-scrolled]:has(#main-content details[open] .frost, #main-content .frost
 :is(a, button):is(:hover, :focus-visible):not(:disabled) > .icon-flip { rotate: 180deg; }
 :is(a, button):is(:hover, :focus-visible):not(:disabled) > .arrow-slide { translate: 3px 0; }
 @media (prefers-reduced-motion: reduce) { .plus-spin, .icon-flip, .arrow-slide { transition: none; } }
+
+/* Hero art: the hands float toward each other (HeroHands); the pack tilts back a little on hover (HeroPack). */
+.hero-card-tilt { transition: transform .5s cubic-bezier(.2, .8, .3, 1); }
+/* A lens-flare starburst behind the pack: long thin streaks at uneven angles (.hero-pack-rays) over many short soft rays
+   (.hero-pack-rays--soft), each fading out from the centre, turning slowly in opposite directions so the flare shimmers. */
+.hero-pack-rays {
+  background: conic-gradient(from 0deg, transparent 0deg, transparent 11.1deg, rgb(255 214 140 / 0.15) 11.9deg, transparent 12.7deg, transparent 51.8deg, rgb(255 214 140 / 0.13) 52.9deg, transparent 53.9deg, transparent 94.6deg, rgb(255 214 140 / 0.11) 95.7deg, transparent 96.8deg, transparent 145.5deg, rgb(255 214 140 / 0.11) 146.2deg, transparent 147.0deg, transparent 193.8deg, rgb(255 214 140 / 0.12) 195.1deg, transparent 196.4deg, transparent 228.5deg, rgb(255 214 140 / 0.17) 229.7deg, transparent 230.8deg, transparent 283.9deg, rgb(255 214 140 / 0.17) 284.9deg, transparent 285.9deg, transparent 319.3deg, rgb(255 214 140 / 0.12) 320.6deg, transparent 321.9deg, transparent 360deg);
+  -webkit-mask-image: radial-gradient(closest-side, #000 8%, rgb(0 0 0 / .4) 30%, transparent 75%);
+  mask-image: radial-gradient(closest-side, #000 8%, rgb(0 0 0 / .4) 30%, transparent 75%);
+  filter: blur(1.5px);
+  animation: pack-rays 140s linear infinite;
+}
+.hero-pack-rays--soft {
+  background: conic-gradient(from 0deg, transparent 0deg, transparent 2.2deg, rgb(255 214 140 / 0.04) 4.0deg, transparent 5.8deg, transparent 12.3deg, rgb(255 214 140 / 0.04) 15.5deg, transparent 18.6deg, transparent 26.3deg, rgb(255 214 140 / 0.06) 29.1deg, transparent 31.9deg, transparent 40.9deg, rgb(255 214 140 / 0.04) 42.5deg, transparent 44.1deg, transparent 50.3deg, rgb(255 214 140 / 0.06) 53.2deg, transparent 56.0deg, transparent 62.0deg, rgb(255 214 140 / 0.06) 64.7deg, transparent 67.3deg, transparent 73.0deg, rgb(255 214 140 / 0.07) 76.1deg, transparent 79.2deg, transparent 84.4deg, rgb(255 214 140 / 0.07) 87.0deg, transparent 89.7deg, transparent 100.1deg, rgb(255 214 140 / 0.05) 103.0deg, transparent 106.0deg, transparent 118.1deg, rgb(255 214 140 / 0.06) 119.9deg, transparent 121.6deg, transparent 133.1deg, rgb(255 214 140 / 0.07) 134.9deg, transparent 136.7deg, transparent 141.4deg, rgb(255 214 140 / 0.08) 144.2deg, transparent 147.1deg, transparent 154.6deg, rgb(255 214 140 / 0.06) 157.8deg, transparent 161.1deg, transparent 169.7deg, rgb(255 214 140 / 0.07) 172.4deg, transparent 175.1deg, transparent 181.8deg, rgb(255 214 140 / 0.09) 185.0deg, transparent 188.2deg, transparent 195.0deg, rgb(255 214 140 / 0.04) 197.8deg, transparent 200.6deg, transparent 209.6deg, rgb(255 214 140 / 0.09) 212.4deg, transparent 215.2deg, transparent 225.9deg, rgb(255 214 140 / 0.06) 228.0deg, transparent 230.1deg, transparent 240.8deg, rgb(255 214 140 / 0.06) 242.4deg, transparent 243.9deg, transparent 251.0deg, rgb(255 214 140 / 0.04) 252.7deg, transparent 254.4deg, transparent 266.1deg, rgb(255 214 140 / 0.05) 267.8deg, transparent 269.6deg, transparent 276.7deg, rgb(255 214 140 / 0.04) 280.0deg, transparent 283.2deg, transparent 290.0deg, rgb(255 214 140 / 0.09) 292.6deg, transparent 295.2deg, transparent 304.9deg, rgb(255 214 140 / 0.05) 308.1deg, transparent 311.3deg, transparent 318.2deg, rgb(255 214 140 / 0.09) 320.4deg, transparent 322.7deg, transparent 335.3deg, rgb(255 214 140 / 0.04) 337.1deg, transparent 338.9deg, transparent 346.0deg, rgb(255 214 140 / 0.07) 348.0deg, transparent 349.9deg, transparent 360deg);
+  -webkit-mask-image: radial-gradient(closest-side, #000 10%, rgb(0 0 0 / .4) 28%, transparent 55%);
+  mask-image: radial-gradient(closest-side, #000 10%, rgb(0 0 0 / .4) 28%, transparent 55%);
+  filter: blur(4px);
+  animation-duration: 100s;
+  animation-direction: reverse;
+}
+@keyframes pack-rays { to { rotate: 360deg; } }
+@media (hover: hover) and (pointer: fine) { .hero-card-tilt:hover { transform: perspective(900px) rotateX(5deg) rotateY(-8deg) scale(1.02); } }
+.hand-float-left { transform-origin: 0% 80%; animation: hand-float-left 6.5s ease-in-out infinite alternate; }
+.hand-float-right { transform-origin: 100% 35%; animation: hand-float-right 7.5s ease-in-out -3s infinite alternate; }
+@keyframes hand-float-left { from { transform: translateY(5px) rotate(.3deg); } to { transform: translateY(-9px) rotate(-.6deg); } }
+@keyframes hand-float-right { from { transform: translateY(-5px) rotate(-.3deg); } to { transform: translateY(9px) rotate(.6deg); } }
+@media (prefers-reduced-motion: reduce) { .hand-float-left, .hand-float-right { animation: none; }
+  .hero-card-tilt { transition: none; }
+  .hero-pack-rays { animation: none; } }

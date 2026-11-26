@@ -1,7 +1,7 @@
 import { ArrowUpRightIcon } from "@phosphor-icons/react/ssr";
 import Link from "next/link";
-import { CardFan } from "@/components/card-fan";
 import { cleanButton, cleanLink, cn } from "@/components/clean-ui";
+import { HeroHands, HeroHandsPhone } from "@/components/hero-hands";
 import { HeroWalletAction } from "@/components/hero-wallet-action";
 import { TokenIcon } from "@/components/token-icon";
 import { HoloStockCard } from "@/components/holo-stock-card";
@@ -66,12 +66,15 @@ const MORE = [
   },
 ];
 
+/** The hero's three points, bottom right (balancing the headline top left). */
+const HERO_POINTS = ["Open packs.", "Collect cards.", "Stake or trade."];
+
 const sectionSpace = "pt-24 desk:pt-32";
 const followingSectionSpace = "pt-32 desk:pt-44";
 const sectionHead =
   "flex flex-col gap-6 desk:flex-row desk:items-end desk:justify-between desk:gap-8";
 const sectionTitle =
-  "text-[clamp(34px,calc(5.5vw_-_10px),74px)] leading-[1.06] font-normal tracking-[-0.04em]";
+  "text-[clamp(34px,calc(5.5vw_-_10px),74px)] leading-[1.06] font-light tracking-[-0.04em]";
 // Phones: buttons share the row at equal widths, labels centered, wrapping to full-width rows when they don't fit.
 const buttonRow =
   "flex flex-wrap gap-3 max-desk:[&>:is(a,button)]:min-w-max max-desk:[&>:is(a,button)]:flex-1 max-desk:[&>:is(a,button)]:justify-center";
@@ -81,72 +84,84 @@ const sectionIntro =
 export default function Home() {
   return (
     <PageShell>
-      {/* Fills the first screen on desktop: headline and actions left, relic cards right, ticker at the fold. */}
+      {/* Fills the first screen on desktop: headline and actions left, two hands reaching for the card stack between
+          them, partners at the fold. */}
       <section
         id="overview"
         className="grid grid-cols-1 grid-rows-[minmax(0,1fr)_auto] desk:min-h-[calc(100svh_-_88px)]"
       >
-        <div className="relative grid grid-cols-1 gap-4 py-8 desk:grid-cols-2 desk:items-center desk:gap-8 desk:pt-4">
+        <div className="relative isolate grid grid-cols-1 gap-4 py-8 desk:min-h-[520px] desk:grid-cols-2 desk:items-center desk:gap-8 desk:pt-4">
           {/* On phones the column dissolves so the art can lead and the note can close. */}
-          <div className="relative min-w-0 max-desk:contents">
-            <h1 className="text-[clamp(26px,13vw,64px)] leading-[1.2] font-normal tracking-[-0.01em] desk:text-[clamp(30px,calc(min(8vw,12.5svh)_-_20px),110px)]">
-              <span className="text-muted-soft">
-                Trade
-                <br />
-                Stock You
-                <br />
-                Can
-              </span>{" "}
-              Collect.
+          <HeroHandsPhone className="order-first mb-2" />
+          <div className="relative z-10 min-w-0 max-desk:contents desk:self-start desk:pt-[clamp(8px,3svh,40px)]">
+            {/* Desktop: a soft dark glow behind the headline and buttons, so the hand dims as it passes under the copy. */}
+            <div
+              className="pointer-events-none absolute -inset-x-28 -inset-y-20 -z-10 hidden bg-[radial-gradient(ellipse_closest-side_at_42%_58%,rgb(17_17_17/.82),rgb(17_17_17/.55)_55%,transparent)] desk:block"
+              aria-hidden="true"
+            />
+            {/* Three short lines, so the type can be big and the block tall (the buttons land near the middle of the screen).
+                Sized to stay clear of the pack; nudged left by the letters' side bearing so the glyphs line up with the buttons. */}
+            <h1 className="-ml-[0.05em] text-[clamp(30px,13vw,72px)] leading-[1.1] font-light tracking-[-0.035em] desk:text-[clamp(44px,min(6.8vw,11.5svh),128px)]">
+              <span className="whitespace-nowrap">Trade Stock</span>
+              <br />
+              <span className="whitespace-nowrap">You Can</span>
+              <br />
+              <span className="whitespace-nowrap">Collect.</span>
             </h1>
             <div
               className={cn(
                 buttonRow,
-                "mt-[clamp(32px,6svh,56px)] max-desk:mt-2 phone:gap-4",
+                "mt-[clamp(36px,7svh,72px)] max-desk:mt-4 phone:gap-4",
               )}
             >
               <Link
                 href="/packs"
                 className={cn(cleanButton.solid, "lowercase desk:min-h-[58px]")}
               >
-                explore packs <ArrowUpRightIcon weight="bold" />
+                explore packs <ArrowUpRightIcon weight="bold" className="arrow-nudge" aria-hidden="true" />
               </Link>
               <HeroWalletAction />
             </div>
-            {/* Phones: a row under the headline. Desktop: CardFan draws these beside the cards instead. */}
-            <div className="pointer-events-none flex items-end justify-between gap-4 text-right text-sm leading-[1.3] max-desk:order-1 desk:hidden">
-              <span className="z-[1] bg-black px-2 py-1 text-white">
-                [SERIES 01]
-              </span>
-              <p className="z-[1] bg-black px-2 py-1 text-white">
-                [PUBLIC BETA]
-              </p>
-            </div>
           </div>
-          <CardFan />
+          <HeroHands />
+          {/* Desktop: the three points bottom right, balancing the headline top left. */}
+          <ol
+            aria-label="How it works"
+            className="relative z-10 m-0 hidden list-none flex-col gap-3 p-0 font-display text-[clamp(24px,min(2.5vw,4.4svh),44px)] leading-snug font-light tracking-[-0.02em] desk:col-2 desk:row-1 desk:flex desk:self-end desk:justify-self-end"
+          >
+            {HERO_POINTS.map((point, i) => (
+              <li key={point} className="flex items-baseline gap-4">
+                <span className="font-mono text-[0.5em] text-muted tabular-nums">[{String(i + 1).padStart(2, "0")}]</span>
+                {point}
+              </li>
+            ))}
+          </ol>
         </div>
-        {/* What Grailio runs on, in the spot the price ticker used to hold (ticker hidden for now).
-            Spread edge to edge on desktop. Each partner shows its own mark. */}
+        {/* What Grailio runs on: each role on top, its partner (logo and name) underneath. Spread edge to edge on desktop. */}
         <ul
-          aria-label="Built with"
-          className="flex list-none flex-wrap items-center gap-x-6 gap-y-2 p-0 pt-4 pb-8 text-sm text-muted desk:justify-between desk:text-base"
+          aria-label="Built on"
+          className="flex list-none flex-wrap items-end gap-x-8 gap-y-5 p-0 pt-4 pb-8 text-base text-muted desk:justify-between desk:text-lg"
         >
-          <li className="inline-flex items-center gap-1.5 whitespace-nowrap">
+          <li className="inline-flex h-7 items-center gap-2 whitespace-nowrap">
             <span className="relative mr-0.5 inline-flex size-2" aria-hidden="true">
               <span className="absolute inset-0 animate-ping rounded-full bg-up opacity-60 motion-reduce:animate-none" />
               <span className="relative size-2 rounded-full bg-up" />
             </span>
-            Live on <TokenIcon symbol="BNB" className="size-5" /> <span className="text-black">BNB Chain</span>
+            Built on
           </li>
           {(
             [
-              ["PRIVY", "Wallets", "Privy"],
-              ["KYBER", "Swaps", "KyberSwap"],
-              ["ATLAS", "Prices", "Atlas"],
+              ["Chain", "BNB", "BNB Chain"],
+              ["Wallets", "PRIVY", "Privy"],
+              ["Swaps", "KYBER", "KyberSwap"],
+              ["Prices", "ATLAS", "Atlas"],
             ] as const
-          ).map(([icon, what, who]) => (
-            <li key={who} className="inline-flex items-center gap-1.5 whitespace-nowrap">
-              {what} by <TokenIcon symbol={icon} className="size-5" /> <span className="text-black">{who}</span>
+          ).map(([role, icon, name]) => (
+            <li key={role} className="flex flex-col gap-2">
+              <span>{role}</span>
+              <span className="inline-flex h-7 items-center gap-2 whitespace-nowrap text-black">
+                <TokenIcon symbol={icon} className="size-6" /> {name}
+              </span>
             </li>
           ))}
         </ul>
@@ -171,7 +186,7 @@ export default function Home() {
               One card per pack.
             </p>
             <Link href="/packs" className={cn(cleanLink, "mt-5 lowercase")}>
-              see what&apos;s inside <ArrowUpRightIcon weight="bold" />
+              see what&apos;s inside <ArrowUpRightIcon weight="bold" className="arrow-nudge" aria-hidden="true" />
             </Link>
           </div>
         </div>
@@ -236,13 +251,13 @@ export default function Home() {
                 href="/trade"
                 className={cn(cleanButton.outline, "lowercase")}
               >
-                try the demo <ArrowUpRightIcon weight="bold" />
+                try the demo <ArrowUpRightIcon weight="bold" className="arrow-nudge" aria-hidden="true" />
               </Link>
               <Link
                 href="/packs"
                 className={cn(cleanButton.solid, "lowercase")}
               >
-                explore packs <ArrowUpRightIcon weight="bold" />
+                explore packs <ArrowUpRightIcon weight="bold" className="arrow-nudge" aria-hidden="true" />
               </Link>
             </div>
           </div>
@@ -307,7 +322,7 @@ export default function Home() {
                   aria-hidden="true"
                 />
               </div>
-              <h3 className="mt-6 text-[clamp(30px,calc(4vw_-_10px),50px)] leading-none font-normal tracking-[-0.04em]">
+              <h3 className="mt-6 text-[clamp(30px,calc(4vw_-_10px),50px)] leading-none font-light tracking-[-0.04em]">
                 {action.title}
               </h3>
               <p className="mt-5 mb-5 max-w-[340px] text-base leading-normal text-muted">
@@ -317,7 +332,7 @@ export default function Home() {
                 href={action.href}
                 className={cn(cleanLink, "mt-auto lowercase")}
               >
-                {action.cta} <ArrowUpRightIcon weight="bold" />
+                {action.cta} <ArrowUpRightIcon weight="bold" className="arrow-nudge" aria-hidden="true" />
               </Link>
             </li>
           ))}
@@ -380,7 +395,7 @@ export default function Home() {
               "lowercase max-desk:w-full max-desk:justify-center",
             )}
           >
-            see the packs <ArrowUpRightIcon weight="bold" />
+            see the packs <ArrowUpRightIcon weight="bold" className="arrow-nudge" aria-hidden="true" />
           </Link>
         </div>
       </section>
