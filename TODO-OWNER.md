@@ -8,8 +8,7 @@ Last updated 2026-11-27. Everything else is done and pushed.
 
 ## When you're ready
 
-5. **Medium and High packs**: send USDT (BNB Chain USDT `0x55d398326f99059fF775485246999027B3197955`) to the pack contract
-   `0xfba2f95f7B4dC251e310830d16c14579FedA48cf`. Each unopened pack reserves its top prize; `/treasury` shows capacity. The owner wallet can withdraw anything not owed.
+5. **Pack pool**: funded with ~$23 USDT on 2026-11-27; Fable Medium/High, Saga Medium and Mythos Medium are on (Saga High and Mythos High stay off: they need ~$27 / ~$46 free per pack). To add more, send USDT to `0xfba2f95f7B4dC251e310830d16c14579FedA48cf`; turn a tier on or off with `cast send 0xfba2f95f7B4dC251e310830d16c14579FedA48cf "setTierActive(uint256,bool)" <tier> true --account grailio-dev --rpc-url https://bsc-dataseed.bnbchain.org`. Withdraw what's free with `withdrawAll(address)`. `/treasury` shows capacity.
 
 6. **(Optional) BscScan's own verified badge**: all 23 contracts are already verified as an exact match on Sourcify (sourcify.dev, chain 56). BscScan's own badge needs a *paid* Etherscan plan (the free plan doesn't cover BNB Chain); with one, run from `contracts/`: `ETHERSCAN_API_KEY=… BSC_RPC_URL=https://bsc-rpc.publicnode.com ./script/verify.sh`
 
