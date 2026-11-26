@@ -580,3 +580,27 @@ html[data-scrolled]:has(#main-content details[open] .frost, #main-content .frost
 @media (prefers-reduced-motion: reduce) {
   .splash::before, .splash__mark { animation: none; }
 }
+
+/* Landing page motion. .intro: the hero rises in from a soft blur, one piece after another (--i), starting as the
+   splash fades (the splash sets data-splash-done on <html>; it stays set, so later visits play at once). .intro--pop
+   scales instead of sliding, for pieces positioned with translate. .reveal: content below pops up from a blur once,
+   when it first scrolls into view (RevealOnScroll marks it; --i staggers items in a row). The blur ends at `none`, so buttons'
+   frosted backings keep working. Without JavaScript (or with reduced motion) nothing is
+   hidden or animated. */
+.intro {
+  animation: intro .9s cubic-bezier(.22, .8, .24, 1) both;
+  animation-delay: calc(var(--i, 0) * 120ms);
+  animation-play-state: paused;
+}
+.intro--pop { animation-name: intro-pop; }
+html[data-splash-done] .intro { animation-play-state: running; }
+@keyframes intro { from { opacity: 0; translate: 0 24px; filter: blur(10px); } to { opacity: 1; translate: 0 0; filter: none; } }
+@keyframes intro-pop { from { opacity: 0; scale: .92; filter: blur(10px); } to { opacity: 1; scale: 1; filter: none; } }
+@media (scripting: none) { .intro { animation: none; } }
+html[data-reveal] .reveal { opacity: 0; }
+html[data-reveal] .reveal[data-shown] {
+  animation: reveal .8s cubic-bezier(.22, .8, .24, 1) both;
+  animation-delay: calc(var(--i, 0) * 100ms);
+}
+@keyframes reveal { from { opacity: 0; translate: 0 28px; filter: blur(10px); } to { opacity: 1; translate: 0 0; filter: none; } }
+@media (prefers-reduced-motion: reduce) { .intro, .reveal { animation: none; } }

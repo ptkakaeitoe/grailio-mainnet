@@ -1,5 +1,6 @@
 import { ArrowUpRightIcon } from "@phosphor-icons/react/ssr";
 import Link from "next/link";
+import type { CSSProperties } from "react";
 import { cleanButton, cleanLink, cn } from "@/components/clean-ui";
 import { HeroHands, HeroHandsPhone } from "@/components/hero-hands";
 import { HeroWalletAction } from "@/components/hero-wallet-action";
@@ -7,6 +8,7 @@ import { TokenIcon } from "@/components/token-icon";
 import { HoloStockCard } from "@/components/holo-stock-card";
 import { FitPackArt } from "@/components/pack-art";
 import { PageShell } from "@/components/page-shell";
+import { RevealOnScroll } from "@/components/reveal-on-scroll";
 import { StockCardFront } from "@/components/stock-card-front";
 import { FABLE_CARDS } from "@/lib/cards";
 import { EDITIONS } from "@/lib/editions";
@@ -84,6 +86,7 @@ const sectionIntro =
 export default function Home() {
   return (
     <PageShell>
+      <RevealOnScroll />
       {/* Fills the first screen on desktop: headline and actions left, two hands reaching for the card stack between
           them, partners at the fold. */}
       <section
@@ -101,7 +104,7 @@ export default function Home() {
             />
             {/* Three short lines of even length, so the type can be big and the block tall (the buttons land near the middle of the screen).
                 Sized to stay clear of the pack; nudged left by the letters' side bearing so the glyphs line up with the buttons. */}
-            <h1 className="-ml-[0.05em] text-[clamp(30px,13vw,72px)] leading-[1.1] font-light tracking-[-0.035em] desk:text-[clamp(44px,min(6.8vw,11.5svh),128px)]">
+            <h1 className="intro -ml-[0.05em] text-[clamp(30px,13vw,72px)] leading-[1.1] font-light tracking-[-0.035em] desk:text-[clamp(44px,min(6.8vw,11.5svh),128px)]">
               <span className="whitespace-nowrap">Trade the</span>
               <br />
               <span className="whitespace-nowrap">Stock You</span>
@@ -111,7 +114,7 @@ export default function Home() {
             <div
               className={cn(
                 buttonRow,
-                "mt-[clamp(36px,7svh,72px)] max-desk:mt-4 phone:gap-4",
+                "intro [--i:1] mt-[clamp(36px,7svh,72px)] max-desk:mt-4 phone:gap-4",
               )}
             >
               <Link
@@ -127,7 +130,7 @@ export default function Home() {
           {/* Desktop: the three points bottom right, balancing the headline top left. */}
           <ol
             aria-label="How it works"
-            className="relative z-10 m-0 hidden list-none flex-col gap-3 p-0 font-display text-[clamp(24px,min(2.5vw,4.4svh),44px)] leading-snug font-light tracking-[-0.02em] desk:col-2 desk:row-1 desk:flex desk:self-end desk:justify-self-end"
+            className="intro [--i:2] relative z-10 m-0 hidden list-none flex-col gap-3 p-0 font-display text-[clamp(24px,min(2.5vw,4.4svh),44px)] leading-snug font-light tracking-[-0.02em] desk:col-2 desk:row-1 desk:flex desk:self-end desk:justify-self-end desk:mb-[clamp(12px,3svh,32px)]"
           >
             {HERO_POINTS.map((point, i) => (
               <li key={point} className="flex items-baseline gap-4">
@@ -140,7 +143,7 @@ export default function Home() {
         {/* What Grailio runs on: each role on top, its partner (logo and name) underneath. Spread edge to edge on desktop. */}
         <ul
           aria-label="Built on"
-          className="flex list-none flex-wrap items-end gap-x-8 gap-y-5 p-0 pt-4 pb-8 text-base text-muted desk:justify-between desk:text-lg"
+          className="intro [--i:3] flex list-none flex-wrap items-end gap-x-8 gap-y-5 p-0 pt-4 pb-8 text-base text-muted desk:justify-between desk:text-lg"
         >
           <li className="inline-flex h-7 items-center gap-2 whitespace-nowrap">
             <span className="relative mr-0.5 inline-flex size-2" aria-hidden="true">
@@ -174,7 +177,7 @@ export default function Home() {
         className={sectionSpace}
         aria-labelledby="cards-title"
       >
-        <div className={sectionHead}>
+        <div className={cn(sectionHead, "reveal")}>
           <h2 id="cards-title" className={sectionTitle}>
             Fable
             <br />
@@ -221,7 +224,7 @@ export default function Home() {
         {/* Two equal halves: steps on the left, the sealed/revealed pair filling the right. */}
         <div className="grid items-center gap-8 desk:grid-cols-2 desk:gap-16">
           <div>
-            <h2 id="flow-title" className={sectionTitle}>
+            <h2 id="flow-title" className={cn(sectionTitle, "reveal")}>
               Open one.
               <br />
               <span className="text-muted-soft">Make it yours.</span>
@@ -230,7 +233,8 @@ export default function Home() {
               {FLOW.map((step, index) => (
                 <li
                   key={step.title}
-                  className="grid grid-cols-[40px_minmax(0,1fr)] gap-4 phone:grid-cols-[56px_minmax(0,1fr)]"
+                  className="reveal grid grid-cols-[40px_minmax(0,1fr)] gap-4 phone:grid-cols-[56px_minmax(0,1fr)]"
+                  style={{ "--i": index } as CSSProperties}
                 >
                   <span className="pt-1 text-md tabular-nums">
                     [{String(index + 1).padStart(2, "0")}]
@@ -246,7 +250,7 @@ export default function Home() {
                 </li>
               ))}
             </ol>
-            <div className={cn(buttonRow, "mt-8 desk:mt-16")}>
+            <div className={cn(buttonRow, "reveal mt-8 desk:mt-16")}>
               <Link
                 href="/trade"
                 className={cn(cleanButton.outline, "lowercase")}
@@ -262,7 +266,7 @@ export default function Home() {
             </div>
           </div>
           <div
-            className="relative mx-auto mt-8 aspect-[450/440] w-full max-w-[320px] desk:mt-0 desk:max-w-[560px]"
+            className="reveal relative mx-auto mt-8 aspect-[450/440] w-full max-w-[320px] desk:mt-0 desk:max-w-[560px]"
             aria-hidden="true"
           >
             <div className="absolute top-[19%] left-[8%] w-[43%] max-w-[240px] -rotate-[14deg] shadow-[0_24px_32px_-22px_#0008]">
@@ -291,7 +295,7 @@ export default function Home() {
         className={followingSectionSpace}
         aria-labelledby="actions-title"
       >
-        <div className={sectionHead}>
+        <div className={cn(sectionHead, "reveal")}>
           <h2 id="actions-title" className={sectionTitle}>
             Keep it moving.
             <br />
@@ -307,7 +311,8 @@ export default function Home() {
             <li
               key={action.title}
               className={cn(
-                "flex flex-col items-start py-6 first:pt-0 last:pb-0 desk:py-0",
+              style={{ "--i": index } as CSSProperties}
+                "reveal flex flex-col items-start py-6 first:pt-0 last:pb-0 desk:py-0",
                 index < CARD_ACTIONS.length - 1 &&
                   "border-b border-border desk:border-r desk:border-b-0 desk:pr-8",
               )}
@@ -344,7 +349,7 @@ export default function Home() {
         className={followingSectionSpace}
         aria-labelledby="explore-title"
       >
-        <div className={sectionHead}>
+        <div className={cn(sectionHead, "reveal")}>
           <h2 id="explore-title" className={sectionTitle}>
             More to explore.
           </h2>
@@ -357,7 +362,8 @@ export default function Home() {
             <li
               key={item.href}
               className={cn(
-                "pt-6 first:pt-0 desk:pt-0",
+              style={{ "--i": index } as CSSProperties}
+                "reveal pt-6 first:pt-0 desk:pt-0",
                 index === 0 &&
                   "border-b border-border pb-6 desk:border-r desk:border-b-0 desk:pb-0 desk:pr-8",
               )}
@@ -383,7 +389,7 @@ export default function Home() {
             </li>
           ))}
         </ul>
-        <div className="mt-10 flex flex-col items-start justify-between gap-6 desk:mt-14 desk:flex-row desk:items-end">
+        <div className="reveal mt-10 flex flex-col items-start justify-between gap-6 desk:mt-14 desk:flex-row desk:items-end">
           <p className="max-w-[540px] text-sm leading-normal text-muted">
             BNB Smart Chain, public beta. Cards are collectibles backed by
             Tokenized stocks on BNB Chain, priced by Atlas Oracle. Not investment products.

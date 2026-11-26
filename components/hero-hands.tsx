@@ -55,7 +55,7 @@ export function HeroHands() {
         <ArtPiece crop={CROPS.left} className="hand-float-left bottom-0 left-0 h-[70%] opacity-75 [mask-composite:intersect] mask-[linear-gradient(to_bottom,#000_45%,rgb(0_0_0/.55)_72%,rgb(0_0_0/.18)_88%,transparent),linear-gradient(to_left,transparent,#000_2%)]" />
         <ArtPiece crop={CROPS.right} className="hand-float-right hand-tilt-right top-[-7%] right-[-5%] h-[62%] [mask-composite:intersect] mask-[linear-gradient(to_right,transparent,#000_2%),linear-gradient(to_bottom,transparent,#000_14%)]" />
       </div>
-      <HeroPack className="absolute top-[43%] left-[55%] hidden h-[50%] -translate-x-1/2 -translate-y-1/2 desk:block" />
+      <HeroPack className="intro intro--pop [--i:1] absolute top-[43%] left-[55%] hidden h-[50%] -translate-x-1/2 -translate-y-1/2 desk:block" />
     </>
   );
 }
@@ -75,7 +75,7 @@ export function HeroHandsPhone({ className }: { className?: string }) {
         <ArtPiece crop={CROPS.left} preload className="hand-float-left top-[42%] left-[-18%] w-[46.5%]" />
         <ArtPiece crop={CROPS.right} className="hand-float-right top-0 left-[71.3%] w-[46.7%]" />
       </div>
-      <HeroPack className="absolute top-[49.4%] left-1/2 h-[75%] -translate-x-1/2 -translate-y-1/2" />
+      <HeroPack className="intro intro--pop [--i:1] absolute top-[49.4%] left-1/2 h-[75%] -translate-x-1/2 -translate-y-1/2" />
     </div>
   );
 }
