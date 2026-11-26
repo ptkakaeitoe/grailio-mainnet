@@ -94,6 +94,11 @@ const MARKS: Record<string, { bg: string; mark: React.ReactNode }> = {
       </g>
     ),
   },
+  // Atlas Oracle's mark (public/brand/atlas.svg, 50×45), centred.
+  ATLAS: {
+    bg: "transparent",
+    mark: <image href="/brand/atlas.svg" x="2" y="3.5" width="28" height="25" />,
+  },
   // Privy's logomark, unaltered (the favicon on privy.io).
   PRIVY: {
     bg: "transparent",
