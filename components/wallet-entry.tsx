@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { useRef, useState, type CSSProperties } from "react";
 import { useConnectWallet } from "@/components/beta-access";
 import { cleanButton, cleanDialog, cn, dialogClose, dialogFooter, dialogHeader, dialogLabel } from "@/components/clean-ui";
+import { NetworkSwitch } from "@/components/network-switch";
 
 /**
  * "Connect": opens the get-started panel just under the nav's connect button (top right), or under whichever button
@@ -43,6 +44,7 @@ export function WalletEntry({ className = cleanButton.solid, disabled = false, n
         <button type="button" className={dialogClose} aria-label="Close" onClick={close}><XIcon /></button>
       </header>
       <div className="p-6">
+        <NetworkSwitch wide className="mb-6" />
         <h2 id="get-started-title" className="text-3xl leading-[1.1] font-light tracking-[-0.02em]">Your next move.</h2>
         <p className="mt-4 text-sm leading-relaxed text-muted">Connect to trade and collect, or take a look around.</p>
       </div>
