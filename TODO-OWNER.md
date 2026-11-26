@@ -4,9 +4,8 @@ Last updated 2026-11-26. Everything else is done and pushed.
 
 ## Must do before real users
 
-3. **Etherscan API v2 key** (etherscan.io → API Keys; it must cover BNB Chain, chain 56). Add it to Vercel:
-   `vercel env add ETHERSCAN_API_KEY production --sensitive` (run in `grailio-mainnet/`, paste the key when asked).
-   Without it the activity feed and chat history stay empty.
+3. ~~Etherscan API v2 key~~: **not needed any more.** The activity feed and chat history now read contract logs
+   over public BSC RPCs (`eth_getLogs`) and cache them in Upstash/KV. An Etherscan key is only useful for step 6.
 
 4. **One small real test** on https://beta.grailio.xyz: buy and open one **Fable Low** pack ($1 USDC + gas). Check the card holds one of NVDA, AAPL, TSLA, GOOGL or AMZN. Then try a $1 swap on /trade.
 
@@ -15,7 +14,7 @@ Last updated 2026-11-26. Everything else is done and pushed.
 5. **Medium and High packs**: send USDC (BNB Chain USDC `0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d`) to the pack contract
    `0xdB862A24350E9fE184c0d1658912d309749D8672`. Each unopened pack reserves its top prize; `/treasury` shows capacity. The owner wallet can withdraw anything not owed.
 
-6. **Verify the contracts on BscScan** (needs the Etherscan key from step 3), from `contracts/`:
+6. **Verify the contracts on BscScan** (needs an Etherscan API key that covers BNB Chain), from `contracts/`:
    `ETHERSCAN_API_KEY=… BSC_RPC_URL=https://bsc-dataseed.bnbchain.org ./script/verify.sh`
 
 7. **Google sign-in branding**: add your own Google OAuth client in Privy so users see "Grailio", not Privy.

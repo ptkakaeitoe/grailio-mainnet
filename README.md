@@ -82,7 +82,7 @@ Names are in `.env.example`; you fill in the values. Never commit `.env.local`.
 | --- | --- | --- |
 | `NEXT_PUBLIC_PRIVY_APP_ID` | Sign-in (Privy). Enable BNB Smart Chain and add your domain in the Privy dashboard | Yes for production; local dev falls back to a browser wallet |
 | `BETA_ACCESS_CODES`, `BETA_COOKIE_SECRET` | The beta gate, only if you turn it back on (`lib/beta-gate.ts`) | No (gate is off) |
-| `ETHERSCAN_API_KEY` | Activity and chat history (contract logs via Etherscan API v2, chain 56). The key needs BNB Chain access | Yes |
+| `ETHERSCAN_API_KEY` | Not used by the app (activity and chat history read logs over public RPCs, `eth_getLogs`, cached in Upstash/KV). Only for `contracts/script/verify.sh` | No |
 | `RELAYER_KEY` | Free chat posts and gift gas top-ups (a dedicated wallet with a little BNB) | Optional |
 | `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN` | Shared relay limits (or Vercel KV) | Required in production if `RELAYER_KEY` is set |
 | `NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID` | Mobile wallets via WalletConnect | Optional |
@@ -127,14 +127,14 @@ The swap-fee treasury wallet is `SWAP_FEE_TREASURY` in `lib/swap-fee.ts` (`0x9c0
 
 1. **Verify the contracts on BscScan** if any are still unverified: `cd contracts && ETHERSCAN_API_KEY=... BSC_RPC_URL=... ./script/verify.sh` (safe to re-run).
 2. **Fund the pack pool with USDC** before switching on Medium and High (`setTierActive`). Each unopened pack reserves its top prize; `capacity(tierId)` shows how many more can sell.
-3. **Fill in `.env.local`** (or your host's env): Privy app ID, an Etherscan API v2 key, and optionally a relayer wallet plus Upstash.
+3. **Fill in `.env.local`** (or your host's env): Privy app ID, and optionally a relayer wallet plus Upstash (which also caches the contract-log index).
 4. **Fund the relayer wallet** (`RELAYER_KEY`) with a little BNB and top it up; it refuses below 0.01 BNB.
 5. **Privy dashboard:** enable BNB Smart Chain and add your production domain.
 6. **Optional: outside NFTs as profile pictures.** BNB Chain has no keyless NFT index, so the picker offers Grailio cards only. Plug an NFT indexer into `lib/nft-metadata.ts` to bring this back.
 
 ## What changed from the earlier app
 
-Branding is now Grailio, on BNB Chain: chain, RPC and explorer (BscScan); KyberSwap's BSC endpoint; contract logs through the Etherscan v2 API; USD amounts formatted with USDC's 18 on-chain decimals; gas top-ups sized for BSC fees; outside-NFT avatars switched off. Cards no longer hold crypto (BTCB, ETH, WBNB, LINK, CAKE): they hold 15 bStocks, each pack edition drawing from its own basket of five. Card fills are priced by Atlas Oracle instead of Chainlink and bought on PancakeSwap v3 through USDT. Payments and staking rewards are in USDC. The exchange trades the stocks against USDT, USDC or BNB, the marketplace has a Stock filter, and the community has one room per stock.
+Branding is now Grailio, on BNB Chain: chain, RPC and explorer (BscScan); KyberSwap's BSC endpoint; contract logs read over public RPCs (`eth_getLogs`) into an incremental index cached in Upstash/KV; USD amounts formatted with USDC's 18 on-chain decimals; gas top-ups sized for BSC fees; outside-NFT avatars switched off. Cards no longer hold crypto (BTCB, ETH, WBNB, LINK, CAKE): they hold 15 bStocks, each pack edition drawing from its own basket of five. Card fills are priced by Atlas Oracle instead of Chainlink and bought on PancakeSwap v3 through USDT. Payments and staking rewards are in USDC. The exchange trades the stocks against USDT, USDC or BNB, the marketplace has a Stock filter, and the community has one room per stock.
 
 ## Stack
 
