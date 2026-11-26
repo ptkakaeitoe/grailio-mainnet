@@ -74,12 +74,12 @@ interface IV2Router {
 contract CollectPacks is ERC721Enumerable, Ownable2Step, Pausable, ReentrancyGuard {
     using SafeERC20 for IERC20;
 
-    uint256 public constant BPS = 10_000;
-    uint256 public constant MAX_BATCH = 10;
-    uint256 public constant REVEAL_WINDOW = 256;
+    uint256 internal constant BPS = 10_000;
+    uint256 internal constant MAX_BATCH = 10;
+    uint256 internal constant REVEAL_WINDOW = 256;
     /// Guard against a mistyped tier: no single card may hold more than $1,000 (in USDC units).
     uint256 public immutable MAX_BACKING;
-    uint16 public constant MAX_SLIPPAGE_BPS = 1_000;
+    uint16 internal constant MAX_SLIPPAGE_BPS = 1_000;
 
     enum Route {
         None,
@@ -155,6 +155,9 @@ contract CollectPacks is ERC721Enumerable, Ownable2Step, Pausable, ReentrancyGua
     mapping(address owner => uint256[]) private _redeemed;
     /// Cards each wallet holds, per asset (gates holder chat rooms).
     mapping(address owner => mapping(uint256 assetId => uint256)) public heldOf;
+    /// Per-tier asset basket as a bitmask (bit i = asset i): a tier's cards draw only from
+    /// these assets (the active ones). 0 = draw from every active asset.
+    mapping(uint256 tierId => uint256) public tierAssetMask;
 
     uint256 public nextPackId = 1;
     uint256 public nextCardId = 1;
@@ -182,6 +185,7 @@ contract CollectPacks is ERC721Enumerable, Ownable2Step, Pausable, ReentrancyGua
 
     event TierAdded(uint256 indexed tierId, uint128 price, uint16[4] oddsBps, uint128[4] backing);
     event TierActive(uint256 indexed tierId, bool active);
+    event TierAssetsSet(uint256 indexed tierId, uint256 mask);
     event AssetAdded(uint256 indexed assetId, address token, address feed);
     event AssetUpdated(uint256 indexed assetId);
     event PacksBought(
@@ -481,6 +485,20 @@ contract CollectPacks is ERC721Enumerable, Ownable2Step, Pausable, ReentrancyGua
         emit TierActive(tierId, active);
     }
 
+    /// Set the assets `tierId`'s cards draw from (each must exist; an empty list = every
+    /// active asset). Inactive assets in the basket are skipped; if none is active, opening
+    /// that tier reverts until one is. A repeated ID counts once.
+    function setTierAssets(uint256 tierId, uint8[] calldata assetIds) external onlyOwner {
+        _tier(tierId);
+        uint256 mask;
+        for (uint256 i; i < assetIds.length; ++i) {
+            _asset(assetIds[i]);
+            mask |= 1 << assetIds[i];
+        }
+        tierAssetMask[tierId] = mask;
+        emit TierAssetsSet(tierId, mask);
+    }
+
     /// Add a token cards can hold. Its token can never change afterwards (locked balances depend on it).
     function addAsset(
         IERC20Metadata token,
@@ -639,10 +657,6 @@ contract CollectPacks is ERC721Enumerable, Ownable2Step, Pausable, ReentrancyGua
         return Math.mulDiv(usd, 10 ** (uint256(a.tokenDecimals) + a.feedDecimals), price * _usdcUnit);
     }
 
-    function supportsInterface(bytes4 id) public view override returns (bool) {
-        return super.supportsInterface(id);
-    }
-
     // ---------------------------------------------------------------- internals
 
     function _distribute() private returns (uint256 amount) {
@@ -667,7 +681,8 @@ contract CollectPacks is ERC721Enumerable, Ownable2Step, Pausable, ReentrancyGua
         usdc.safeTransferFrom(msg.sender, address(this), uint256(price) * quantity);
         packReserve += maxPayout(tierId) * quantity;
         uint256 balance = usdc.balanceOf(address(this));
-        if (balance < reserved()) revert PoolTooSmall(balance, reserved());
+        uint256 owed = reserved();
+        if (balance < owed) revert PoolTooSmall(balance, owed);
         if (address(points) != address(0)) points.award(msg.sender, quantity * pointsPerPack);
     }
 
@@ -687,12 +702,6 @@ contract CollectPacks is ERC721Enumerable, Ownable2Step, Pausable, ReentrancyGua
     }
 
     function _roll(uint256 packId, Pack storage p) private view returns (uint8 asset_, uint8 rarity, bool expired) {
-        uint256 active;
-        for (uint256 i; i < _assets.length; ++i) {
-            if (_assets[i].active) ++active;
-        }
-        if (active == 0) revert NoActiveAssets();
-
         bytes32 hash = blockhash(p.revealBlock);
         uint256 seed;
         if (hash == bytes32(0)) {
@@ -705,10 +714,24 @@ contract CollectPacks is ERC721Enumerable, Ownable2Step, Pausable, ReentrancyGua
             rarity = _rarity(_tiers[p.tier].oddsBps, (seed >> 128) % BPS);
         }
 
-        uint256 pick = (seed & type(uint128).max) % active;
-        for (uint256 i; i < _assets.length; ++i) {
-            if (!_assets[i].active) continue;
-            if (pick == 0) return (uint8(i), rarity, expired);
+        asset_ = _pickAsset(p.tier, seed & type(uint128).max);
+    }
+
+    /// Uniformly picks one of the tier basket's active assets (every active asset if the
+    /// tier has no basket), using `r`. Shared by the normal and expired paths.
+    function _pickAsset(uint256 tierId, uint256 r) private view returns (uint8) {
+        uint256 mask = tierAssetMask[tierId];
+        if (mask == 0) mask = type(uint256).max;
+        uint256 n = _assets.length;
+        uint256 active;
+        for (uint256 i; i < n; ++i) {
+            if (mask >> i & 1 == 1 && _assets[i].active) ++active;
+        }
+        if (active == 0) revert NoActiveAssets();
+        uint256 pick = r % active;
+        for (uint256 i;; ++i) {
+            if (mask >> i & 1 == 0 || !_assets[i].active) continue;
+            if (pick == 0) return uint8(i);
             --pick;
         }
     }

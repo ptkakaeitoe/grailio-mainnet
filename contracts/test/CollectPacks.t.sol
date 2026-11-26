@@ -342,6 +342,122 @@ contract CollectPacksTest is Test {
         assertLt(counts[3], 40);
     }
 
+    // ------------------------------------------------------------ tier baskets
+
+    /// Adds a third asset (ID 2) so baskets have something to leave out.
+    function _addThirdAsset() internal returns (MockToken cake) {
+        cake = new MockToken("CAKE", 18);
+        MockFeed cakeFeed = new MockFeed(2e8);
+        router.setPrice(address(cake), 2e8, 18);
+        address[] memory none;
+        vm.prank(owner);
+        packs.addAsset(
+            IERC20Metadata(address(cake)),
+            IAggregatorV3(address(cakeFeed)),
+            1 days,
+            300,
+            CollectPacks.Route.UniswapV3,
+            abi.encodePacked(address(usdc), uint24(500), address(cake)),
+            none
+        );
+    }
+
+    function _ids(uint8 a, uint8 b) internal pure returns (uint8[] memory ids) {
+        ids = new uint8[](2);
+        ids[0] = a;
+        ids[1] = b;
+    }
+
+    /// Opens `n` packs of `tierId` and counts the cards per asset (3 assets).
+    function _drawCounts(uint256 tierId, uint256 n) internal returns (uint256[3] memory counts) {
+        for (uint256 i; i < n; ++i) {
+            uint256 id = _buy(alice, tierId, 1);
+            uint256 cardId = _open(alice, id, keccak256(abi.encode("basket", i)));
+            (uint8 a,,,,,) = packs.cards(cardId);
+            counts[a]++;
+        }
+    }
+
+    function test_basketDrawsOnlyFromItsAssets() public {
+        _addThirdAsset();
+        _seed(u(200e6));
+        vm.expectEmit(address(packs));
+        emit CollectPacks.TierAssetsSet(1, 0x5);
+        vm.prank(owner);
+        packs.setTierAssets(1, _ids(0, 2));
+        assertEq(packs.tierAssetMask(1), 0x5);
+        assertEq(packs.tierAssetMask(0), 0); // other tiers untouched
+
+        uint256[3] memory c = _drawCounts(1, 40);
+        assertEq(c[1], 0, "drew an asset outside the basket");
+        assertGt(c[0], 5);
+        assertGt(c[2], 5);
+    }
+
+    function test_basketSkipsInactiveAsset() public {
+        _addThirdAsset();
+        _seed(u(200e6));
+        vm.startPrank(owner);
+        packs.setTierAssets(1, _ids(0, 2));
+        packs.setAssetActive(2, false);
+        vm.stopPrank();
+        uint256[3] memory c = _drawCounts(1, 15);
+        assertEq(c[0], 15);
+
+        // Nothing in the basket is active: opening reverts even though asset 1 is active.
+        vm.prank(owner);
+        packs.setAssetActive(0, false);
+        uint256 id = _buy(alice, 1, 1);
+        (, uint64 revealBlock,,,) = packs.packs(id);
+        vm.roll(revealBlock + 1);
+        vm.prank(alice);
+        vm.expectRevert(CollectPacks.NoActiveAssets.selector);
+        packs.open(id);
+    }
+
+    function test_emptyBasketFallsBackToAllActiveAssets() public {
+        _addThirdAsset();
+        _seed(u(200e6));
+        vm.startPrank(owner);
+        packs.setTierAssets(1, _ids(2, 2)); // a repeat counts once
+        assertEq(packs.tierAssetMask(1), 0x4);
+        packs.setTierAssets(1, new uint8[](0)); // clear
+        vm.stopPrank();
+        assertEq(packs.tierAssetMask(1), 0);
+        uint256[3] memory c = _drawCounts(1, 45);
+        assertGt(c[0], 5);
+        assertGt(c[1], 5);
+        assertGt(c[2], 5);
+    }
+
+    function test_expiredPackDrawsFromBasket() public {
+        _addThirdAsset();
+        _seed(u(100e6));
+        vm.prank(owner);
+        packs.setTierAssets(2, _ids(2, 2));
+        for (uint256 i; i < 5; ++i) {
+            uint256 id = _buy(alice, 2, 1);
+            vm.roll(vm.getBlockNumber() + 300); // past the 256-block window
+            vm.prank(alice);
+            uint256 cardId = packs.open(id);
+            (uint8 a,, uint8 rarity,,,) = packs.cards(cardId);
+            assertEq(a, 2);
+            assertEq(rarity, 0);
+        }
+    }
+
+    function test_setTierAssetsValidation() public {
+        vm.startPrank(owner);
+        vm.expectRevert(CollectPacks.BadAsset.selector);
+        packs.setTierAssets(0, _ids(0, 2)); // only assets 0 and 1 exist
+        vm.expectRevert(CollectPacks.BadTier.selector);
+        packs.setTierAssets(3, _ids(0, 1));
+        vm.stopPrank();
+        vm.prank(alice);
+        vm.expectRevert(abi.encodeWithSelector(Ownable.OwnableUnauthorizedAccount.selector, alice));
+        packs.setTierAssets(0, _ids(0, 1));
+    }
+
     // ------------------------------------------------------------ swap failures
 
     function test_swapFailureLeavesCardHoldingUsdcThenFill() public {

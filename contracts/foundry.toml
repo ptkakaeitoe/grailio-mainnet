@@ -4,7 +4,8 @@ out = "out"
 libs = ["lib"]
 solc_version = "0.8.28"
 optimizer = true
-optimizer_runs = 500
+# 300, not 500: CollectPacks (with tier baskets) needs it to stay well under the 24,576-byte limit.
+optimizer_runs = 300
 via_ir = true
 fs_permissions = [{ access = "read-write", path = "../deployments" }, { access = "read", path = "./script" }]
 remappings = [
