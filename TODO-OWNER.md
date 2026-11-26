@@ -4,10 +4,6 @@ Last updated 2026-11-26. Everything else is done and pushed.
 
 ## Must do before real users
 
-0. **Point beta.grailio.xyz at the right Vercel project (do this first).** Right now it's attached to the duplicate project `grailio-mainnet-bh71`, which has no env vars (chat relay says "not configured" there). All settings live on `grailio-mainnet`.
-   Vercel → project **grailio-mainnet** → Settings → Domains → Add `beta.grailio.xyz` → accept moving it from `grailio-mainnet-bh71`. Then delete the `grailio-mainnet-bh71` project.
-   (Or in a terminal in `grailio-mainnet/`: `vercel domains add beta.grailio.xyz grailio-mainnet --force`.)
-
 1. **Privy dashboard** (dashboard.privy.io → the app whose ID is in Vercel's `NEXT_PUBLIC_PRIVY_APP_ID`)
    - Authentication: turn on **Email**, **Google**, **External wallets**; others off.
    - Embedded wallets: **EVM** on, "create for users without wallets", confirmation pop-ups off.
@@ -38,6 +34,7 @@ Last updated 2026-11-26. Everything else is done and pushed.
 
 ## Already set up (no action)
 
+- `beta.grailio.xyz` is served by the `grailio-mainnet` Vercel project (duplicate deleted); chat relay configured.
 - `/dao` is hidden on purpose (`DAO_VISIBLE` in the app); gifts live on the packs page.
 
 - Contracts deployed on BNB Chain (see `deployments/56.json`): 15 stocks, 9 tiers, baskets Fable / Saga / Mythos, 16 chat rooms. Owner `0x073d…547F`.
