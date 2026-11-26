@@ -5,6 +5,7 @@ import { useEffect, useRef } from "react";
 
 import { cleanButton, cleanDialog, cn, dialogClose, dialogFooter, dialogHeader, dialogLabel } from "@/components/clean-ui";
 import { TokenIcon } from "@/components/token-icon";
+import { tokenLabel } from "@/lib/stock-assets";
 
 /**
  * Grailio's own confirmation before a live swap is signed (the wallet's pop-up
@@ -42,7 +43,7 @@ export function ReviewSwapDialog({ from, to, pay, payUsd, receive, receiveUsd, m
         <p className="truncate text-2xl tracking-[-0.01em] tabular-nums">{amount}</p>
         {usd && <p className="text-sm text-muted tabular-nums">{usd}</p>}
       </div>
-      <span className="inline-flex shrink-0 items-center gap-2 text-base"><TokenIcon symbol={symbol} className="size-7" />{symbol}</span>
+      <span className="inline-flex shrink-0 items-center gap-2 text-base"><TokenIcon symbol={symbol} className="size-7" />{tokenLabel(symbol)}</span>
     </div>
   );
   return (
@@ -62,21 +63,21 @@ export function ReviewSwapDialog({ from, to, pay, payUsd, receive, receiveUsd, m
         <span className="mx-auto grid size-8 place-items-center rounded-full border border-border" aria-hidden="true"><ArrowDownIcon weight="bold" size={16} /></span>
         {side("You receive (estimated)", to, receive, receiveUsd)}
         <dl className="mt-3 border-t border-border">
-          <div className={row}><dt className="text-muted">Minimum received</dt><dd className="tabular-nums">{minReceive} {to}</dd></div>
+          <div className={row}><dt className="text-muted">Minimum received</dt><dd className="tabular-nums">{minReceive} {tokenLabel(to)}</dd></div>
           <div className={row}><dt className="text-muted">Slippage</dt><dd className="tabular-nums">{slippage}%</dd></div>
           {collectFee && <div className={row}><dt className="text-muted">Grailio fee</dt><dd className="tabular-nums">{collectFee}</dd></div>}
           {gasUsd && <div className={row}><dt className="text-muted">Network fee</dt><dd className="tabular-nums">≈ {gasUsd}</dd></div>}
           <div className={row}><dt className="text-muted">Route</dt><dd>KyberSwap · BNB Chain</dd></div>
         </dl>
         {needsApproval && (
-          <p className="mt-2 text-sm text-muted">First, allow KyberSwap&apos;s router to use your {from}. You do this once per token.</p>
+          <p className="mt-2 text-sm text-muted">First, allow KyberSwap&apos;s router to use your {tokenLabel(from)}. You do this once per token.</p>
         )}
         {error && <p className="mt-2 text-sm break-words text-down" role="alert">{error}</p>}
       </div>
       <div className={cn(dialogFooter, "flex flex-col gap-3")}>
         {needsApproval ? (
           <button type="button" className={cn(cleanButton.solid, "h-11 w-full justify-center")} disabled={approving} onClick={onApprove}>
-            {approving ? "Approving…" : `Approve ${from}`}
+            {approving ? "Approving…" : `Approve ${tokenLabel(from)}`}
           </button>
         ) : (
           <button type="button" className={cn(cleanButton.solid, "h-11 w-full justify-center")} disabled={busy} onClick={onConfirm}>

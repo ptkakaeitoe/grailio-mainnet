@@ -15,7 +15,7 @@ import { useConnectWallet } from "@/components/beta-access";
 import { formatUnits, parseEther } from "viem";
 import { appChain } from "@/lib/chain";
 import { useAccount } from "wagmi";
-import { STOCK_ASSETS } from "@/lib/stock-assets";
+import { STOCK_ASSETS, tokenLabel } from "@/lib/stock-assets";
 import { SWAP_BASES, tokenFor } from "@/lib/tokens";
 import { toUnits, useDexBalances, useDexSwap } from "@/lib/use-dex-swap";
 import { usd, useStockPrices } from "@/lib/use-stock-prices";
@@ -83,7 +83,7 @@ function TokenPicker({ id, label, value, options, onSelect, balanceOf, priceOf }
   const heldValue = (sym: string) => (balanceOf(sym) ?? 0) * (priceOf(sym) ?? 0);
   // Tokens you hold come first (largest value first); the rest keep their usual order.
   const matches = options
-    .filter((o) => `${o.symbol} ${o.name}`.toLowerCase().includes(q))
+    .filter((o) => `${o.symbol} ${tokenLabel(o.symbol)} ${o.name}`.toLowerCase().includes(q))
     .map((o, i) => ({ o, i, v: heldValue(o.symbol) }))
     .sort((a, b) => (b.v > 0 || a.v > 0 ? b.v - a.v : a.i - b.i))
     .map((x) => x.o);
@@ -102,10 +102,10 @@ function TokenPicker({ id, label, value, options, onSelect, balanceOf, priceOf }
         aria-haspopup="dialog"
         aria-expanded={open}
         aria-controls={id}
-        aria-label={`${label}: ${value}`}
+        aria-label={`${label}: ${tokenLabel(value)}`}
       >
         <TokenIcon symbol={value} color={current?.accent} className={tokenIcon} />
-        {value}
+        {tokenLabel(value)}
         <span className="text-muted" aria-hidden="true"><CaretDownIcon /></span>
       </button>
       {open && (
@@ -140,7 +140,7 @@ function TokenPicker({ id, label, value, options, onSelect, balanceOf, priceOf }
                     <TokenIcon symbol={o.symbol} color={o.accent} className={tokenIcon} />
                     <span className="flex min-w-0 flex-col gap-0.5">
                       <strong className="text-sm font-medium">{o.name}</strong>
-                      <span className="text-xs text-muted">{o.symbol}</span>
+                      <span className="text-xs text-muted">{tokenLabel(o.symbol)}</span>
                     </span>
                     <span className="ml-auto flex flex-col items-end gap-0.5 text-[13px] tabular-nums">
                       {/* What you hold of it, and that amount in dollars. */}
@@ -266,7 +266,7 @@ export function SwapWorkspace() {
 
   function submitDemo() {
     if (demoReceived !== null && demo.swap(from, to, parsed, demoReceived)) {
-      const legs = { paid: `${parsed} ${from}`, received: `${demoReceived.toFixed(6)} ${to}` };
+      const legs = { paid: `${parsed} ${tokenLabel(from)}`, received: `${demoReceived.toFixed(6)} ${tokenLabel(to)}` };
       setResult(legs);
       saveSwap("demo", { id: `demo-${Date.now()}`, ...legs, time: Math.floor(Date.now() / 1000), status: "confirmed" });
       setAmount("");
@@ -281,7 +281,7 @@ export function SwapWorkspace() {
     }
     setResult(null);
     setSubmitted(null);
-    const summary = { paid: `${amount} ${from}`, received: `${fmt(dex.amountOut)} ${to}` };
+    const summary = { paid: `${amount} ${tokenLabel(from)}`, received: `${fmt(dex.amountOut)} ${tokenLabel(to)}` };
     await dex.swap(() => {
       setSubmitted(summary);
       setAmount("");
@@ -342,13 +342,13 @@ export function SwapWorkspace() {
         : !hasAmount
           ? "Enter an amount"
           : insufficient
-            ? `Insufficient ${from}`
+            ? `Insufficient ${tokenLabel(from)}`
             : dex.quoteError
               ? "No route"
               : !valid
                 ? "Finding best route…"
                 : approval.needsApproval
-                  ? `Approve ${from}`
+                  ? `Approve ${tokenLabel(from)}`
                   : "Swap"
     : !demo.active
       ? !address
@@ -357,7 +357,7 @@ export function SwapWorkspace() {
       : !valid
         ? "Enter an amount"
         : insufficient
-          ? `Insufficient ${from}`
+          ? `Insufficient ${tokenLabel(from)}`
           : "Swap";
 
   return (
@@ -425,7 +425,7 @@ export function SwapWorkspace() {
                     type="button"
                     className="text-base text-muted underline decoration-dotted underline-offset-[3px] hover:text-black"
                     onClick={() => fillPercent(100)}
-                    aria-label={`Use full balance: ${fmt(fromBalance!)} ${from}`}
+                    aria-label={`Use full balance: ${fmt(fromBalance!)} ${tokenLabel(from)}`}
                   >
                     Balance {fmt(fromBalance!)}
                   </button>
@@ -442,7 +442,7 @@ export function SwapWorkspace() {
                   inputMode="decimal"
                   autoComplete="off"
                   placeholder="0"
-                  aria-label={`Amount of ${from} to pay`}
+                  aria-label={`Amount of ${tokenLabel(from)} to pay`}
                   value={amount}
                   onChange={(event) => {
                     if (/^\d*\.?\d{0,18}$/.test(event.target.value)) {
@@ -506,7 +506,7 @@ export function SwapWorkspace() {
               <div className={amountRow}>
                 <output
                   className={amountText}
-                  aria-label={`Estimated ${to} received`}
+                  aria-label={`Estimated ${tokenLabel(to)} received`}
                 >
                   {received === null ? "—" : received.toFixed(6)}
                 </output>
@@ -519,7 +519,7 @@ export function SwapWorkspace() {
             <div className="swap-route flex items-center justify-between pt-6 pb-3 text-base text-muted">
               <span>Route</span>
               <span className="inline-flex items-center gap-2 text-black">
-                {from} <ArrowRightIcon weight="bold" /> {to}
+                {tokenLabel(from)} <ArrowRightIcon weight="bold" /> {tokenLabel(to)}
               </span>
             </div>
             <button
@@ -562,7 +562,7 @@ export function SwapWorkspace() {
             </p>
             {live && dex.quoteError && hasAmount && (
               <p className={errorText} role="alert">
-                {dex.quoteError === "No route" ? `No route for ${from} → ${to} right now. Try another amount or pay token.` : `No route right now: ${dex.quoteError}`}
+                {dex.quoteError === "No route" ? `No route for ${tokenLabel(from)} → ${tokenLabel(to)} right now. Try another amount or pay token.` : `No route right now: ${dex.quoteError}`}
               </p>
             )}
             {live && dex.reverted && (

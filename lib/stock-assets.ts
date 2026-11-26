@@ -14,6 +14,8 @@ export type StockAsset = {
   assetId: number;
   /** Plain ticker shown on cards, e.g. "NVDA". */
   ticker: string;
+  /** On-chain token symbol, e.g. "NVDAB" (what wallets and BscScan show). */
+  symbol: string;
   /** Company or fund name, e.g. "NVIDIA". */
   name: string;
   address: Address;
@@ -26,6 +28,7 @@ export type StockAsset = {
 export const STOCK_ASSETS: StockAsset[] = stocksConfig.stocks.map((s, assetId) => ({
   assetId,
   ticker: s.ticker,
+  symbol: s.symbol,
   name: s.name,
   address: s.token as Address,
   decimals: 18,
@@ -38,6 +41,9 @@ export const STOCK_BY_TICKER: Record<string, StockAsset> = Object.fromEntries(ST
 export const STOCK_BY_ASSET: Record<number, StockAsset> = Object.fromEntries(STOCK_ASSETS.map((s) => [s.assetId, s]));
 
 export const isStock = (ticker: string) => ticker in STOCK_BY_TICKER;
+
+/** Token symbol to show for a ticker: the on-chain symbol for stocks ("NVDA" → "NVDAB"), else unchanged. */
+export const tokenLabel = (ticker: string): string => STOCK_BY_TICKER[ticker]?.symbol ?? ticker;
 
 export const stockLogo = (ticker: string): string | undefined => STOCK_BY_TICKER[ticker]?.logo;
 
