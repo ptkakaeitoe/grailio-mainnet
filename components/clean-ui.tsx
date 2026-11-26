@@ -34,13 +34,13 @@ export const RARITY_DOT = ["#8a9183", "#779bad", "#9883aa", "#b29451"];
 /** Native <dialog> frame: centred, scrollable, see-through like the nav (white 72% + blur) over a light dim. Add a width like `w-[min(480px,calc(100%-32px))]`. */
 /** A see-through panel that slides in from the left edge, floating 8px off it (`.side-drawer` in globals.css). Add a width. */
 export const cleanDrawerLeft =
-  "side-drawer fixed top-[max(.5rem,env(safe-area-inset-top))] bottom-[max(.5rem,env(safe-area-inset-bottom))] right-auto left-2 m-0 h-[calc(100dvh-max(.5rem,env(safe-area-inset-top))-max(.5rem,env(safe-area-inset-bottom)))] max-h-none max-w-none overflow-y-auto overscroll-contain rounded-lg border border-border-strong bg-white/72 p-0 text-black shadow-[12px_0_40px_-24px_rgba(0,0,0,.25)] backdrop-blur-[14px] open:flex open:flex-col [&>*]:shrink-0";
+  "side-drawer fixed top-[max(.5rem,env(safe-area-inset-top))] bottom-[max(.5rem,env(safe-area-inset-bottom))] right-auto left-2 m-0 h-[calc(100dvh-max(.5rem,env(safe-area-inset-top))-max(.5rem,env(safe-area-inset-bottom)))] max-h-none max-w-none overflow-y-auto overscroll-contain rounded-lg border border-border-strong bg-white/72 p-0 text-black shadow-[12px_0_40px_-24px_rgba(0,0,0,.25)] backdrop-blur-[14px] flex-col open:flex [&>*]:shrink-0";
 /** A see-through panel that slides in from the right edge, floating 8px off it (`.side-drawer` in globals.css). Add a width. */
 export const cleanDrawerRight =
-  "side-drawer side-drawer--right fixed top-[max(.5rem,env(safe-area-inset-top))] bottom-[max(.5rem,env(safe-area-inset-bottom))] right-2 left-auto m-0 h-[calc(100dvh-max(.5rem,env(safe-area-inset-top))-max(.5rem,env(safe-area-inset-bottom)))] max-h-none max-w-none overflow-y-auto overscroll-contain rounded-lg border border-border-strong bg-white/72 p-0 text-black shadow-[-12px_0_40px_-24px_rgba(0,0,0,.25)] backdrop-blur-[14px] open:flex open:flex-col [&>*]:shrink-0";
+  "side-drawer side-drawer--right fixed top-[max(.5rem,env(safe-area-inset-top))] bottom-[max(.5rem,env(safe-area-inset-bottom))] right-2 left-auto m-0 h-[calc(100dvh-max(.5rem,env(safe-area-inset-top))-max(.5rem,env(safe-area-inset-bottom)))] max-h-none max-w-none overflow-y-auto overscroll-contain rounded-lg border border-border-strong bg-white/72 p-0 text-black shadow-[-12px_0_40px_-24px_rgba(0,0,0,.25)] backdrop-blur-[14px] flex-col open:flex [&>*]:shrink-0";
 
 export const cleanDialog =
-  "pop-dialog fixed inset-0 m-auto max-h-[calc(100dvh-32px)] overflow-y-auto overscroll-contain rounded-md border border-border-strong bg-white/72 p-0 text-black shadow-[0_24px_64px_-24px_rgba(0,0,0,.35)] backdrop-blur-[14px] backdrop:bg-[rgb(0_0_0/.5)] open:flex open:flex-col [&>*]:shrink-0 motion-reduce:[&_*]:!animate-none";
+  "pop-dialog fixed inset-0 m-auto max-h-[calc(100dvh-32px)] overflow-y-auto overscroll-contain rounded-md border border-border-strong bg-white/72 p-0 text-black shadow-[0_24px_64px_-24px_rgba(0,0,0,.35)] backdrop-blur-[14px] backdrop:bg-[rgb(0_0_0/.5)] flex-col open:flex [&>*]:shrink-0 motion-reduce:[&_*]:!animate-none";
 
 /**
  * A dialog's or drawer's buttons, pinned to its bottom edge like the header is to the top: the content between them

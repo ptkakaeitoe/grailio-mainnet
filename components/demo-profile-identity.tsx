@@ -74,7 +74,7 @@ export function ProfileModal({ onClose, busy = false, children }: { onClose: () 
   return (
     <dialog
       ref={dialog}
-      className={cn(cleanDrawerRight, "w-[min(420px,calc(100vw-16px))] open:flex open:flex-col")}
+      className={cn(cleanDrawerRight, "w-[min(420px,calc(100vw-16px))] flex-col open:flex")}
       aria-labelledby="edit-profile-title"
       onCancel={(e) => { e.preventDefault(); dismiss(); }}
       onClick={(e) => { if (e.target === e.currentTarget) dismiss(); }}
