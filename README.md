@@ -92,18 +92,18 @@ Names are in `.env.example`; you fill in the values. Never commit `.env.local`.
 
 ## Mainnet addresses it uses
 
-**Grailio contracts** (deployed in block 135,875,118; `deployments/56.json`):
+**Grailio contracts** (deployed in block 135,895,169, on USDT; `deployments/56.json`):
 
 | Contract | Address |
 | --- | --- |
-| CollectPacks | `0xdB862A24350E9fE184c0d1658912d309749D8672` |
-| CollectMarket | `0xCCaC8A207a706af3e27B1588c89dD8bE1FD8a094` |
-| CollectPoints | `0xf1B0E1872267685f06a5cA4D415229c767758F8E` |
-| CollectDAO | `0xC4405f92e6c4EB5d945A1b44E56669D626D453FB` |
-| CollectStaking | `0xf67237982494Ce599a1BB051BBe01cAA3cd2256E` |
-| CollectChat | `0xC59A85E460221EFeeFF034eCC92Eb09048754e09` |
-| CollectNames | `0x380A4b931D1F30dBa598a77a26b99ED30648DF01` |
-| CollectProfiles | `0x838C649DC1Ad03ABCC30190edfa71343EbAB7D6c` |
+| CollectPacks | `0xfba2f95f7B4dC251e310830d16c14579FedA48cf` |
+| CollectMarket | `0x1aF51f96ed7BEF036c805f668bCd10C6Fb114f8E` |
+| CollectPoints | `0xB9e2f9ca9A3Cd685544a75e6fb6Ec335fb9797eE` |
+| CollectDAO | `0x0255552d14359EF44C6bc7b89b63655FcD071894` |
+| CollectStaking | `0x3A6a51C0f6ac6283Ea720711Aba278A3AEA75B56` |
+| CollectChat | `0xc7b63D7C7d8a235Ae4f5E3E0BdFaF652C8388B15` |
+| CollectNames | `0xf9D0186A8fDd9D0886F3794638Fb62311a037dAF` |
+| CollectProfiles | `0x533C8191B7bd61C918768466B9e70e3A4C9ec650` |
 | AtlasFeedAdapter (one per stock) | `stockAssets.<ticker>.adapter` in `deployments/56.json` |
 
 Third-party contracts, all read on chain 56 on 2026-11-26 (`lib/tokens.ts`, `lib/atlas.ts`, `contracts/script/MainnetConfig.sol`, `contracts/script/StockConfig.sol`):
