@@ -37,10 +37,13 @@ function ArtPiece({ crop, className, preload = false }: { crop: Crop; className?
 }
 
 /**
- * Desktop: the two hands pulled apart into the hero's corners, reaching in from the screen edges, with the pack
- * between them. They're the hero's backdrop: the headline and buttons sit on top. Each hand is 54% of the hero's
- * height, keeping the left fingertip clear of the buttons; the pack goes at 48.7%, between the fingertips. The left forearm dissolves gradually toward the bottom; the inner cut
- * edges fade over 2% so the fingertip glow never ends in a line. The hands float (globals.css); the pack tilts on hover (HeroPack).
+ * Desktop: the two hands reaching in from the screen edges, with the pack between them, a little right of centre to
+ * leave room for the copy. They're the hero's backdrop: the headline and buttons sit on top. The left hand is 70% of
+ * the hero's height and runs off the left edge (dimmed, since it passes under the copy); the right hand is 62%, raised
+ * 7%, pushed 5% past the right edge and tilted 10° round its fingertip (so the two fingers line up), so both fingertips sit level and about as far from the pack, which sits on
+ * the line between them. The left forearm dissolves toward
+ * the bottom; the inner cut edges fade over 2% so the fingertip glow never ends in a line. The hands float
+ * (globals.css); the pack tilts on hover (HeroPack).
  */
 export function HeroHands() {
   return (
@@ -49,10 +52,10 @@ export function HeroHands() {
         className="pointer-events-none absolute inset-y-0 right-[calc(50%-50vw)] left-[calc(50%-50vw)] -z-10 hidden overflow-hidden select-none desk:block"
         aria-hidden="true"
       >
-        <ArtPiece crop={CROPS.left} className="hand-float-left bottom-0 left-0 h-[54%] [mask-composite:intersect] mask-[linear-gradient(to_bottom,#000_45%,rgb(0_0_0/.55)_72%,rgb(0_0_0/.18)_88%,transparent),linear-gradient(to_left,transparent,#000_2%)]" />
-        <ArtPiece crop={CROPS.right} className="hand-float-right top-0 right-0 h-[54%] mask-[linear-gradient(to_right,transparent,#000_2%)]" />
+        <ArtPiece crop={CROPS.left} className="hand-float-left bottom-0 left-0 h-[70%] opacity-75 [mask-composite:intersect] mask-[linear-gradient(to_bottom,#000_45%,rgb(0_0_0/.55)_72%,rgb(0_0_0/.18)_88%,transparent),linear-gradient(to_left,transparent,#000_2%)]" />
+        <ArtPiece crop={CROPS.right} className="hand-float-right hand-tilt-right top-[-7%] right-[-5%] h-[62%] [mask-composite:intersect] mask-[linear-gradient(to_right,transparent,#000_2%),linear-gradient(to_bottom,transparent,#000_14%)]" />
       </div>
-      <HeroPack className="absolute top-[48.7%] left-1/2 hidden h-[50%] -translate-x-1/2 -translate-y-1/2 desk:block" />
+      <HeroPack className="absolute top-[43%] left-[55%] hidden h-[50%] -translate-x-1/2 -translate-y-1/2 desk:block" />
     </>
   );
 }

@@ -93,18 +93,18 @@ export default function Home() {
         <div className="relative isolate grid grid-cols-1 gap-4 py-8 desk:min-h-[520px] desk:grid-cols-2 desk:items-center desk:gap-8 desk:pt-4">
           {/* On phones the column dissolves so the art can lead and the note can close. */}
           <HeroHandsPhone className="order-first mb-2" />
-          <div className="relative z-10 min-w-0 max-desk:contents desk:self-start desk:pt-[clamp(8px,3svh,40px)]">
+          <div className="relative z-10 min-w-0 max-desk:contents desk:self-center">
             {/* Desktop: a soft dark glow behind the headline and buttons, so the hand dims as it passes under the copy. */}
             <div
-              className="pointer-events-none absolute -inset-x-28 -inset-y-20 -z-10 hidden bg-[radial-gradient(ellipse_closest-side_at_42%_58%,rgb(17_17_17/.82),rgb(17_17_17/.55)_55%,transparent)] desk:block"
+              className="pointer-events-none absolute -inset-x-28 -inset-y-20 -z-10 hidden bg-[radial-gradient(ellipse_closest-side_at_42%_55%,rgb(17_17_17/.92),rgb(17_17_17/.7)_55%,transparent)] desk:block"
               aria-hidden="true"
             />
-            {/* Three short lines, so the type can be big and the block tall (the buttons land near the middle of the screen).
+            {/* Three short lines of even length, so the type can be big and the block tall (the buttons land near the middle of the screen).
                 Sized to stay clear of the pack; nudged left by the letters' side bearing so the glyphs line up with the buttons. */}
             <h1 className="-ml-[0.05em] text-[clamp(30px,13vw,72px)] leading-[1.1] font-light tracking-[-0.035em] desk:text-[clamp(44px,min(6.8vw,11.5svh),128px)]">
-              <span className="whitespace-nowrap">Trade Stock</span>
+              <span className="whitespace-nowrap">Trade the</span>
               <br />
-              <span className="whitespace-nowrap">You Can</span>
+              <span className="whitespace-nowrap">Stock You</span>
               <br />
               <span className="whitespace-nowrap">Collect.</span>
             </h1>

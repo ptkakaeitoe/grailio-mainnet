@@ -475,6 +475,8 @@ html[data-scrolled]:has(#main-content details[open] .frost, #main-content .frost
 @media (hover: hover) and (pointer: fine) { .hero-card-tilt:hover { transform: perspective(900px) rotateX(5deg) rotateY(-8deg) scale(1.02); } }
 .hand-float-left { transform-origin: 0% 80%; animation: hand-float-left 6.5s ease-in-out infinite alternate; }
 .hand-float-right { transform-origin: 100% 35%; animation: hand-float-right 7.5s ease-in-out -3s infinite alternate; }
+/* Desktop right hand: tilted round its fingertip (left edge, 78% down) so its finger lines up with the left hand's. */
+.hand-tilt-right { transform-origin: 0% 78%; rotate: 10deg; }
 @keyframes hand-float-left { from { transform: translateY(5px) rotate(.3deg); } to { transform: translateY(-9px) rotate(-.6deg); } }
 @keyframes hand-float-right { from { transform: translateY(-5px) rotate(-.3deg); } to { transform: translateY(9px) rotate(.6deg); } }
 @media (prefers-reduced-motion: reduce) { .hand-float-left, .hand-float-right { animation: none; }
