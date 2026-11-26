@@ -9,7 +9,7 @@ export const appChain = bsc;
 
 /** Public RPC is rate-limited; set NEXT_PUBLIC_BSC_RPC_URL for production. */
 export const rpcUrl =
-  process.env.NEXT_PUBLIC_BSC_RPC_URL ?? "https://bsc-dataseed.bnbchain.org";
+  process.env.NEXT_PUBLIC_BSC_RPC_URL || "https://bsc-dataseed.bnbchain.org";
 
 export const explorerUrl = "https://bscscan.com";
 

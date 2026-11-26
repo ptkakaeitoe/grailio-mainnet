@@ -27,7 +27,7 @@ const description = "Open packs, collect token cards and trade them on BNB Chain
 /** Link previews use app/opengraph-image.jpg and app/twitter-image.jpg (the mark on the glow, square). */
 export const metadata: Metadata = {
   /** Set NEXT_PUBLIC_SITE_URL to the deployed origin so link previews resolve. */
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"),
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"),
   title: "Grailio",
   description,
   openGraph: { title: "Grailio", description, siteName: "Grailio", type: "website" },
