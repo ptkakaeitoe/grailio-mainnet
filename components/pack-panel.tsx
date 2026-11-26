@@ -158,8 +158,19 @@ export function PackPanel() {
   const swapDone = bnbSwap.confirmed && !bnbSwap.reverted;
   useEffect(() => {
     if (!swapDone) return;
-    void refetchUsdc();
     void bnbBalance.refetch();
+    // Wait for the RPC to show the new USDT (it can lag a block or two), then clear the
+    // swap so the panel moves on to approve + buy instead of staying on "Swapping BNB…".
+    let stop = false;
+    void (async () => {
+      for (let i = 0; i < 8 && !stop; i++) {
+        const { data } = await refetchUsdc();
+        if ((data ?? 0n) >= liveCost) break;
+        await new Promise((r) => setTimeout(r, 1_500));
+      }
+      if (!stop) bnbSwap.reset();
+    })();
+    return () => { stop = true; };
     // Only when a new swap confirms.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [swapDone]);
@@ -174,6 +185,7 @@ export function PackPanel() {
   useEffect(() => {
     if (!receipt.isSuccess) return;
     playPurchase();
+    bnbSwap.reset(); // a finished BNB swap must not read as "Swapping BNB…" once its USDT is spent
     refetchPacks();
     refetchCapacity();
     void refetchUsdc();
