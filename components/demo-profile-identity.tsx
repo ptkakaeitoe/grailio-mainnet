@@ -94,7 +94,7 @@ export const editorForm = "flex flex-1 flex-col gap-6";
 export const editorGroup = "flex flex-col gap-4 border-t border-border pt-6";
 /** Save (and any error) pinned to the bottom of the drawer while the fields scroll. */
 export function EditorFooter({ children }: { children: ReactNode }) {
-  return <div className="sticky bottom-0 -mx-5 mt-auto flex flex-col gap-3 border-t border-border bg-white px-5 py-4">{children}</div>;
+  return <div className="sticky bottom-0 -mx-5 mt-auto flex flex-col gap-3 bg-white px-5 py-4 before:pointer-events-none before:absolute before:inset-x-0 before:bottom-full before:h-10 before:bg-linear-to-t before:from-white before:to-transparent">{children}</div>;
 }
 
 export const editorLabel = "flex flex-col gap-1.5 text-sm text-muted";

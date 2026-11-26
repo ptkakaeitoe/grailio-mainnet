@@ -45,10 +45,11 @@ export const cleanDialog =
 /**
  * A dialog's or drawer's buttons, pinned to its bottom edge like the header is to the top: the content between them
  * scrolls. Use it as a direct child of the dialog (the dialogs are flex columns, so in a drawer it sits at the
- * bottom even when the content is short). Add the layout, e.g. `flex flex-col gap-2`.
+ * bottom even when the content is short). No divider: content scrolling under it fades out over 40px above it instead.
+ * Add the layout, e.g. `flex flex-col gap-2`.
  */
 export const dialogFooter =
-  "sticky bottom-0 z-10 mt-auto border-t border-border bg-white px-5 pt-4 pb-[max(1.25rem,env(safe-area-inset-bottom))] empty:hidden phone:px-6";
+  "sticky bottom-0 z-10 mt-auto bg-white px-5 pt-4 pb-[max(1.25rem,env(safe-area-inset-bottom))] empty:hidden phone:px-6 before:pointer-events-none before:absolute before:inset-x-0 before:bottom-full before:h-10 before:bg-linear-to-t before:from-white before:to-transparent";
 
 /** A dialog's title bar, pinned to the top while the content scrolls (pairs with dialogFooter). */
 export const dialogHeader = "sticky top-0 z-10 flex items-center justify-between gap-3 border-b border-border bg-white px-5 py-3";

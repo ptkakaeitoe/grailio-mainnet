@@ -20,7 +20,7 @@ import { usd } from "@/lib/use-stock-prices";
 // Four rarity cards: two rows of two on phones, one row of four from tablet up.
 const sectionTitle = "text-xl font-normal";
 /** A section after the first, split by a hairline (like the profile editor). */
-const group = "border-t border-border pt-6";
+const group = "pt-6";
 const riskButton = "h-11 flex-1 rounded-md border border-border text-sm transition-colors hover:border-border-strong aria-pressed:border-black";
 const label = "text-base text-muted";
 
