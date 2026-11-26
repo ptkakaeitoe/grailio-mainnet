@@ -4,9 +4,9 @@
  * top-up once, if the browser proves it holds an open gift's code by signing
  * this message, which names the receiving wallet, with the code's key.
  */
-export const GIFT_GAS_AMOUNT = "0.002"; // BNB (~$1): plenty to claim and open a few packs at BNB Chain gas prices
+export const GIFT_GAS_AMOUNT = "0.0005"; // BNB (~$0.30): claiming and opening a pack costs ~0.00004 BNB at BNB Chain gas prices
 /** Wallets holding at least this much (BNB) don't need a top-up. */
-export const GIFT_GAS_THRESHOLD = "0.001";
+export const GIFT_GAS_THRESHOLD = "0.0002";
 export const GIFT_GAS_MAX_AGE = 10 * 60; // seconds
 
 export const giftGasMessage = (recipient: string, issuedAt: number) => `Grailio: gas for gift claim to ${recipient.toLowerCase()} (${issuedAt})`;
