@@ -62,11 +62,12 @@ export function HeroHands() {
 
 /**
  * Phones: the artwork's own layout, the hands nudged apart to make room for the pack, running edge to edge past the
- * page gutters. The mask fades the edges so the forearms dissolve.
+ * page gutters. The mask fades the edges so the forearms dissolve. Clipped sideways at the screen edges, so the pack's
+ * light rays never widen the page (which would let phones scroll sideways).
  */
 export function HeroHandsPhone({ className }: { className?: string }) {
   return (
-    <div className={cn("relative -mx-[18px] aspect-[3/2] w-[calc(100%+36px)] select-none phone:-mx-6 phone:w-[calc(100%+48px)] desk:hidden", className)}>
+    <div className={cn("relative -mx-[18px] aspect-[3/2] w-[calc(100%+36px)] overflow-x-clip select-none phone:-mx-6 phone:w-[calc(100%+48px)] desk:hidden", className)}>
       <div
         className="pointer-events-none absolute inset-0 overflow-hidden [mask-composite:intersect] [mask-image:linear-gradient(to_right,transparent,#000_7%,#000_93%,transparent),linear-gradient(to_bottom,#000_55%,rgb(0_0_0/.4)_80%,transparent)]"
         aria-hidden="true"
