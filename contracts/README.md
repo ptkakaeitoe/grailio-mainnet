@@ -73,19 +73,20 @@ Contracts compile with `via_ir = true` (`foundry.toml`): it keeps `CollectPacks`
 # 0. Fetch the pinned Solidity libraries into lib/ (once)
 ./install-libs.sh
 
-# 1. Store the deployer key encrypted, once (prompts for the key and a password)
-cast wallet import grailio-deployer --interactive
+# 1. Make a new deployer wallet, stored encrypted (prompts for a password, prints the address)
+cast wallet new ~/.foundry/keystores grailio-mainnet-deployer
+#    (to use a key you already have: cast wallet import grailio-mainnet-deployer --interactive)
 
 # 2. Tests: unit, then against a BSC mainnet fork (nothing is sent)
 forge test
 BSC_RPC_URL=https://bsc-dataseed.bnbchain.org forge test --match-contract Fork -vv
 
 # 3. Dry run against mainnet (nothing is sent)
-BSC_RPC_URL=https://bsc-dataseed.bnbchain.org forge script script/DeployCollectPacks.s.sol --rpc-url bsc --account grailio-deployer
+BSC_RPC_URL=https://bsc-dataseed.bnbchain.org forge script script/DeployCollectPacks.s.sol --rpc-url bsc --account grailio-mainnet-deployer
 
 # 4. Deploy for real and verify on BscScan (Etherscan API v2 key).
 #    Add NEW_OWNER=0x… to hand ownership to a Safe.
-ETHERSCAN_API_KEY=... BSC_RPC_URL=https://bsc-dataseed.bnbchain.org forge script script/DeployCollectPacks.s.sol --rpc-url bsc --account grailio-deployer --broadcast --verify
+ETHERSCAN_API_KEY=... BSC_RPC_URL=https://bsc-dataseed.bnbchain.org forge script script/DeployCollectPacks.s.sol --rpc-url bsc --account grailio-mainnet-deployer --broadcast --verify
 
 # 5. If verification didn't finish (it can time out), verify what's deployed. Safe to re-run.
 ETHERSCAN_API_KEY=... BSC_RPC_URL=https://bsc-dataseed.bnbchain.org ./script/verify.sh

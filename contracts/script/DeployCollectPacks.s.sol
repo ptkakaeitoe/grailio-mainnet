@@ -25,9 +25,9 @@ import {MainnetConfig} from "./MainnetConfig.sol";
 /// The rest stays in the pack pool for the owner to withdraw. Change later with setShares.
 ///
 /// Dry run (simulates against mainnet, sends nothing):
-///   forge script script/DeployCollectPacks.s.sol --rpc-url bsc --account grailio-deployer
+///   forge script script/DeployCollectPacks.s.sol --rpc-url bsc --account grailio-mainnet-deployer
 /// Real deploy:
-///   forge script script/DeployCollectPacks.s.sol --rpc-url bsc --account grailio-deployer --broadcast --verify
+///   forge script script/DeployCollectPacks.s.sol --rpc-url bsc --account grailio-mainnet-deployer --broadcast --verify
 ///
 /// The deployer stays owner unless NEW_OWNER is set; then ownership is offered to it
 /// and NEW_OWNER (e.g. a Safe) must call acceptOwnership() to take over.
