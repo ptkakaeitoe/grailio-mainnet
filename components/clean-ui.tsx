@@ -7,15 +7,15 @@ export const cn = (...classes: (string | false | null | undefined)[]) =>
 
 /** Shared Tailwind classes for the clean theme (landing, packs, profile). */
 export const cleanButton = {
-  /** Black fill that inverts on hover, like the hero's "explore packs". */
+  /** Bright fill that stays put on hover; only its ↗ arrow nudges (globals.css). */
   solid:
-    "inline-flex min-h-12 items-center gap-3 rounded-md border-[1.5px] border-black bg-black px-4 text-base text-white transition-colors hover:bg-white hover:text-black disabled:cursor-not-allowed disabled:opacity-40",
-  /** White with a black outline that fills on hover. */
+    "inline-flex min-h-12 items-center gap-3 rounded-md border-[1.5px] border-black bg-black px-4 text-base text-white disabled:cursor-not-allowed disabled:opacity-40",
+  /** Muted outline over a translucent dark backing (70% + blur) that turns bright on hover. */
   outline:
-    "inline-flex min-h-12 items-center gap-3 rounded-md border-[1.5px] border-black bg-transparent px-4 text-base text-black transition-colors hover:bg-black hover:text-white disabled:cursor-not-allowed disabled:opacity-40",
+    "inline-flex min-h-12 items-center gap-3 rounded-md border-[1.5px] border-border-strong bg-white/70 backdrop-blur-[6px] px-4 text-base text-black transition-colors not-disabled:hover:border-black disabled:cursor-not-allowed disabled:opacity-40",
   /** Compact outline for secondary actions. */
   small:
-    "inline-flex min-h-10 items-center gap-2 rounded-md border-[1.5px] border-black bg-transparent px-3.5 text-sm text-black transition-colors hover:bg-black hover:text-white",
+    "inline-flex min-h-10 items-center gap-2 rounded-md border-[1.5px] border-border-strong bg-white/70 backdrop-blur-[6px] px-3.5 text-sm text-black transition-colors not-disabled:hover:border-black",
 };
 
 /** Page gutters: 18px on phones, 24px, 32px from 801px, 64px from 1201px. */

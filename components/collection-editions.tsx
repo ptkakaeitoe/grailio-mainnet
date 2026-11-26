@@ -15,7 +15,7 @@ import { MiniPackArt } from "@/components/pack-art";
 import { useMyPacks, type MyPack } from "@/lib/use-my-packs";
 
 const status = "mt-4 text-sm leading-relaxed text-muted";
-const open = cn(cleanButton.solid, "min-h-9 w-[92px] shrink-0 justify-center gap-1.5 px-3 text-sm disabled:hover:bg-black disabled:hover:text-white");
+const open = cn(cleanButton.solid, "min-h-9 w-[92px] shrink-0 justify-center gap-1.5 px-3 text-sm");
 const buy = "inline-flex min-h-9 w-[92px] shrink-0 items-center justify-center rounded-md border border-border text-sm transition-colors hover:border-black";
 const pad = (n: number) => String(n).padStart(2, "0");
 
@@ -72,7 +72,7 @@ export function CollectionEditions() {
               </span>
               {!known ? null : owned > 0 ? (
                 <button type="button" aria-haspopup="dialog" className={open} disabled={waiting} onClick={() => setOpening(demo.active ? "demo" : { ready, sealed: sealedPacks })}>
-                  Open <ArrowUpRightIcon weight="bold" />
+                  Open <ArrowUpRightIcon weight="bold" className="arrow-nudge" aria-hidden="true" />
                 </button>
               ) : editionForTier(tier.id).comingSoon ? (
                 <span className={cn(buy, "invisible")} aria-hidden="true">Buy</span>

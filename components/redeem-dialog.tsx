@@ -106,7 +106,7 @@ export function RedeemDialog({
                 writeContract({ address: collectPacksAddress, abi: collectPacksAbi, functionName: "redeem", args: [card.id] });
               }}
             >
-              Redeem for {stock} <ArrowUpRightIcon weight="bold" />
+              Redeem for {stock} <ArrowUpRightIcon weight="bold" className="arrow-nudge" aria-hidden="true" />
             </button>
             <button type="button" className={cn(cleanLink, "text-sm text-muted")} onClick={onClose}>Keep the card</button>
           </div>
@@ -114,7 +114,7 @@ export function RedeemDialog({
         {phase === "done" && (
           <div className={revealUi.actions}>
             <Link className={cleanButton.solid} href="/trade" onClick={onClose}>
-              Trade your {card.ticker} <ArrowUpRightIcon weight="bold" />
+              Trade your {card.ticker} <ArrowUpRightIcon weight="bold" className="arrow-nudge" aria-hidden="true" />
             </Link>
             <button type="button" className={cn(cleanLink, "text-sm text-muted")} onClick={onClose}>Back to collection</button>
           </div>

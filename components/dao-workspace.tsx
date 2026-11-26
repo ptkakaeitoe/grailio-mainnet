@@ -114,7 +114,7 @@ function ProposeForm({ unit, power, threshold, busy, onSubmit }: { unit: string;
         <textarea className={cn(cleanField, "min-h-28 py-2.5")} maxLength={4000} value={body} onChange={(e) => setBody(e.target.value)} placeholder="What should change, and why?" />
       </label>
       <button type="submit" className={cn(cleanButton.solid, "justify-between")} disabled={!enough || !title.trim() || busy}>
-        {busy ? "Submitting…" : "Submit proposal"} <ArrowUpRightIcon weight="bold" />
+        {busy ? "Submitting…" : "Submit proposal"} <ArrowUpRightIcon weight="bold" className="arrow-nudge" aria-hidden="true" />
       </button>
       <p className="text-[13px] text-muted">{enough ? `Needs ${num(threshold)} ${unit} to propose. You have ${num(power)}.` : `You need ${num(threshold)} ${unit} to propose; you have ${num(power)}.`}</p>
     </form>
@@ -352,7 +352,7 @@ function LiveDao() {
           address ? (
             <ProposeForm unit="points" power={myPoints} threshold={threshold} busy={busy || !onChain} onSubmit={(t, b) => { reset(); writeContract({ address: daoAddress, abi: daoAbi, functionName: "propose", args: [t, b] }); }} />
           ) : (
-            <button type="button" className={cn(cleanButton.solid, "w-full justify-between")} onClick={openConnect}>Connect wallet <ArrowUpRightIcon weight="bold" /></button>
+            <button type="button" className={cn(cleanButton.solid, "w-full justify-between")} onClick={openConnect}>Connect wallet <ArrowUpRightIcon weight="bold" className="arrow-nudge" aria-hidden="true" /></button>
           )
         }
       />
@@ -383,7 +383,7 @@ export function DaoWorkspace() {
         <section className={cn(marketSide, sidePanel, "flex flex-col items-start gap-3 desk:pt-10")}>
           <h2 className={sectionTitle}>Opening at launch</h2>
           <p className="text-base leading-relaxed text-muted">Until then, try the DAO in demo mode with simulated STONK.</p>
-          <button type="button" className={cn(cleanButton.solid, "mt-2")} onClick={demo.start}>Try the demo DAO <ArrowUpRightIcon weight="bold" /></button>
+          <button type="button" className={cn(cleanButton.solid, "mt-2")} onClick={demo.start}>Try the demo DAO <ArrowUpRightIcon weight="bold" className="arrow-nudge" aria-hidden="true" /></button>
           <Link href="/packs" className="text-sm underline underline-offset-4">See the packs</Link>
         </section>
       </div>

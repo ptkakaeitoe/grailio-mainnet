@@ -44,8 +44,8 @@ export function MarketplaceWorkspace({ mode = "both" }: { mode?: MarketMode }) {
           <MarketState
             title="No listings yet."
             action={<>
-              <Link href="/trade" className={stateAction}>Swap tokens<ArrowUpRightIcon weight="bold" /></Link>
-              <Link href="/packs" className={stateAction}>Try packs<ArrowUpRightIcon weight="bold" /></Link>
+              <Link href="/trade" className={stateAction}>Swap tokens<ArrowUpRightIcon weight="bold" className="arrow-nudge" aria-hidden="true" /></Link>
+              <Link href="/packs" className={stateAction}>Try packs<ArrowUpRightIcon weight="bold" className="arrow-nudge" aria-hidden="true" /></Link>
             </>}
           />
       </>}
@@ -86,7 +86,7 @@ export function MarketplaceWorkspace({ mode = "both" }: { mode?: MarketMode }) {
               </label>
             </div>
             <button type="button" className={cn(cleanButton.solid, "mt-4 w-full justify-between")} disabled>
-              Coming soon <ArrowUpRightIcon weight="bold" />
+              Coming soon <ArrowUpRightIcon weight="bold" className="arrow-nudge" aria-hidden="true" />
             </button>
       </>}
     />

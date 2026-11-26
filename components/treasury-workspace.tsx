@@ -163,7 +163,7 @@ export function TreasuryWorkspace() {
           <h2 id="withdraw-title" className="text-xl font-normal">Withdraw USDT</h2>
           {!address ? (
             <button type="button" className={cn(cleanButton.solid, "mt-5")} onClick={openConnect}>
-              Connect the owner wallet <ArrowUpRightIcon weight="bold" />
+              Connect the owner wallet <ArrowUpRightIcon weight="bold" className="arrow-nudge" aria-hidden="true" />
             </button>
           ) : !isOwner ? (
             <p className="mt-3 text-base text-muted">
@@ -282,7 +282,7 @@ export function TreasuryWorkspace() {
       {(syncTx.isPending || syncReceipt.isLoading) && <p className="mt-6 text-sm text-muted" role="status">Starting the staking payout…</p>}
       {receipt.isSuccess && hash && !syncTx.isPending && !syncReceipt.isLoading && (
         <p className="mt-6 text-sm" role="status">
-          Done. <a className="underline underline-offset-4" href={`${explorerUrl}/tx/${hash}`} target="_blank" rel="noreferrer">View transaction <ArrowUpRightIcon weight="bold" /></a>
+          Done. <a className="underline underline-offset-4" href={`${explorerUrl}/tx/${hash}`} target="_blank" rel="noreferrer">View transaction <ArrowUpRightIcon weight="bold" className="arrow-nudge" aria-hidden="true" /></a>
         </p>
       )}
       {isLoading && <p className="mt-6 text-sm text-muted" role="status">Loading treasury…</p>}

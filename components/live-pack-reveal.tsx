@@ -169,21 +169,21 @@ export function LivePackReveal({
       <div className={cn(dialogFooter, revealFrame.actions)}>
         {phase === "sealed" && (
           <button type="button" className={cn(cleanButton.solid, "w-full justify-between")} disabled={waiting || syncing} onClick={openNext}>
-            {waiting ? "Waiting for the next block…" : syncing ? "Syncing wallet…" : "Reveal pack"} <ArrowUpRightIcon weight="bold" />
+            {waiting ? "Waiting for the next block…" : syncing ? "Syncing wallet…" : "Reveal pack"} <ArrowUpRightIcon weight="bold" className="arrow-nudge" aria-hidden="true" />
           </button>
         )}
-        {phase === "failed" && <button type="button" className={cn(cleanButton.solid, "w-full justify-between")} onClick={openNext}>Try again <ArrowUpRightIcon weight="bold" /></button>}
+        {phase === "failed" && <button type="button" className={cn(cleanButton.solid, "w-full justify-between")} onClick={openNext}>Try again <ArrowUpRightIcon weight="bold" className="arrow-nudge" aria-hidden="true" /></button>}
         {revealed && (
           <>
             {/* Only offered while packs are left; the two links share a row to keep the pop-up short. */}
             {remaining.length > 0 && (
               <button type="button" className={cn(cleanButton.solid, "w-full justify-between")} disabled={syncing} onClick={openNext}>
-                {syncing ? "Syncing wallet…" : `Open another · ${remaining.length} left`} <ArrowUpRightIcon weight="bold" />
+                {syncing ? "Syncing wallet…" : `Open another · ${remaining.length} left`} <ArrowUpRightIcon weight="bold" className="arrow-nudge" aria-hidden="true" />
               </button>
             )}
             <div className="grid grid-cols-2 gap-2">
-              <Link className={cn(remaining.length > 0 ? cleanButton.outline : cleanButton.solid, "w-full justify-between")} href="/collection" onClick={onClose}>Collection <ArrowUpRightIcon weight="bold" /></Link>
-              <Link className={cn(cleanButton.outline, "w-full justify-between")} href="/marketplace" onClick={onClose}>Sell <ArrowUpRightIcon weight="bold" /></Link>
+              <Link className={cn(remaining.length > 0 ? cleanButton.outline : cleanButton.solid, "w-full justify-between")} href="/collection" onClick={onClose}>Collection <ArrowUpRightIcon weight="bold" className="arrow-nudge" aria-hidden="true" /></Link>
+              <Link className={cn(cleanButton.outline, "w-full justify-between")} href="/marketplace" onClick={onClose}>Sell <ArrowUpRightIcon weight="bold" className="arrow-nudge" aria-hidden="true" /></Link>
             </div>
           </>
         )}

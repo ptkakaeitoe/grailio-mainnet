@@ -1,13 +1,13 @@
 "use client";
 
 import { DAO_VISIBLE } from "@/lib/collect-dao";
-import { EqualsIcon, PlusIcon, WalletIcon, XIcon } from "@phosphor-icons/react/ssr";
+import { EqualsIcon, WalletIcon, XIcon } from "@phosphor-icons/react/ssr";
 import { useDemo } from "@/components/demo-provider";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 
-import { cleanLink, cn, gutter } from "@/components/clean-ui";
+import { cleanButton, cleanLink, cn, gutter } from "@/components/clean-ui";
 import { CollectMark } from "@/components/collect-mark";
 import { WalletEntry } from "@/components/wallet-entry";
 import { CardAvatar } from "@/components/card-avatar";
@@ -28,9 +28,8 @@ const NAV = [
 ];
 
 
-/** Wallet label in the header: a text link; its trailing icon hides on small screens. */
-/** "connect wallet" (and "switch network"): outlined like the connected wallet button with a solid fill (the hero glow stays behind it), no hover underline. */
-const walletLink = cn(cleanLink, "h-10 rounded-md border border-border-strong bg-white px-4 text-sm lowercase transition-colors after:hidden hover:border-black max-desk:[&>span+span]:hidden max-phone:[&_.wallet-word]:hidden");
+/** "Connect wallet" (and "Switch network"): the outline button, see-through, with a wallet icon first; phones show just "Connect". */
+const walletLink = cn(cleanButton.outline, "shrink-0 bg-transparent backdrop-blur-none max-phone:min-h-10 max-phone:px-3 max-phone:[&>svg]:hidden max-phone:[&_.wallet-word]:hidden");
 
 /** Sign-in link, or your address (opens the profile), or a switch-network prompt. */
 function HeaderWallet({ pathname }: { pathname: string }) {
@@ -39,12 +38,11 @@ function HeaderWallet({ pathname }: { pathname: string }) {
   const { switchChain, isPending } = useSwitchChain();
   const { avatars } = useAvatars(address ? [address] : []);
   const avatar = address ? avatars.get(address.toLowerCase()) : undefined;
-  if (!isConnected || !address) return <WalletEntry className={walletLink} disabled={!ready} navAnchor />;
+  if (!isConnected || !address) return <WalletEntry className={walletLink} disabled={!ready} navAnchor icon="wallet" />;
   if (chainId !== appChain.id) {
     return (
       <button type="button" className={cn(walletLink, "text-warning")} disabled={isPending} onClick={() => switchChain({ chainId: appChain.id })}>
-        <span>{isPending ? "Switching…" : "Switch network"}</span>
-        <span aria-hidden="true"><PlusIcon /></span>
+        <WalletIcon className="size-4" aria-hidden="true" /><span>{isPending ? "Switching…" : "Switch network"}</span>
       </button>
     );
   }
@@ -52,14 +50,14 @@ function HeaderWallet({ pathname }: { pathname: string }) {
   return (
     <Link
       href="/profile"
-      className={cn("inline-flex h-10 items-center gap-2.5 rounded-md border border-border-strong bg-transparent py-1 text-sm whitespace-nowrap transition-colors hover:border-black aria-[current=page]:border-black", avatar ? "pr-4 pl-1.5" : "px-4")}
+      className={cn("inline-flex min-h-12 items-center gap-3 rounded-md border-[1.5px] border-border-strong bg-transparent py-1 text-base whitespace-nowrap transition-colors hover:border-black aria-[current=page]:border-black", avatar ? "pr-4 pl-1.5" : "px-4")}
       aria-current={pathname === "/profile" ? "page" : undefined}
       aria-label={`Profile, wallet ${address}`}
     >
       {/* Your avatar when one is set, otherwise a wallet icon. */}
       {avatar ? (
-        <span className="relative size-7 shrink-0 overflow-hidden rounded-full bg-surface-muted" aria-hidden="true">
-          <CardAvatar crop={avatar} fallback={null} sizes="28px" />
+        <span className="relative size-9 shrink-0 overflow-hidden rounded-full bg-surface-muted" aria-hidden="true">
+          <CardAvatar crop={avatar} fallback={null} sizes="36px" />
         </span>
       ) : (
         <WalletIcon size={16} className="shrink-0 text-muted" aria-hidden="true" />
@@ -78,8 +76,8 @@ export function SiteHeader() {
   // Small-screen menu; the toggle is hidden on wider screens.
   const [menuOpen, setMenuOpen] = useState(false);
 
-  // Content fades out as it scrolls up under the bar: the scroll position, once a frame, drives the mask on
-  // #main-content in globals.css (nothing is painted over the page, so the glow behind stays visible).
+  // Content fades out as it scrolls up under the bar (the mask on #main-content in globals.css). data-scrolled turns the
+  // mask on; --scroll-y is only the fallback where scroll-driven animations aren't supported.
   useEffect(() => {
     const root = document.documentElement;
     let frame = 0;

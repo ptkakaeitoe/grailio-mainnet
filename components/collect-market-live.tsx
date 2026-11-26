@@ -196,8 +196,8 @@ export function CollectMarketLive({ mode = "both" }: { mode?: MarketMode }) {
       })) : []}
       loading={Boolean(address) && mine.loading}
       empty={address
-        ? { title: "No cards yet.", action: <Link href="/packs" className={stateAction}>Open a pack<ArrowUpRightIcon weight="bold" /></Link> }
-        : { title: "Connect to see your cards.", action: <button type="button" className={cn(cleanButton.solid, "justify-between")} onClick={openConnect}>Connect wallet <ArrowUpRightIcon weight="bold" /></button> }}
+        ? { title: "No cards yet.", action: <Link href="/packs" className={stateAction}>Open a pack<ArrowUpRightIcon weight="bold" className="arrow-nudge" aria-hidden="true" /></Link> }
+        : { title: "Connect to see your cards.", action: <button type="button" className={cn(cleanButton.solid, "justify-between")} onClick={openConnect}>Connect wallet <ArrowUpRightIcon weight="bold" className="arrow-nudge" aria-hidden="true" /></button> }}
       selectedId={listedIds.has(sellId) ? sellId : selected?.id.toString() ?? null}
       onSelect={(id) => { setSellId(id); if (!busy) { reset(); setAction(null); } }}
       onCancel={(id) => run(`cancel-${id}`, { address: collectMarketAddress, abi: collectMarketAbi, functionName: "cancel", args: [collectPacksAddress, BigInt(id)] })}
@@ -250,7 +250,7 @@ export function CollectMarketLive({ mode = "both" }: { mode?: MarketMode }) {
             listings.length ? (
               <MarketState title="Nothing listed here." action={<button type="button" className={stateAction} onClick={() => { setRarity("all"); assets.clear(); }}>Show all</button>} />
             ) : (
-              <MarketState title="No listings yet." action={<Link href={SELL_HREF} className={stateAction}>Sell a card<ArrowUpRightIcon weight="bold" /></Link>} />
+              <MarketState title="No listings yet." action={<Link href={SELL_HREF} className={stateAction}>Sell a card<ArrowUpRightIcon weight="bold" className="arrow-nudge" aria-hidden="true" /></Link>} />
             )
           ) : (
             <ul className={listingGrid}>
@@ -282,7 +282,7 @@ export function CollectMarketLive({ mode = "both" }: { mode?: MarketMode }) {
                       { label: "Seller", value: own ? "You" : short(l.seller) },
                       { label: "Ends in", value: timeLeft(l.expiresAt, now) },
                     ]}
-                    link={<a className="inline-flex items-center gap-1 hover:text-black" href={`${explorerUrl}/nft/${collectPacksAddress}/${key}`} target="_blank" rel="noreferrer">View on BscScan <ArrowUpRightIcon weight="bold" /></a>}
+                    link={<a className="inline-flex items-center gap-1 hover:text-black" href={`${explorerUrl}/nft/${collectPacksAddress}/${key}`} target="_blank" rel="noreferrer">View on BscScan <ArrowUpRightIcon weight="bold" className="arrow-nudge" aria-hidden="true" /></a>}
                     action={
                       !address ? (
                         <button type="button" className={listingButton} onClick={openConnect}>Connect to buy</button>
@@ -313,7 +313,7 @@ export function CollectMarketLive({ mode = "both" }: { mode?: MarketMode }) {
             </div>
             {!address ? (
               <button type="button" className={cn(cleanButton.solid, "w-full justify-between")} onClick={openConnect}>
-                Connect wallet <ArrowUpRightIcon weight="bold" />
+                Connect wallet <ArrowUpRightIcon weight="bold" className="arrow-nudge" aria-hidden="true" />
               </button>
             ) : (
               <form
@@ -384,7 +384,7 @@ export function CollectMarketLive({ mode = "both" }: { mode?: MarketMode }) {
                   className={cn(cleanButton.solid, "mt-1 w-full justify-between")}
                   disabled={!onChain || !selected || priceRaw <= 0n || busy || nftApproval.approving || !nftApproval.known}
                 >
-                  {nftApproval.approving ? "Approving…" : !nftApproval.approved ? "Approve cards for sale" : busy && action?.startsWith("list") ? "Listing…" : "List card"} <ArrowUpRightIcon weight="bold" />
+                  {nftApproval.approving ? "Approving…" : !nftApproval.approved ? "Approve cards for sale" : busy && action?.startsWith("list") ? "Listing…" : "List card"} <ArrowUpRightIcon weight="bold" className="arrow-nudge" aria-hidden="true" />
                 </button>
                 <p className="text-[13px] text-muted">The card stays in your wallet until it sells. Moving or redeeming it cancels the listing.</p>
               </form>

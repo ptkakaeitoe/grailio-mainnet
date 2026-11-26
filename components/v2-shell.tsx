@@ -26,7 +26,7 @@ export function V2Shell({ children }: { children: React.ReactNode }) {
       <span>{demo.active ? "Demo" : "Beta"}</span>
       <button type="button" onClick={() => demo.active ? demo.exit() : demo.start()}>{demo.active ? "Exit demo" : "Try demo"}</button>
       {address ? <button type="button" onClick={() => { void logout(); }} title="Sign out">{`${address.slice(0, 6)}…${address.slice(-4)}`}</button> : <button type="button" onClick={openConnect}>Connect</button>}
-      <Link href={mainRoutes[current] ?? "/"}>Main UI <ArrowUpRightIcon weight="bold" /></Link>
+      <Link href={mainRoutes[current] ?? "/"}>Main UI <ArrowUpRightIcon weight="bold" className="arrow-nudge" aria-hidden="true" /></Link>
     </header>
     <nav className="v2-nav" aria-label="Development tools">{pages.map((page) => <Link key={page} href={`/v2/${page}`} aria-current={current === page ? "page" : undefined}>{page === "dao" ? "DAO" : page}</Link>)}</nav>
     <main id="main-content" onClickCapture={(event) => {

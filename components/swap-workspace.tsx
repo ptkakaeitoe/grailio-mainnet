@@ -3,7 +3,7 @@
 import { RecentTrades } from "@/components/recent-trades";
 import { saveSwap, updateSwap } from "@/lib/recent-swaps";
 import { SWAP_FEE_BPS } from "@/lib/swap-fee";
-import { ArrowRightIcon, ArrowsDownUpIcon, CaretDownIcon } from "@phosphor-icons/react/ssr";
+import { ArrowRightIcon, ArrowsDownUpIcon, ArrowUpRightIcon, CaretDownIcon, CircleNotchIcon, PlusIcon } from "@phosphor-icons/react/ssr";
 import { cleanButton, cleanChip, cleanField, cn } from "@/components/clean-ui";
 import { useDemo } from "@/components/demo-provider";
 import { DemoPriceChart } from "@/components/demo-price-chart";
@@ -359,6 +359,19 @@ export function SwapWorkspace() {
         : insufficient
           ? `Insufficient ${tokenLabel(from)}`
           : "Swap";
+  // Icon for the submit button's current state, each with a hover animation (globals.css); none for the "can't swap yet" states.
+  const submitIcon: [typeof PlusIcon, string] | null = submitLabel.endsWith("…")
+    ? [CircleNotchIcon, "animate-spin"]
+    : submitLabel === "Swap"
+      ? [ArrowsDownUpIcon, "icon-flip"]
+      : submitLabel.startsWith("Approve")
+        ? [ArrowRightIcon, "arrow-slide"]
+        : submitLabel.startsWith("Connect")
+          ? [PlusIcon, "plus-spin"]
+          : submitLabel === "Try demo swap"
+            ? [ArrowUpRightIcon, "arrow-nudge"]
+            : null;
+  const SubmitIcon = submitIcon?.[0];
 
   return (
     // Shared trade layout; /v2 applies presentation overrides to these classes.
@@ -547,10 +560,11 @@ export function SwapWorkspace() {
               }
             >
               {submitLabel}
+              {SubmitIcon && <SubmitIcon weight="bold" className={cn("size-4", submitIcon[1])} aria-hidden="true" />}
             </button>
             {!live && !demo.active && (
               <button type="button" className={cn(cleanButton.outline, "mt-2.5 w-full justify-center")} onClick={demo.start}>
-                Or try a demo swap
+                Or try a demo swap <ArrowUpRightIcon weight="bold" className="size-4 arrow-nudge" aria-hidden="true" />
               </button>
             )}
             <p className="swap-preview-note mt-4 text-sm text-muted">

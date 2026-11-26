@@ -191,7 +191,7 @@ export function SellWorkspace({
                 </dl>
                 {status}
                 <button type="button" className={cn(cleanButton.outline, "w-full justify-between")} disabled={cancelBusy || !onCancel} onClick={() => onCancel?.(selectedListing.id)}>
-                  {cancelBusy ? "Cancelling…" : "Cancel listing"} <ArrowUpRightIcon weight="bold" />
+                  {cancelBusy ? "Cancelling…" : "Cancel listing"} <ArrowUpRightIcon weight="bold" className="arrow-nudge" aria-hidden="true" />
                 </button>
               </>
             ) : selected ? (
@@ -252,7 +252,7 @@ export function SellWorkspace({
             {status}
 
             <button type="submit" className={cn(cleanButton.solid, "w-full justify-between")} disabled={submitDisabled || !selected || !valid}>
-              {submitLabel} <ArrowUpRightIcon weight="bold" />
+              {submitLabel} <ArrowUpRightIcon weight="bold" className="arrow-nudge" aria-hidden="true" />
             </button>
             <p className="text-[13px] text-muted">{note}</p>
             </>}

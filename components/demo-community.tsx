@@ -203,7 +203,7 @@ export function DemoCommunity() {
           locked={locked}
           onPick={(id) => { setRoomId(id); setShowChat(true); }}
           prices={byTicker}
-          footer={<><Link href="/profile" className={cn(ui.roomRow, "h-12 py-0")}><span className={cn(ui.avatar, "relative size-8 overflow-hidden bg-black text-white")}><CardAvatar crop={myCrop} className="rounded-full" fallback="me" /></span><strong className="min-w-0 truncate text-base font-normal">{profile.name ? profile.name : "Set a username"}</strong><span className="ml-auto text-muted"><ArrowUpRightIcon weight="bold" /></span></Link></>}
+          footer={<><Link href="/profile" className={cn(ui.roomRow, "h-12 py-0")}><span className={cn(ui.avatar, "relative size-8 overflow-hidden bg-black text-white")}><CardAvatar crop={myCrop} className="rounded-full" fallback="me" /></span><strong className="min-w-0 truncate text-base font-normal">{profile.name ? profile.name : "Set a username"}</strong><span className="ml-auto text-muted"><ArrowUpRightIcon weight="bold" className="arrow-nudge" aria-hidden="true" /></span></Link></>}
         />
       }
       chat={
@@ -213,7 +213,7 @@ export function DemoCommunity() {
             <div className={ui.empty}>
               <p className={ui.label}>[ holders only ]</p>
               <h3 className={ui.emptyTitle}>A room for {room.label} card holders.<br /><span>Hold a {room.ticker} card to read and post.</span></h3>
-              <Link href="/packs" className={cleanButton.solid}>Open a pack <ArrowUpRightIcon weight="bold" /></Link>
+              <Link href="/packs" className={cleanButton.solid}>Open a pack <ArrowUpRightIcon weight="bold" className="arrow-nudge" aria-hidden="true" /></Link>
             </div>
           ) : (
             <>
@@ -237,7 +237,7 @@ export function DemoCommunity() {
               <div className={ui.composerArea}>
                 <form className="flex items-end gap-2 rounded-md border border-border-strong bg-white p-[3px] transition-colors focus-within:border-black" onSubmit={(e) => { e.preventDefault(); send(); }}>
                   <textarea rows={1} className="max-h-[120px] min-h-10 min-w-0 flex-1 resize-none bg-transparent py-[9px] pr-2 pl-3 text-base leading-[22px] outline-none [field-sizing:content]" value={draft} maxLength={500} placeholder={`Message ${room.label}`} aria-label="Message" onChange={(e) => setDraft(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey && !e.nativeEvent.isComposing) { e.preventDefault(); send(); } }} />
-                  <button type="submit" className="grid size-10 shrink-0 place-items-center rounded-md border-[1.5px] border-black bg-black text-white transition-colors hover:bg-white hover:text-black disabled:cursor-not-allowed disabled:opacity-35" disabled={!draft.trim()} aria-label="Send message"><ArrowUpIcon weight="bold" size={18} /></button>
+                  <button type="submit" className="grid size-10 shrink-0 place-items-center rounded-md border-[1.5px] border-black bg-black text-white disabled:cursor-not-allowed disabled:opacity-35" disabled={!draft.trim()} aria-label="Send message"><ArrowUpIcon weight="bold" size={18} /></button>
                 </form>
               </div>
             </>
@@ -268,8 +268,8 @@ export function CommunityPreview() {
             <h3 className={ui.emptyTitle}>Chat with fellow collectors.<br /><span>On BNB Chain, no gas.</span></h3>
             <p className="max-w-[440px] text-sm text-muted">The lounge is open to everyone; each stock’s room is for its card holders. Try it now with demo cards.</p>
             <div className="flex flex-wrap justify-center gap-3">
-              <button type="button" className={cleanButton.solid} onClick={demo.start}>Try the demo <ArrowUpRightIcon weight="bold" /></button>
-              <Link href="/packs" className={cleanButton.outline}>Open a pack <ArrowUpRightIcon weight="bold" /></Link>
+              <button type="button" className={cleanButton.solid} onClick={demo.start}>Try the demo <ArrowUpRightIcon weight="bold" className="arrow-nudge" aria-hidden="true" /></button>
+              <Link href="/packs" className={cleanButton.outline}>Open a pack <ArrowUpRightIcon weight="bold" className="arrow-nudge" aria-hidden="true" /></Link>
             </div>
           </div>
         </>

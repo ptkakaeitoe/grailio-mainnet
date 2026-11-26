@@ -185,7 +185,7 @@ export function CommunityWorkspace() {
       <p className={ui.label}>[ {gated ? "holders only" : "public"} ]</p>
       <h3 className={ui.emptyTitle}>{gated ? `Unlock ${ticker} holder chat.` : "Unlock public chat."}<br /><span>One signature. No gas.</span></h3>
       <button type="button" className={cleanButton.solid} disabled={chat.enabling} onClick={chat.enable}>
-        {chat.enabling ? "Check your wallet…" : "Enable chat"} <ArrowUpRightIcon weight="bold" />
+        {chat.enabling ? "Check your wallet…" : "Enable chat"} <ArrowUpRightIcon weight="bold" className="arrow-nudge" aria-hidden="true" />
       </button>
       {chat.enableError && <p className="text-sm text-down" role="alert">{chat.enableError}</p>}
     </div>
@@ -226,12 +226,12 @@ export function CommunityWorkspace() {
             <button type="button" className={cn(ui.roomRow, "h-12 py-0")} onClick={() => setEditing(true)}>
               <span className={cn(ui.avatar, "relative size-8 overflow-hidden bg-black text-white")}>{face(chat.address)}</span>
               <strong className="min-w-0 truncate text-base font-normal">{nameOf(chat.address) ?? "Set a username"}</strong>
-              <span className="ml-auto text-muted"><ArrowUpRightIcon weight="bold" /></span>
+              <span className="ml-auto text-muted"><ArrowUpRightIcon weight="bold" className="arrow-nudge" aria-hidden="true" /></span>
             </button>
           ) : (
             <div className="h-12" aria-hidden="true" />
           )}
-          <a className={cn(ui.note, "flex items-center justify-between transition-colors hover:text-black")} href={`${SNOWTRACE}/address/${chatAddress}`} target="_blank" rel="noreferrer">[ stored on bnb chain ] <ArrowUpRightIcon weight="bold" /></a>
+          <a className={cn(ui.note, "flex items-center justify-between transition-colors hover:text-black")} href={`${SNOWTRACE}/address/${chatAddress}`} target="_blank" rel="noreferrer">[ stored on bnb chain ] <ArrowUpRightIcon weight="bold" className="arrow-nudge" aria-hidden="true" /></a>
         </footer>
         {editing && chat.address && <MyProfileEditor account={chat.address as Address} onClose={() => setEditing(false)} />}
       </aside>
@@ -254,7 +254,7 @@ export function CommunityWorkspace() {
             <h3 className={ui.emptyTitle}>A room for {ticker} card holders.<br /><span>Hold a {ticker} card to read and post.</span></h3>
             <div className="flex flex-wrap justify-center gap-3">
               {!connected && <WalletEntry className={cleanButton.solid} />}
-              <Link href="/packs" className={connected ? cleanButton.solid : cleanButton.outline}>Open a pack <ArrowUpRightIcon weight="bold" /></Link>
+              <Link href="/packs" className={connected ? cleanButton.solid : cleanButton.outline}>Open a pack <ArrowUpRightIcon weight="bold" className="arrow-nudge" aria-hidden="true" /></Link>
             </div>
           </div>
         ) : notOpen ? (
@@ -308,7 +308,7 @@ export function CommunityWorkspace() {
               <div className={ui.composerArea}><WalletEntry className={cn(cleanButton.solid, "w-full justify-between")} /><p className={ui.note}>Connect a wallet to post.</p></div>
             ) : !chat.ready ? (
               <div className={ui.composerArea}>
-                <button type="button" className={cn(cleanButton.solid, "w-full justify-between")} disabled={chat.enabling} onClick={chat.enable}>{chat.enabling ? "Check your wallet…" : "Enable chat"} <ArrowUpRightIcon weight="bold" /></button>
+                <button type="button" className={cn(cleanButton.solid, "w-full justify-between")} disabled={chat.enabling} onClick={chat.enable}>{chat.enabling ? "Check your wallet…" : "Enable chat"} <ArrowUpRightIcon weight="bold" className="arrow-nudge" aria-hidden="true" /></button>
                 {chat.enableError ? <p className={cn(ui.note, "text-down")} role="alert">{chat.enableError}</p> : <p className={ui.note}>One signature · no gas</p>}
               </div>
             ) : (
@@ -316,7 +316,7 @@ export function CommunityWorkspace() {
                 {reply && <div className="mb-3 flex items-center gap-3 border-l-2 border-black pl-3"><div className="min-w-0 flex-1"><span className="text-xs">Replying to {who(reply.author)}</span><p className="truncate text-xs text-muted">{reply.text}</p></div><button type="button" className={ui.iconButton} aria-label="Cancel reply" onClick={() => setReply(null)}><Icon name="close" size={18} /></button></div>}
                 <form className="flex items-end gap-2 rounded-md border border-border-strong bg-white p-[3px] transition-colors focus-within:border-black" onSubmit={(event) => { event.preventDefault(); sendMessage(); }}>
                   <textarea rows={1} ref={composerInput} className="max-h-[120px] min-h-10 min-w-0 flex-1 resize-none bg-transparent py-[9px] pr-2 pl-3 text-base leading-[22px] outline-none [field-sizing:content]" value={draft} onChange={(event) => setDrafts((prev) => ({ ...prev, [roomKey]: event.target.value }))} onKeyDown={(event) => { if (event.key === "Enter" && !event.shiftKey && !event.nativeEvent.isComposing && window.matchMedia("(min-width: 801px)").matches) { event.preventDefault(); sendMessage(); } }} maxLength={500} placeholder={`Message ${title}`} aria-label="Message" aria-describedby="chat-note" />
-                  <button type="submit" className="grid size-10 shrink-0 place-items-center rounded-md border-[1.5px] border-black bg-black text-white transition-colors hover:bg-white hover:text-black disabled:cursor-not-allowed disabled:opacity-35" disabled={!draft.trim()} aria-label="Send message"><Icon name="send" size={18} /></button>
+                  <button type="submit" className="grid size-10 shrink-0 place-items-center rounded-md border-[1.5px] border-black bg-black text-white disabled:cursor-not-allowed disabled:opacity-35" disabled={!draft.trim()} aria-label="Send message"><Icon name="send" size={18} /></button>
                 </form>
                 <p id="chat-note" className={ui.note}>Gas covered</p>
               </div>
@@ -395,8 +395,8 @@ function Profile({ account, name, crop, label, isMe, onNameChanged, onAvatarChan
           <span className="relative grid size-24 shrink-0 place-items-center overflow-hidden rounded-full bg-surface-muted text-2xl text-muted uppercase">
             <CardAvatar crop={crop} className="rounded-full" sizes="192px" fallback={(name ?? account.slice(2)).slice(0, 2)} />
           </span>
-          <h2 id="profile-title" className="mt-4 max-w-full truncate text-[28px] leading-[1.1] font-normal tracking-tight">{label}</h2>
-          <a className="mt-1.5 inline-flex items-center gap-1 text-sm text-muted tabular-nums transition-colors hover:text-black" href={`${SNOWTRACE}/address/${account}`} target="_blank" rel="noreferrer" title={account}>{short(account)} <ArrowUpRightIcon weight="bold" /></a>
+          <h2 id="profile-title" className="mt-4 max-w-full truncate text-[28px] leading-[1.1] font-light tracking-tight">{label}</h2>
+          <a className="mt-1.5 inline-flex items-center gap-1 text-sm text-muted tabular-nums transition-colors hover:text-black" href={`${SNOWTRACE}/address/${account}`} target="_blank" rel="noreferrer" title={account}>{short(account)} <ArrowUpRightIcon weight="bold" className="arrow-nudge" aria-hidden="true" /></a>
           {avatarsLive && <div className="max-w-full break-words"><Bio account={account as `0x${string}`} isMe={isMe} /></div>}
         </div>
 

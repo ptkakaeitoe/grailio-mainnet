@@ -417,3 +417,16 @@ html[data-scrolled]:has(#main-content details[open] .frost, #main-content .frost
 @media (prefers-reduced-motion: reduce) {
   .side-drawer, .side-drawer::backdrop, .drop-panel, .pop-dialog, .pop-dialog::backdrop { transition: none; }
 }
+
+/* Buttons nudge their ↗ arrow up and right on hover (add .arrow-nudge to the icon). */
+.arrow-nudge { transition: translate .25s cubic-bezier(.22, .8, .24, 1); }
+:is(a, button):is(:hover, :focus-visible):not(:disabled) > .arrow-nudge { translate: 2px -2px; }
+@media (prefers-reduced-motion: reduce) { .arrow-nudge { transition: none; } }
+
+/* Button icons on hover: a + spins a quarter turn, ↕ flips, → slides right. */
+.plus-spin, .icon-flip { transition: rotate .3s cubic-bezier(.22, .8, .24, 1); }
+.arrow-slide { transition: translate .25s cubic-bezier(.22, .8, .24, 1); }
+:is(a, button):is(:hover, :focus-visible):not(:disabled) > .plus-spin { rotate: 90deg; }
+:is(a, button):is(:hover, :focus-visible):not(:disabled) > .icon-flip { rotate: 180deg; }
+:is(a, button):is(:hover, :focus-visible):not(:disabled) > .arrow-slide { translate: 3px 0; }
+@media (prefers-reduced-motion: reduce) { .plus-spin, .icon-flip, .arrow-slide { transition: none; } }

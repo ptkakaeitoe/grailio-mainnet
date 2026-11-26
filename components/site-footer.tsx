@@ -18,7 +18,7 @@ export function SiteFooter() {
           <Link href="/marketplace" className={cleanLink}>market</Link>
           <Link href="/info" className={cleanLink}>info</Link>
         </nav>
-        <a href="https://bscscan.com" target="_blank" rel="noreferrer" className={cleanLink}>bnb chain · public beta <ArrowUpRightIcon weight="bold" /></a>
+        <a href="https://bscscan.com" target="_blank" rel="noreferrer" className={cleanLink}>bnb chain · public beta <ArrowUpRightIcon weight="bold" className="arrow-nudge" aria-hidden="true" /></a>
       </div>
       <DemoFooterControls />
     </footer>

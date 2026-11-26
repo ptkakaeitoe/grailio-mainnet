@@ -76,10 +76,10 @@ export function DemoPackReveal({ onClose, purchasedCount }: { onClose: () => voi
       {message && <p className={cn(revealFrame.note, "mt-4 text-down")} role="alert">{message}</p>}
     </div>
     <div className={cn(dialogFooter, revealFrame.actions)}>
-      {phase === "purchased" && <button disabled={!quotesReady} type="button" className={cn(cleanButton.solid, "w-full justify-between")} onClick={reveal}>{quotesReady ? "Reveal pack" : failed ? "Prices unavailable, retrying…" : "Loading prices…"} <ArrowUpRightIcon weight="bold" /></button>}
+      {phase === "purchased" && <button disabled={!quotesReady} type="button" className={cn(cleanButton.solid, "w-full justify-between")} onClick={reveal}>{quotesReady ? "Reveal pack" : failed ? "Prices unavailable, retrying…" : "Loading prices…"} <ArrowUpRightIcon weight="bold" className="arrow-nudge" aria-hidden="true" /></button>}
       {phase === "revealed" && <>
-        <button type="button" className={cn(cleanButton.solid, "w-full justify-between")} disabled={!quotesReady || left < 1} onClick={() => { locked.current = false; reveal(); }}>{left > 0 ? `Open another · ${left} left` : "No more packs"} <ArrowUpRightIcon weight="bold" /></button>
-        <Link className={cn(cleanButton.outline, "w-full justify-between")} href="/collection" onClick={onClose}>View collection <ArrowUpRightIcon weight="bold" /></Link>
+        <button type="button" className={cn(cleanButton.solid, "w-full justify-between")} disabled={!quotesReady || left < 1} onClick={() => { locked.current = false; reveal(); }}>{left > 0 ? `Open another · ${left} left` : "No more packs"} <ArrowUpRightIcon weight="bold" className="arrow-nudge" aria-hidden="true" /></button>
+        <Link className={cn(cleanButton.outline, "w-full justify-between")} href="/collection" onClick={onClose}>View collection <ArrowUpRightIcon weight="bold" className="arrow-nudge" aria-hidden="true" /></Link>
       </>}
     </div>
   </dialog>;

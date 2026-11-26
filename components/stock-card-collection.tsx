@@ -113,7 +113,7 @@ export function StockCardCollection() {
         label="token-backed cards"
         title="Your first card awaits."
         body="Open a pack to start."
-        action={<Link className={cleanButton.solid} href="/packs">Open a pack <ArrowUpRightIcon weight="bold" /></Link>}
+        action={<Link className={cleanButton.solid} href="/packs">Open a pack <ArrowUpRightIcon weight="bold" className="arrow-nudge" aria-hidden="true" /></Link>}
       />
     );
   }
@@ -204,7 +204,7 @@ export function StockCardCollection() {
                       <button type="button" className={listingButtonOutline} disabled={busy} onClick={() => run(`cancel-${key}`, { address: collectMarketAddress, abi: collectMarketAbi, functionName: "cancel", args: [collectPacksAddress, card.id] })}>
                         {working("cancel") ? "Unlisting…" : "Unlist"}
                       </button>
-                      <Link href="/marketplace" className={cn(listingButtonOutline, "inline-flex items-center justify-center gap-1")}>Market <ArrowUpRightIcon weight="bold" /></Link>
+                      <Link href="/marketplace" className={cn(listingButtonOutline, "inline-flex items-center justify-center gap-1")}>Market <ArrowUpRightIcon weight="bold" className="arrow-nudge" aria-hidden="true" /></Link>
                     </>
                   ) : (
                     <>
@@ -213,7 +213,7 @@ export function StockCardCollection() {
                           {working("stake") ? (approvedForStaking ? "Staking…" : "Allowing…") : approvedForStaking ? "Stake" : "Allow staking"}
                         </button>
                       ) : card.filled ? (
-                        <Link href="/marketplace" className={cn(listingButton, "inline-flex items-center justify-center gap-1")}>Sell <ArrowUpRightIcon weight="bold" /></Link>
+                        <Link href="/marketplace" className={cn(listingButton, "inline-flex items-center justify-center gap-1")}>Sell <ArrowUpRightIcon weight="bold" className="arrow-nudge" aria-hidden="true" /></Link>
                       ) : (
                         <button type="button" className={listingButton} disabled={busy} onClick={() => run(`fill-${key}`, { address: collectPacksAddress, abi: collectPacksAbi, functionName: "fill", args: [card.id] })}>
                           {working("fill") ? "Filling…" : `Fill with ${card.ticker}`}
@@ -228,8 +228,8 @@ export function StockCardCollection() {
                 </span>
               }
               link={<span className="flex flex-wrap gap-x-4 gap-y-1">
-                {collectStakingLive && card.filled && !card.staked && !listing && <Link className="inline-flex items-center gap-1 hover:text-black" href="/marketplace">Sell on the marketplace <ArrowUpRightIcon weight="bold" /></Link>}
-                <a className="inline-flex items-center gap-1 hover:text-black" href={`${SNOWTRACE}/nft/${collectPacksAddress}/${key}`} target="_blank" rel="noreferrer">View on BscScan <ArrowUpRightIcon weight="bold" /></a>
+                {collectStakingLive && card.filled && !card.staked && !listing && <Link className="inline-flex items-center gap-1 hover:text-black" href="/marketplace">Sell on the marketplace <ArrowUpRightIcon weight="bold" className="arrow-nudge" aria-hidden="true" /></Link>}
+                <a className="inline-flex items-center gap-1 hover:text-black" href={`${SNOWTRACE}/nft/${collectPacksAddress}/${key}`} target="_blank" rel="noreferrer">View on BscScan <ArrowUpRightIcon weight="bold" className="arrow-nudge" aria-hidden="true" /></a>
               </span>}
             />
           );

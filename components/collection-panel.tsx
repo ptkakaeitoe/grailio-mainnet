@@ -40,7 +40,7 @@ export function CollectionPanel() {
         label="series 01"
         title="Cards arrive at launch."
         body="Packs go on sale when Grailio launches on BNB Chain."
-        action={<button type="button" className={cleanButton.solid} onClick={demo.start}>Try the demo <ArrowUpRightIcon weight="bold" /></button>}
+        action={<button type="button" className={cleanButton.solid} onClick={demo.start}>Try the demo <ArrowUpRightIcon weight="bold" className="arrow-nudge" aria-hidden="true" /></button>}
       />
     );
   }
@@ -51,7 +51,7 @@ export function CollectionPanel() {
         label="classic / series 01"
         title={address || demo.active ? "Your first find awaits." : "Your cards live here."}
         body={address || demo.active ? "Open a Fable pack." : "Connect to see them."}
-        action={address || demo.active ? <Link className={cleanButton.solid} href="/packs">Explore packs <ArrowUpRightIcon weight="bold" /></Link> : <WalletEntry className={cleanButton.solid} />}
+        action={address || demo.active ? <Link className={cleanButton.solid} href="/packs">Explore packs <ArrowUpRightIcon weight="bold" className="arrow-nudge" aria-hidden="true" /></Link> : <WalletEntry className={cleanButton.solid} />}
       />
     );
   }

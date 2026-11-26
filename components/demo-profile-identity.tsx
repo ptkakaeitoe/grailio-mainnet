@@ -44,7 +44,7 @@ export function DemoProfileIdentity({ actions, editable = true }: { actions?: Re
               <div className="mt-4 flex flex-wrap gap-1.5">
                 {links.map((n) => (
                   <a key={n.key} className={chip} href={n.url(profile.socials[n.key])} target="_blank" rel="noopener noreferrer nofollow">
-                    <span className="text-muted">{n.label}</span> @{profile.socials[n.key]} <ArrowUpRightIcon weight="bold" />
+                    <span className="text-muted">{n.label}</span> @{profile.socials[n.key]} <ArrowUpRightIcon weight="bold" className="arrow-nudge" aria-hidden="true" />
                   </a>
                 ))}
               </div>

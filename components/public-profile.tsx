@@ -46,7 +46,7 @@ export function PublicProfile({ target }: { target: Target }) {
   if (isLoading) return <p className="pt-10 text-sm text-muted" role="status">Looking up @{target.value}…</p>;
   if (isError) return <Missing title="Couldn’t look up this profile." body="Check your connection and reload." />;
   if (!owner || isAddressEqual(owner, zeroAddress)) {
-    return <Missing title={`@${target.value} isn’t claimed yet.`} body="Claim it as your username from your profile." action={<Link className={cleanButton.solid} href="/profile">Go to your profile <ArrowUpRightIcon weight="bold" /></Link>} />;
+    return <Missing title={`@${target.value} isn’t claimed yet.`} body="Claim it as your username from your profile." action={<Link className={cleanButton.solid} href="/profile">Go to your profile <ArrowUpRightIcon weight="bold" className="arrow-nudge" aria-hidden="true" /></Link>} />;
   }
   return <ProfileView account={owner} />;
 }

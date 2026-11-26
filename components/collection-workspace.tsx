@@ -55,7 +55,7 @@ function GiftsEmpty({ title }: { title: string }) {
       <p className="text-base">{title}</p>
       <div className="flex flex-wrap justify-center gap-2">
         <GiftClaimLink variant="button" className={stateAction}>Redeem a code</GiftClaimLink>
-        <Link href="/packs#play" className={stateAction}>Send a gift<ArrowUpRightIcon weight="bold" /></Link>
+        <Link href="/packs#play" className={stateAction}>Send a gift<ArrowUpRightIcon weight="bold" className="arrow-nudge" aria-hidden="true" /></Link>
       </div>
     </div>
   );

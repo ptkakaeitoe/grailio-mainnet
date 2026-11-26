@@ -16,7 +16,8 @@ const rowIcon = "grid size-10 shrink-0 place-items-center rounded-full bg-surfac
  * "Connect": a centred connect modal with the Testnet / Mainnet switch and the ways in, the same panel as the
  * testnet app. `navAnchor` is kept for callers; the modal no longer drops from the nav button.
  */
-export function WalletEntry({ className = cleanButton.solid, disabled = false, navAnchor = false }: { className?: string; disabled?: boolean; navAnchor?: boolean }) {
+/** `icon`: a + after the label that spins on hover (everywhere), or a wallet before it (the nav only). */
+export function WalletEntry({ className = cleanButton.solid, disabled = false, navAnchor = false, icon = "plus" }: { className?: string; disabled?: boolean; navAnchor?: boolean; icon?: "wallet" | "plus" }) {
   const demo = useDemo();
   const dialog = useRef<HTMLDialogElement>(null);
   const close = () => dialog.current?.close();
@@ -25,7 +26,9 @@ export function WalletEntry({ className = cleanButton.solid, disabled = false, n
 
   return <>
     <button type="button" className={className} disabled={disabled} aria-haspopup="dialog" data-wallet-anchor={navAnchor || undefined} onClick={() => dialog.current?.showModal()}>
-      <span>Connect<span className="wallet-word"> wallet</span></span><span aria-hidden="true"><PlusIcon /></span>
+      {icon === "wallet" && <WalletIcon className="size-4" aria-hidden="true" />}
+      <span>Connect<span className="wallet-word"> wallet</span></span>
+      {icon === "plus" && <PlusIcon className="plus-spin" aria-hidden="true" />}
     </button>
     <dialog ref={dialog} aria-label="Connect a wallet" className={cn(cleanDialog, "w-[min(460px,calc(100vw-24px))] max-h-[calc(100dvh-48px)]")} onClick={(event) => { if (event.target === event.currentTarget) close(); }}>
       <header className={dialogHeader}>

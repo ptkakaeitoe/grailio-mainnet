@@ -151,7 +151,7 @@ export default function InfoPage() {
                 {ch.actions.map((action) => (
                   <article key={action.name} className="border-b border-border py-[22px]">
                     <div className="flex flex-wrap items-baseline justify-between gap-x-5 gap-y-2">
-                      <h3 className="text-[clamp(20px,1.9vw,26px)] font-normal tracking-[-0.02em]">{action.href ? <Link href={action.href} className="inline-flex items-baseline gap-2 hover:text-muted">{action.name} <span className="text-[.6em] text-muted-soft" aria-hidden="true"><ArrowUpRightIcon weight="bold" /></span></Link> : action.name}</h3>
+                      <h3 className="text-[clamp(20px,1.9vw,26px)] font-normal tracking-[-0.02em]">{action.href ? <Link href={action.href} className="inline-flex items-baseline gap-2 hover:text-muted">{action.name} <span className="text-[.6em] text-muted-soft" aria-hidden="true"><ArrowUpRightIcon weight="bold" className="arrow-nudge" aria-hidden="true" /></span></Link> : action.name}</h3>
                       <span className="rounded-full border border-border-strong px-2.5 py-1 text-xs whitespace-nowrap text-muted">{action.cost}</span>
                     </div>
                     <p className="mt-2 max-w-[620px] text-sm leading-relaxed text-muted">{action.what}</p>
@@ -194,7 +194,7 @@ export default function InfoPage() {
               {CONTRACTS.map((c) => (
                 <li key={c.name} className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 border-b border-border py-3.5">
                   <div><strong className="block text-[15px] font-medium">{c.name}</strong><span className="text-[13px] text-muted">{c.role}</span></div>
-                  {c.address === NOT_DEPLOYED ? <span className="text-[13px] text-muted">at launch</span> : <a className="inline-flex items-center gap-1 text-[13px] text-muted tabular-nums hover:text-black" href={`${SNOWTRACE}/address/${c.address}`} target="_blank" rel="noreferrer">{short(c.address)} <ArrowUpRightIcon weight="bold" /></a>}
+                  {c.address === NOT_DEPLOYED ? <span className="text-[13px] text-muted">at launch</span> : <a className="inline-flex items-center gap-1 text-[13px] text-muted tabular-nums hover:text-black" href={`${SNOWTRACE}/address/${c.address}`} target="_blank" rel="noreferrer">{short(c.address)} <ArrowUpRightIcon weight="bold" className="arrow-nudge" aria-hidden="true" /></a>}
                 </li>
               ))}
             </ul>

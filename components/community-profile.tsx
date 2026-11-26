@@ -177,7 +177,7 @@ export function AvatarEditor({ cards, current, onSaved, onLocalSave, onLocalClea
   if (!embedded && (!open || receipt.isSuccess)) {
     return (
       <button type="button" className={cn(cleanButton.outline, "mt-6 w-full justify-between")} onClick={() => { reset(); setOpen(true); }}>
-        {current ? "Change profile picture" : allowNfts ? "Set a profile picture from your cards or NFTs" : "Set a profile picture from your cards"} <ArrowUpRightIcon weight="bold" />
+        {current ? "Change profile picture" : allowNfts ? "Set a profile picture from your cards or NFTs" : "Set a profile picture from your cards"} <ArrowUpRightIcon weight="bold" className="arrow-nudge" aria-hidden="true" />
       </button>
     );
   }
@@ -322,7 +322,7 @@ export function AvatarEditor({ cards, current, onSaved, onLocalSave, onLocalClea
 
       {!embedded && <div className="mt-4 flex flex-wrap items-center gap-2">
         <button type="button" className={cleanButton.solid} disabled={busy || !source} onClick={save}>
-          {isPending ? "Confirm in wallet…" : receipt.isLoading ? "Saving…" : "Save picture"} <ArrowUpRightIcon weight="bold" />
+          {isPending ? "Confirm in wallet…" : receipt.isLoading ? "Saving…" : "Save picture"} <ArrowUpRightIcon weight="bold" className="arrow-nudge" aria-hidden="true" />
         </button>
         {current && (
           <button type="button" className={cleanButton.outline} disabled={busy} onClick={() => { if (onLocalClear) { onLocalClear(); setOpen(false); return; } reset(); writeContract({ address: avatarsAddress, abi: avatarsAbi, functionName: "clearAvatar" }); }}>Remove</button>

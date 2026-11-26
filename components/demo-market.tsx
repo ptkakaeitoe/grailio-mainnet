@@ -122,7 +122,7 @@ export function DemoMarket({ mode = "both" }: { mode?: MarketMode }) {
         worth: worth(c),
         blocked: c.stakedAt !== null ? "Staked" : null,
       }))}
-      empty={{ title: "No cards yet.", action: <Link href="/packs" className={stateAction}>Open a demo pack<ArrowUpRightIcon weight="bold" /></Link> }}
+      empty={{ title: "No cards yet.", action: <Link href="/packs" className={stateAction}>Open a demo pack<ArrowUpRightIcon weight="bold" className="arrow-nudge" aria-hidden="true" /></Link> }}
       selectedId={selected ? String(selected.id) : null}
       onSelect={setSellId}
       currency={currency}
@@ -162,7 +162,7 @@ export function DemoMarket({ mode = "both" }: { mode?: MarketMode }) {
             market.listings.length ? (
               <MarketState title="Nothing listed here." action={<button type="button" className={stateAction} onClick={() => { setRarity("all"); assets.clear(); }}>Show all</button>} />
             ) : (
-              <MarketState title="No listings yet." action={<Link href={SELL_HREF} className={stateAction}>Sell a card<ArrowUpRightIcon weight="bold" /></Link>} />
+              <MarketState title="No listings yet." action={<Link href={SELL_HREF} className={stateAction}>Sell a card<ArrowUpRightIcon weight="bold" className="arrow-nudge" aria-hidden="true" /></Link>} />
             )
           ) : (
             <ul className={listingGrid}>
@@ -268,7 +268,7 @@ export function DemoMarket({ mode = "both" }: { mode?: MarketMode }) {
               </div>
               {valid && <p className="text-sm text-muted">You get {priceText({ price: payout, currency })} when it sells.</p>}
               <button type="submit" className={cn(cleanButton.solid, "mt-1 w-full justify-between")} disabled={!selected || !valid}>
-                List card <ArrowUpRightIcon weight="bold" />
+                List card <ArrowUpRightIcon weight="bold" className="arrow-nudge" aria-hidden="true" />
               </button>
               <p className="text-[13px] text-muted">Demo: the card waits in the market until you cancel the listing.</p>
             </form>

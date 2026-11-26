@@ -83,7 +83,7 @@ export function DemoCollection() {
           body={notice || "Open a demo pack to start."}
           action={
             <Link href="/packs" className={cleanButton.solid}>
-              Open a pack <ArrowUpRightIcon weight="bold" />
+              Open a pack <ArrowUpRightIcon weight="bold" className="arrow-nudge" aria-hidden="true" />
             </Link>
           }
         />

@@ -30,8 +30,8 @@ export const SELL_HREF = "/marketplace/sell";
 /** The market's main action, top right of the title row. -my-1.5 keeps the 40px button from making the row taller than the heading, so the title sits at the same height as other pages' titles. */
 export function SellButton() {
   return (
-    <Link href={SELL_HREF} className="-my-1.5 inline-flex min-h-10 shrink-0 items-center gap-2 rounded-md border-[1.5px] border-black bg-black px-4 text-sm text-white transition-colors hover:bg-white hover:text-black">
-      Sell a card<ArrowUpRightIcon weight="bold" />
+    <Link href={SELL_HREF} className="-my-1.5 inline-flex min-h-10 shrink-0 items-center gap-2 rounded-md border-[1.5px] border-black bg-black px-4 text-sm text-white">
+      Sell a card<ArrowUpRightIcon weight="bold" className="arrow-nudge" aria-hidden="true" />
     </Link>
   );
 }
@@ -405,7 +405,7 @@ export function PackListingCard({ tier, id, name, badge, price, details, action,
 }
 
 /** Buy / cancel button under a listing. */
-export const listingButton = "min-h-10 w-full rounded-md border-[1.5px] border-black bg-black px-3 text-sm text-white transition-colors hover:bg-white hover:text-black disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-black disabled:hover:text-white";
+export const listingButton = "min-h-10 w-full rounded-md border-[1.5px] border-black bg-black px-3 text-sm text-white disabled:cursor-not-allowed disabled:opacity-40";
 
 /** Secondary action beside listingButton (unstake, redeem, market). */
 export const listingButtonOutline = "min-h-10 w-full rounded-md border border-border px-3 text-sm transition-colors hover:border-black disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:border-border";

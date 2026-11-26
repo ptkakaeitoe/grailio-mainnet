@@ -41,7 +41,7 @@ export function SwapSuccessDialog({ paid, received, hash, onClose }: { paid: str
         <p className="mt-2 text-sm text-muted">
           {hash ? (
             <a className="inline-flex items-center gap-1 transition-colors hover:text-black" href={`${SNOWTRACE}/tx/${hash}`} target="_blank" rel="noreferrer">
-              View on BscScan <ArrowUpRightIcon weight="bold" />
+              View on BscScan <ArrowUpRightIcon weight="bold" className="arrow-nudge" aria-hidden="true" />
             </a>
           ) : (
             "Demo · no real funds moved"

@@ -418,10 +418,10 @@ export function PackPanel() {
       <div className="featured-pack-copy min-w-0 pb-8 desk:pt-[60px]" aria-live="polite">
         <div className="featured-pack-switch mb-6">
           <div className="flex items-baseline justify-between gap-3">
-            <h3 key={edition.id} className="text-[28px] leading-[1.2] font-normal tracking-tight">{edition.name}</h3>
+            <h3 key={edition.id} className="text-[28px] leading-[1.2] font-light tracking-tight">{edition.name}</h3>
             {/* Price and risk are in the boxes below; the top right links to the odds behind them. */}
             <button type="button" aria-haspopup="dialog" className="inline-flex shrink-0 items-center gap-1 text-base underline-offset-4 hover:underline" onClick={() => setShowContents(true)}>
-              Odds and Rewards <ArrowUpRightIcon weight="bold" />
+              Odds and Rewards <ArrowUpRightIcon weight="bold" className="arrow-nudge" aria-hidden="true" />
             </button>
           </div>
           <p className="featured-pack-subtitle mt-1 text-base text-muted">{edition.subtitle}</p>
@@ -502,7 +502,7 @@ export function PackPanel() {
           </div>
           {needsWallet ? (
             <button type="button" className={cn(cleanButton.solid, "shrink-0 px-5")} onClick={openConnect}>
-              Connect wallet <ArrowUpRightIcon weight="bold" />
+              Connect wallet <ArrowUpRightIcon weight="bold" className="arrow-nudge" aria-hidden="true" />
             </button>
           ) : <button
             type="button"
@@ -515,7 +515,7 @@ export function PackPanel() {
               setConfirmBuy(true);
             }}
           >
-            {tierOff ? "Coming soon" : budgetOut ? "Sold out" : swapping ? "Swapping BNB…" : approval.approving ? "Approving…" : busy && !demo.active ? "Working…" : comingSoon ? (capacity === 0n ? "Sold out" : `Only ${capacity} left`) : insufficient ? `Insufficient ${live ? payToken : payment.label}` : <>{`${asGift ? "Gift" : "Buy"} ${live ? `${editionForTier(tierId).name} ` : ""}${quantity === 1 ? "pack" : `${quantity} packs`}`} <ArrowUpRightIcon weight="bold" /></>}
+            {tierOff ? "Coming soon" : budgetOut ? "Sold out" : swapping ? "Swapping BNB…" : approval.approving ? "Approving…" : busy && !demo.active ? "Working…" : comingSoon ? (capacity === 0n ? "Sold out" : `Only ${capacity} left`) : insufficient ? `Insufficient ${live ? payToken : payment.label}` : <>{`${asGift ? "Gift" : "Buy"} ${live ? `${editionForTier(tierId).name} ` : ""}${quantity === 1 ? "pack" : `${quantity} packs`}`} <ArrowUpRightIcon weight="bold" className="arrow-nudge" aria-hidden="true" /></>}
           </button>}
         </div>
       </div>
@@ -526,7 +526,7 @@ export function PackPanel() {
             {readyPacks.length > 0 || sealedPacks.length > 0 ? "Open packs" : "Revealing…"}
             <span className="text-muted tabular-nums">{readyPacks.length > 0 ? readyPacks.length : sealedPacks.length > 0 ? sealedPacks.length : unopened.length}</span>
           </button>
-          <Link href="/collection" className={ownedButton}>Your packs <ArrowUpRightIcon weight="bold" /></Link>
+          <Link href="/collection" className={ownedButton}>Your packs <ArrowUpRightIcon weight="bold" className="arrow-nudge" aria-hidden="true" /></Link>
         </div>
       )}
       {demo.active && (demo.balances.PACK ?? 0) > 0 && (
@@ -534,7 +534,7 @@ export function PackPanel() {
           <button type="button" aria-haspopup="dialog" className={ownedButton} onClick={() => { unlockAudio(); setPurchasedCount(demo.balances.PACK ?? 0); setShowReveal(true); }}>
             Open packs <span className="text-muted tabular-nums">{demo.balances.PACK}</span>
           </button>
-          <Link href="/collection" className={ownedButton}>Your packs <ArrowUpRightIcon weight="bold" /></Link>
+          <Link href="/collection" className={ownedButton}>Your packs <ArrowUpRightIcon weight="bold" className="arrow-nudge" aria-hidden="true" /></Link>
         </div>
       )}
       {/* Got a gift? Claim it here without leaving the page. */}
