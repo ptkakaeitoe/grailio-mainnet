@@ -5,7 +5,7 @@ import Link from "next/link";
 
 import { cleanButton, cleanField, cn } from "@/components/clean-ui";
 import {
-  FloorGrid,
+  AssetFilter,
   MarketState,
   stateAction,
   MarketLayout,
@@ -13,9 +13,11 @@ import {
   SellButton,
   sectionLabel,
   sectionTitle,
+  useAssetFilter,
 } from "@/components/market-parts";
 import { SellWorkspace } from "@/components/sell-workspace";
 import { STOCK_CARDS } from "@/lib/cards";
+import { isStock } from "@/lib/stock-assets";
 
 /**
  * Shown until CollectMarket is deployed on mainnet (then CollectMarketLive takes
@@ -23,13 +25,14 @@ import { STOCK_CARDS } from "@/lib/cards";
  */
 export function MarketplaceWorkspace({ mode = "both" }: { mode?: MarketMode }) {
   const SellTitle = mode === "sell" ? "h1" : "h2";
+  const assets = useAssetFilter({ cards: STOCK_CARDS, keep: (c) => isStock(c.ticker), listings: [] as never[], tickerOf: () => "", usdOf: () => null });
   return (
     <MarketLayout
       mode={mode}
       floor={
-        <FloorGrid
+        <AssetFilter
           label="opening soon"
-          items={STOCK_CARDS.map((card) => ({ card, count: 0, floor: "—" }))}
+          filter={assets}
           action={mode === "browse" ? <SellButton /> : undefined}
         />
       }

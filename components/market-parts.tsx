@@ -1,9 +1,9 @@
 "use client";
 
 import { TokenIcon } from "@/components/token-icon";
-import { ArrowUpRightIcon, CaretDownIcon, CheckIcon, CardsIcon, CircleNotchIcon, WarningCircleIcon, XIcon } from "@phosphor-icons/react/ssr";
+import { ArrowUpRightIcon, CaretDownIcon, CheckIcon, CardsIcon, CircleNotchIcon, MagnifyingGlassIcon, WarningCircleIcon, XIcon } from "@phosphor-icons/react/ssr";
 import Link from "next/link";
-import { useRef, type ReactNode } from "react";
+import { useCallback, useRef, useState, useSyncExternalStore, type ReactNode } from "react";
 
 import { cleanChip, cleanDrawerRight, cn, dialogClose, dialogFooter } from "@/components/clean-ui";
 import { TierPackArt } from "@/components/pack-art";
@@ -27,7 +27,7 @@ export type MarketMode = "both" | "browse" | "sell";
 
 export const SELL_HREF = "/marketplace/sell";
 
-/** The market's main action, top right of the Floor row. -my-1.5 keeps the 40px button from making the row taller than the heading, so Floor sits at the same height as other pages' titles. */
+/** The market's main action, top right of the title row. -my-1.5 keeps the 40px button from making the row taller than the heading, so the title sits at the same height as other pages' titles. */
 export function SellButton() {
   return (
     <Link href={SELL_HREF} className="-my-1.5 inline-flex min-h-10 shrink-0 items-center gap-2 rounded-md border-[1.5px] border-black bg-black px-4 text-sm text-white transition-colors hover:bg-white hover:text-black">
@@ -88,27 +88,117 @@ export function MarketState({ kind = "empty", title, action }: { kind?: "empty" 
 /** Small outlined button for a state's action. */
 export const stateAction = "inline-flex min-h-10 items-center gap-2 rounded-md border border-border-strong bg-white px-4 text-sm text-black transition-colors hover:border-black";
 
-/** Per-stock floor prices in outlined boxes, like /trade's watchlist rows. */
-export function FloorGrid({ label, items, action }: { label?: string; items: { card: StockCard; floor: ReactNode; count: number }[]; action?: ReactNode }) {
+/** A filter chip: one asset, with its floor (USD) when it has listings. */
+export type AssetChip = { ticker: string; name: string; count: number; floor: number | null };
+
+const ASSET_EVENT = "market-asset";
+function subscribeAsset(onChange: () => void) {
+  window.addEventListener("popstate", onChange);
+  window.addEventListener(ASSET_EVENT, onChange);
+  return () => {
+    window.removeEventListener("popstate", onChange);
+    window.removeEventListener(ASSET_EVENT, onChange);
+  };
+}
+const readAsset = () => new URLSearchParams(window.location.search).get("asset")?.toUpperCase() ?? "";
+
+/** The selected asset, kept in the URL (?asset=NVDA) so a filtered market can be shared. */
+export function useAssetParam(): [string, (ticker: string) => void] {
+  const asset = useSyncExternalStore(subscribeAsset, readAsset, () => "");
+  const setAsset = useCallback((ticker: string) => {
+    const url = new URL(window.location.href);
+    if (ticker) url.searchParams.set("asset", ticker);
+    else url.searchParams.delete("asset");
+    window.history.replaceState(null, "", url);
+    window.dispatchEvent(new Event(ASSET_EVENT));
+  }, []);
+  return [asset, setAsset];
+}
+
+/**
+ * Asset chips and search for a market's listings. `keep` picks the assets that
+ * always get a chip; any other asset gets one only while it has a listing.
+ * Counts and floors follow `inView` (e.g. the rarity filter).
+ */
+export function useAssetFilter<L>({ cards, keep, listings, tickerOf, usdOf, inView = () => true }: {
+  cards: StockCard[];
+  keep: (card: StockCard) => boolean;
+  listings: L[];
+  tickerOf: (l: L) => string;
+  usdOf: (l: L) => number | null;
+  inView?: (l: L) => boolean;
+}) {
+  const [asset, setAsset] = useAssetParam();
+  const [query, setQuery] = useState("");
+  const listed = new Set(listings.map(tickerOf));
+  const chips: AssetChip[] = cards
+    .filter((card) => keep(card) || listed.has(card.ticker))
+    .map((card) => {
+      const forCard = listings.filter((l) => tickerOf(l) === card.ticker && inView(l));
+      const prices = forCard.map(usdOf).filter((p): p is number => p !== null);
+      return { ticker: card.ticker, name: card.tokenName, count: forCard.length, floor: prices.length ? Math.min(...prices) : null };
+    })
+    .sort((a, b) => Number(b.count > 0) - Number(a.count > 0));
+  const q = query.trim().toLowerCase();
+  const found = q ? chips.filter((c) => c.ticker.toLowerCase().includes(q) || c.name.toLowerCase().includes(q)) : chips;
+  const foundTickers = new Set(found.map((c) => c.ticker));
+  /** Whether a listing passes the picked chip, or the search when no chip is picked. */
+  const matches = (l: L) => (asset ? tickerOf(l) === asset : !q || foundTickers.has(tickerOf(l)));
+  const clear = () => { setAsset(""); setQuery(""); };
+  return { asset, setAsset, query, setQuery, chips: found, matches, clear, filtering: Boolean(asset || q) };
+}
+
+const floorText = (n: number) => `$${n.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: n >= 1 ? 2 : 4 })}`;
+
+/** Page title with the main action, then the asset search and chips. */
+export function AssetFilter({ title = "Market", label, action, filter }: {
+  title?: string;
+  label?: string;
+  action?: ReactNode;
+  filter: Pick<ReturnType<typeof useAssetFilter>, "asset" | "setAsset" | "query" | "setQuery" | "chips">;
+}) {
+  const { asset, setAsset, query, setQuery, chips } = filter;
   return (
-    <section aria-labelledby="floor-title">
+    <section aria-labelledby="market-title">
       <div className={cn("flex justify-between gap-3", action ? "items-center" : "items-baseline")}>
         <div className="flex min-w-0 items-baseline gap-3">
-          <h1 id="floor-title" className="text-[22px] leading-[1.3] font-normal tracking-tight">Floor</h1>
+          <h1 id="market-title" className="text-[22px] leading-[1.3] font-normal tracking-tight">{title}</h1>
           {label && action && <span className={cn(sectionLabel, "truncate")}>[ {label} ]</span>}
         </div>
         {action ?? (label && <span className={sectionLabel}>[ {label} ]</span>)}
       </div>
-      {/* Phones: a strip you swipe sideways, edge to edge like the trade watchlist; a grid from 481px. */}
-      <dl className="mt-4 flex gap-1.5 overflow-x-auto max-phone:-mx-[18px] max-phone:px-[18px] max-phone:pb-1 phone:grid phone:grid-cols-3 phone:overflow-visible desk:mt-6 desk:grid-cols-5">
-        {items.map(({ card, floor, count }) => (
-          <div key={card.ticker} className="min-w-0 rounded-md border border-border px-4 py-4 max-phone:w-[168px] max-phone:flex-none max-phone:py-3 desk:py-5">
-            <dt className="flex items-center gap-2 text-sm text-muted"><TokenIcon symbol={card.ticker} className="size-4 shrink-0" /><span className="truncate max-phone:hidden">{card.tokenName}</span><span className="text-muted-soft max-phone:text-black phone:ml-auto">{card.ticker}</span></dt>
-            <dd className="mt-2 truncate text-[24px] leading-[1.2] tracking-tight tabular-nums max-phone:text-[18px]" title={typeof floor === "string" ? floor : undefined}>{floor}</dd>
-            <dd className="mt-1 text-sm text-muted">{count ? `${count} listed` : "None listed"}</dd>
-          </div>
-        ))}
-      </dl>
+      <div className="mt-4 flex flex-col gap-3 desk:mt-6 desk:flex-row desk:items-start">
+        <label className="relative block shrink-0 desk:w-56">
+          <span className="sr-only">Search assets</span>
+          <MagnifyingGlassIcon aria-hidden="true" className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted" />
+          <input
+            type="search"
+            className="h-9 w-full rounded-md border border-border bg-white pr-3 pl-9 text-sm transition-colors hover:border-border-strong focus:border-black focus:outline-none"
+            placeholder="Search"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            onKeyDown={(e) => { if (e.key === "Enter" && chips.length === 1) setAsset(chips[0].ticker); }}
+          />
+        </label>
+        {/* Phones: one row you swipe sideways; wraps from 481px. */}
+        <div className="flex min-w-0 gap-1.5 max-phone:-mx-[18px] max-phone:overflow-x-auto max-phone:px-[18px] max-phone:pb-1 phone:flex-wrap" role="group" aria-label="Filter by asset">
+          <button type="button" className={cn(cleanChip, "h-9 shrink-0")} aria-pressed={!asset} onClick={() => setAsset("")}>All</button>
+          {chips.map((c) => (
+            <button
+              key={c.ticker}
+              type="button"
+              title={c.name}
+              className={cn(cleanChip, "group inline-flex h-9 shrink-0 items-center gap-1.5 whitespace-nowrap")}
+              aria-pressed={asset === c.ticker}
+              onClick={() => setAsset(asset === c.ticker ? "" : c.ticker)}
+            >
+              <TokenIcon symbol={c.ticker} className="size-4" />
+              {c.ticker}
+              {c.floor !== null && <span className="text-muted tabular-nums group-aria-pressed:text-white/70">· {floorText(c.floor)}</span>}
+            </button>
+          ))}
+        </div>
+      </div>
     </section>
   );
 }

@@ -8,13 +8,13 @@ import type { CardInfo } from "@/lib/use-collect-market";
 import { tokenAmount } from "@/lib/format-amount";
 import { ArrowUpRightIcon } from "@phosphor-icons/react/ssr";
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 
 import { cleanButton, cleanField, cn } from "@/components/clean-ui";
 import { BuyConfirmDialog } from "@/components/buy-confirm-dialog";
 import { useDemo } from "@/components/demo-provider";
 import {
-  FloorGrid,
+  AssetFilter,
   MarketState,
   SELL_HREF,
   stateAction,
@@ -28,6 +28,7 @@ import {
   listingGrid,
   sectionLabel,
   sectionTitle,
+  useAssetFilter,
 } from "@/components/market-parts";
 import { SellWorkspace } from "@/components/sell-workspace";
 import { TokenIcon } from "@/components/token-icon";
@@ -69,18 +70,12 @@ export function DemoMarket({ mode = "both" }: { mode?: MarketMode }) {
 
   const [rarity, setRarity] = useState("all");
   const [sort, setSort] = useState<"price" | "recent">("price");
-  const shown = useMemo(() => {
-    const filtered = rarity === "all" ? market.listings : market.listings.filter((l) => RARITY_NAMES[l.card.rarity] === rarity);
-    const value = (l: DemoListing) => (l.currency === "BNB" ? l.price * (avaxUsd ?? 0) : l.price);
-    return [...filtered].sort((a, b) => (sort === "price" ? value(a) - value(b) : b.id - a.id));
-  }, [market.listings, rarity, sort, avaxUsd]);
-
-  const floor = DEMO_STOCK_CARDS.map((card) => {
-    // The floor follows the rarity filter: cheapest listing of this stock at that rarity.
-    const forCard = market.listings.filter((l) => l.card.ticker === card.ticker && (rarity === "all" || RARITY_NAMES[l.card.rarity] === rarity));
-    const cheapest = forCard.reduce<DemoListing | null>((m, l) => (m === null || (usdOf(l) ?? Infinity) < (usdOf(m) ?? Infinity) ? l : m), null);
-    return { card, count: forCard.length, floor: cheapest ? priceText(cheapest) : "—" };
-  });
+  const inRarity = (l: DemoListing) => rarity === "all" || RARITY_NAMES[l.card.rarity] === rarity;
+  const assets = useAssetFilter({ cards: DEMO_STOCK_CARDS, keep: () => true, listings: market.listings, tickerOf: (l) => l.card.ticker, usdOf, inView: inRarity });
+  const value = (l: DemoListing) => (l.currency === "BNB" ? l.price * (avaxUsd ?? 0) : l.price);
+  const shown = market.listings
+    .filter((l) => inRarity(l) && assets.matches(l))
+    .sort((a, b) => (sort === "price" ? value(a) - value(b) : b.id - a.id));
 
   function buy(l: DemoListing) {
     const ok = market.buy(l.id);
@@ -148,7 +143,7 @@ export function DemoMarket({ mode = "both" }: { mode?: MarketMode }) {
   return (
     <MarketLayout
       mode={mode}
-      floor={<FloorGrid label={rarity === "all" ? "demo market" : `${rarity.toLowerCase()} floor`} items={floor} action={mode === "browse" ? <SellButton /> : undefined} />}
+      floor={<AssetFilter label={rarity === "all" ? "demo market" : `${rarity.toLowerCase()} floor`} filter={assets} action={mode === "browse" ? <SellButton /> : undefined} />}
       listings={<>
           <ListingsHeader
             count={shown.length}
@@ -165,7 +160,7 @@ export function DemoMarket({ mode = "both" }: { mode?: MarketMode }) {
             <MarketState kind="loading" title="Loading listings…" />
           ) : shown.length === 0 ? (
             market.listings.length ? (
-              <MarketState title="Nothing listed in that rarity." action={<button type="button" className={stateAction} onClick={() => setRarity("all")}>Show all</button>} />
+              <MarketState title="Nothing listed here." action={<button type="button" className={stateAction} onClick={() => { setRarity("all"); assets.clear(); }}>Show all</button>} />
             ) : (
               <MarketState title="No listings yet." action={<Link href={SELL_HREF} className={stateAction}>Sell a card<ArrowUpRightIcon weight="bold" /></Link>} />
             )
