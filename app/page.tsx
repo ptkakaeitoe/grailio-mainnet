@@ -15,18 +15,18 @@ import { EDITIONS } from "@/lib/editions";
 
 const FLOW = [
   {
-    title: "Connect a wallet",
-    body: "MetaMask or Trust Wallet, on BNB Smart Chain.",
+    title: "Create an account",
+    body: "Sign in with Google, email or socials, or connect your own wallet.",
   },
   {
     title: "Choose a pack",
-    body: "Pick a risk tier. Every pack costs $1 in USDT.",
+    body: "Packs vary in risk and in the stocks backing them.",
   },
   {
     title: "Reveal a card",
     body: "Open it for a random tokenized stock, rarity, and backing.",
   },
-  { title: "Make it yours", body: "Keep, stake, list, or redeem your card." },
+  { title: "Make it yours", body: "Keep, list or redeem your card, or stake it to share in the revenue." },
 ];
 
 const CARD_ACTIONS = [
