@@ -69,7 +69,7 @@ const MORE = [
 ];
 
 /** The hero's three points, bottom right (balancing the headline top left). */
-const HERO_POINTS = ["Open packs.", "Collect cards.", "Stake or trade."];
+const HERO_POINTS = ["Open stock packs.", "Trade or redeem.", "Stake to earn."];
 
 const sectionSpace = "pt-24 desk:pt-32";
 const followingSectionSpace = "pt-32 desk:pt-44";
@@ -105,11 +105,11 @@ export default function Home() {
             {/* Three short lines of even length, so the type can be big and the block tall (the buttons land near the middle of the screen).
                 Sized to stay clear of the pack; nudged left by the letters' side bearing so the glyphs line up with the buttons. */}
             <h1 className="intro -ml-[0.05em] text-[clamp(30px,13vw,72px)] leading-[1.1] font-light tracking-[-0.035em] desk:text-[clamp(44px,min(6.8vw,11.5svh),128px)]">
-              <span className="whitespace-nowrap">Trade the</span>
+              <span className="whitespace-nowrap">Real Stocks</span>
               <br />
-              <span className="whitespace-nowrap">Stock You</span>
+              <span className="whitespace-nowrap">Inside Every</span>
               <br />
-              <span className="whitespace-nowrap">Collect.</span>
+              <span className="whitespace-nowrap">Card.</span>
             </h1>
             <div
               className={cn(
