@@ -1,3 +1,5 @@
+> **Testnet version (creator studio + memecoin launches):** code at [github.com/ptkakaeitoe/grailio](https://github.com/ptkakaeitoe/grailio), live at [testnet.grailio.xyz](https://testnet.grailio.xyz)
+
 <p align="center">
   <img src="brand/grailio-cover-3000x1000.png" alt="grailio: Trade the stock you collect. Two hands reaching for a Fable card pack." width="100%">
 </p>
